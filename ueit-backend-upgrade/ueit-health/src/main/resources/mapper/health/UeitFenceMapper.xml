@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ueit.health.mapper.UeitFenceMapper">
+
+    <resultMap type="UeitFence" id="UeitFenceResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="name"    column="name"    />
+        <result property="fenceType"    column="fence_type"    />
+        <result property="detail"    column="detail"    />
+        <result property="radius"    column="radius"    />
+        <result property="warnType"    column="warn_type"    />
+        <result property="status"    column="status"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="shape"    column="shape"    />
+        <result property="level"    column="level"    />
+        <result property="beginReadTime"    column="begin_read_time"    />
+        <result property="endReadTime"    column="end_read_time"    />
+    </resultMap>
+
+    <sql id="selectUeitFenceVo">
+        select id, user_id, name, fence_type, detail, radius, warn_type, status, longitude, latitude, create_time, shape, level, begin_read_time, end_read_time from ueit_fence
+    </sql>
+
+    <select id="selectUeitFenceList" parameterType="UeitFence" resultMap="UeitFenceResult">
+        <include refid="selectUeitFenceVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="fenceType != null  and fenceType != ''"> and fence_type = #{fenceType}</if>
+            <if test="detail != null  and detail != ''"> and detail = #{detail}</if>
+            <if test="radius != null  and radius != ''"> and radius = #{radius}</if>
+            <if test="warnType != null  and warnType != ''"> and warn_type = #{warnType}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="longitude != null  and longitude != ''"> and longitude = #{longitude}</if>
+            <if test="latitude != null  and latitude != ''"> and latitude = #{latitude}</if>
+            <if test="shape != null  and shape != ''"> and shape = #{shape}</if>
+            <if test="level != null  and level != ''"> and level = #{level}</if>
+            <if test="beginReadTime != null "> and begin_read_time = #{beginReadTime}</if>
+            <if test="endReadTime != null "> and end_read_time = #{endReadTime}</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectUeitFenceById" parameterType="Long" resultMap="UeitFenceResult">
+        <include refid="selectUeitFenceVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectUeitFenceListByUserId" resultType="com.ueit.health.domain.UeitFence">
+        select id, user_id, name, fence_type, detail, radius, warn_type, status, longitude, latitude, create_time, shape, level, begin_read_time, end_read_time from ueit_fence
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+        and status = 1
+        order by id desc
+    </select>
+
+    <insert id="insertUeitFence" parameterType="UeitFence" useGeneratedKeys="true" keyProperty="id">
+        insert into ueit_fence
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="name != null">name,</if>
+            <if test="fenceType != null">fence_type,</if>
+            <if test="detail != null">detail,</if>
+            <if test="radius != null">radius,</if>
+            <if test="warnType != null">warn_type,</if>
+            <if test="status != null">status,</if>
+            <if test="longitude != null">longitude,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="shape != null">shape,</if>
+            <if test="level != null">level,</if>
+            <if test="beginReadTime != null">begin_read_time,</if>
+            <if test="endReadTime != null">end_read_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="fenceType != null">#{fenceType},</if>
+            <if test="detail != null">#{detail},</if>
+            <if test="radius != null">#{radius},</if>
+            <if test="warnType != null">#{warnType},</if>
+            <if test="status != null">#{status},</if>
+            <if test="longitude != null">#{longitude},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="shape != null">#{shape},</if>
+            <if test="level != null">#{level},</if>
+            <if test="beginReadTime != null">#{beginReadTime},</if>
+            <if test="endReadTime != null">#{endReadTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateUeitFence" parameterType="UeitFence">
+        update ueit_fence
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="fenceType != null">fence_type = #{fenceType},</if>
+            <if test="detail != null">detail = #{detail},</if>
+            <if test="radius != null">radius = #{radius},</if>
+            <if test="warnType != null">warn_type = #{warnType},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="shape != null">shape = #{shape},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="beginReadTime != null">begin_read_time = #{beginReadTime},</if>
+            <if test="endReadTime != null">end_read_time = #{endReadTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <update id="updateFenceStatus" parameterType="UeitFence">
+        update ueit_fence
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <delete id="deleteUeitFenceById" parameterType="Long">
+        delete from ueit_fence where id = #{id}
+    </delete>
+
+    <delete id="deleteUeitFenceByIds" parameterType="String">
+        delete from ueit_fence where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

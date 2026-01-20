@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ueit.health.mapper.UeitStepsMapper">
+
+    <resultMap type="UeitSteps" id="UeitStepsResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="date"    column="date"    />
+        <result property="value"    column="value"    />
+        <result property="calories"    column="calories"    />
+        <result property="dateTime"    column="date_time"    />
+    </resultMap>
+
+    <sql id="selectUeitStepsVo">
+        select id, user_id, device_id, date, value, calories, date_time from ueit_steps
+    </sql>
+
+    <select id="selectUeitStepsList" parameterType="UeitSteps" resultMap="UeitStepsResult">
+        <include refid="selectUeitStepsVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deviceId != null "> and device_id = #{deviceId}</if>
+            <if test="date != null "> and date = #{date}</if>
+            <if test="value != null "> and value = #{value}</if>
+            <if test="calories != null "> and calories = #{calories}</if>
+            <if test="dateTime != null "> and date_time = #{dateTime}</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectUeitStepsById" parameterType="Long" resultMap="UeitStepsResult">
+        <include refid="selectUeitStepsVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectUeitSteps" resultType="com.ueit.health.domain.UeitSteps">
+        <include refid="selectUeitStepsVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deviceId != null "> and device_id = #{deviceId}</if>
+            <if test="date != null "> and DATE_FORMAT(date, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d')</if>
+        </where>
+    </select>
+    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitSteps">
+        select id, user_id, device_id, date, value, calories, date_time as readTime from ueit_steps
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="beginReadTime != null and endReadTime != null"> and date_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
+        </where>
+    </select>
+
+    <insert id="insertUeitSteps" parameterType="UeitSteps" useGeneratedKeys="true" keyProperty="id">
+        insert into ueit_steps
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="date != null">date,</if>
+            <if test="value != null">value,</if>
+            <if test="calories != null">calories,</if>
+            <if test="dateTime != null">date_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="date != null">#{date},</if>
+            <if test="value != null">#{value},</if>
+            <if test="calories != null">#{calories},</if>
+            <if test="dateTime != null">#{dateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUeitSteps" parameterType="UeitSteps">
+        update ueit_steps
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="date != null">date = #{date},</if>
+            <if test="value != null">value = #{value},</if>
+            <if test="calories != null">calories = #{calories},</if>
+            <if test="dateTime != null">date_time = #{dateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUeitStepsById" parameterType="Long">
+        delete from ueit_steps where id = #{id}
+    </delete>
+
+    <delete id="deleteUeitStepsByIds" parameterType="String">
+        delete from ueit_steps where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

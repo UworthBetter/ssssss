@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ueit.health.mapper.UeitSpo2Mapper">
+
+    <resultMap type="UeitSpo2" id="UeitSpo2Result">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="value"    column="value"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectUeitSpo2Vo">
+        select id, user_id, device_id, value, create_time from ueit_spo2
+    </sql>
+
+    <select id="selectUeitSpo2List" parameterType="UeitSpo2" resultMap="UeitSpo2Result">
+        <include refid="selectUeitSpo2Vo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deviceId != null "> and device_id = #{deviceId}</if>
+            <if test="value != null "> and value = #{value}</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectUeitSpo2ById" parameterType="Long" resultMap="UeitSpo2Result">
+        <include refid="selectUeitSpo2Vo"/>
+        where id = #{id}
+    </select>
+    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitSpo2">
+        select id, user_id, device_id, value, create_time as readTime from ueit_spo2
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="beginReadTime != null and endReadTime != null"> and create_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
+        </where>
+    </select>
+
+    <insert id="insertUeitSpo2" parameterType="UeitSpo2" useGeneratedKeys="true" keyProperty="id">
+        insert into ueit_spo2
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="value != null">value,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="value != null">#{value},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUeitSpo2" parameterType="UeitSpo2">
+        update ueit_spo2
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="value != null">value = #{value},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUeitSpo2ById" parameterType="Long">
+        delete from ueit_spo2 where id = #{id}
+    </delete>
+
+    <delete id="deleteUeitSpo2ByIds" parameterType="String">
+        delete from ueit_spo2 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
