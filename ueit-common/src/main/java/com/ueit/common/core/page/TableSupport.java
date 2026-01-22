@@ -54,3 +54,4 @@ public class TableSupport
         return getPageDomain();
     }
 }
+

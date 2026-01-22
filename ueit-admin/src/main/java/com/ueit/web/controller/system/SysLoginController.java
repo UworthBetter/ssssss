@@ -84,3 +84,4 @@ public class SysLoginController
         return AjaxResult.success(menuService.buildMenus(menus));
     }
 }
+

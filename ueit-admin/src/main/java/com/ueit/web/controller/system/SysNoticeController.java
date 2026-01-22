@@ -89,3 +89,4 @@ public class SysNoticeController extends BaseController
         return toAjax(noticeService.deleteNoticeByIds(noticeIds));
     }
 }
+

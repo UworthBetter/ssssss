@@ -266,3 +266,4 @@ public class RedisCache
         return redisTemplate.keys(pattern);
     }
 }
+

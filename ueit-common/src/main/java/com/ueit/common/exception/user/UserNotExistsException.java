@@ -14,3 +14,4 @@ public class UserNotExistsException extends UserException
         super("user.not.exists", null);
     }
 }
+

@@ -46,3 +46,4 @@ public interface ISysUserOnlineService
      */
     public SysUserOnline loginUserToUserOnline(LoginUser user);
 }
+

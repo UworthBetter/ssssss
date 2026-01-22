@@ -93,3 +93,4 @@ public class UeitDeviceInfoExtendServiceImpl implements IUeitDeviceInfoExtendSer
         return ueitDeviceInfoExtendMapper.deleteUeitDeviceInfoExtendByDeviceId(deviceId);
     }
 }
+

@@ -142,3 +142,4 @@ public class SysLogininfor extends BaseEntity
         this.loginTime = loginTime;
     }
 }
+

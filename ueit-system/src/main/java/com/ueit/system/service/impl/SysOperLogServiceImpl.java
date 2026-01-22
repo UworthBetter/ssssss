@@ -74,3 +74,4 @@ public class SysOperLogServiceImpl implements ISysOperLogService
         operLogMapper.cleanOperLog();
     }
 }
+

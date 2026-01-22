@@ -31,3 +31,4 @@ public @interface DataScope
      */
     public String permission() default "";
 }
+

@@ -77,3 +77,4 @@ public interface UeitStepsMapper
      */
     List<UeitSteps> getDataBoard(@Param("userId") int userId, @Param("beginReadTime") Date beginReadTime, @Param("endReadTime") Date endReadTime);
 }
+

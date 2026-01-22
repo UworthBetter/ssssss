@@ -16,3 +16,4 @@ public class LogUtils
         return "[" + msg.toString() + "]";
     }
 }
+

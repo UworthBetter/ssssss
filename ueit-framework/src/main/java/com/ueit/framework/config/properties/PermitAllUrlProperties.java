@@ -71,3 +71,4 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
         this.urls = urls;
     }
 }
+

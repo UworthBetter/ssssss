@@ -67,3 +67,4 @@ public class LoginBody
         this.uuid = uuid;
     }
 }
+

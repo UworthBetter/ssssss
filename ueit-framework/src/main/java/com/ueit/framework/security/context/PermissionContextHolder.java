@@ -25,3 +25,4 @@ public class PermissionContextHolder
                 RequestAttributes.SCOPE_REQUEST));
     }
 }
+

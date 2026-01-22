@@ -63,3 +63,4 @@ public class SysLogininforServiceImpl implements ISysLogininforService
         logininforMapper.cleanLogininfor();
     }
 }
+

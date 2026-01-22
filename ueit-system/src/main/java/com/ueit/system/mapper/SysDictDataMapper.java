@@ -93,3 +93,4 @@ public interface SysDictDataMapper
      */
     public int updateDictDataType(@Param("oldDictType") String oldDictType, @Param("newDictType") String newDictType);
 }
+

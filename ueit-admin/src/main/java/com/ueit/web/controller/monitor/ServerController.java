@@ -25,3 +25,4 @@ public class ServerController
         return AjaxResult.success(server);
     }
 }
+

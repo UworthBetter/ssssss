@@ -14,3 +14,4 @@ public class CaptchaException extends UserException
         super("user.jcaptcha.error", null);
     }
 }
+

@@ -67,3 +67,4 @@ public interface IUeitSpo2Service
      */
     public List<UeitSpo2> getDataBoard(int userId, Date beginReadTime, Date endReadTime);
 }
+

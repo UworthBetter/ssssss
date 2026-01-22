@@ -105,3 +105,4 @@ public abstract class AbstractQuartzJob implements Job
      */
     protected abstract void doExecute(JobExecutionContext context, SysJob sysJob) throws Exception;
 }
+

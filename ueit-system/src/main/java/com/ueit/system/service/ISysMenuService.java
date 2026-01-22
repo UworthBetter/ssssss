@@ -142,3 +142,4 @@ public interface ISysMenuService
      */
     public boolean checkMenuNameUnique(SysMenu menu);
 }
+

@@ -38,3 +38,4 @@ public interface ISysLogininforService
      */
     public void cleanLogininfor();
 }
+

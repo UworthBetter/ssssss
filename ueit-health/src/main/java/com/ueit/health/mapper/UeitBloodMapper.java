@@ -73,3 +73,4 @@ public interface UeitBloodMapper
     // 年龄,性别分类数据
     public AgeSexGroupCountDto getAgeSexGroupCount();
 }
+

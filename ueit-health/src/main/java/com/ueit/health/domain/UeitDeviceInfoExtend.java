@@ -340,3 +340,4 @@ public class UeitDeviceInfoExtend extends BaseEntity {
                 .toString();
     }
 }
+

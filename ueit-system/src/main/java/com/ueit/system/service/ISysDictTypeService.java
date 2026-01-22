@@ -96,3 +96,4 @@ public interface ISysDictTypeService
      */
     public boolean checkDictTypeUnique(SysDictType dictType);
 }
+

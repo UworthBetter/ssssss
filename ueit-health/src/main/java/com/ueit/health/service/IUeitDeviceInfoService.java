@@ -95,3 +95,4 @@ public interface IUeitDeviceInfoService
      */
     List<UserDevice>  getUserDeviceByUserId(int userId);
 }
+

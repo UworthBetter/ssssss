@@ -97,3 +97,4 @@ public interface SysPostMapper
      */
     public SysPost checkPostCodeUnique(String postCode);
 }
+

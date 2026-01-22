@@ -58,3 +58,4 @@ public interface ISysDictDataService
      */
     public int updateDictData(SysDictData dictData);
 }
+

@@ -24,3 +24,4 @@ public class UtilException extends RuntimeException
         super(message, throwable);
     }
 }
+

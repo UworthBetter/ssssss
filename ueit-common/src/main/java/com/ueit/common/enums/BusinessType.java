@@ -57,3 +57,4 @@ public enum BusinessType
      */
     CLEAN,
 }
+

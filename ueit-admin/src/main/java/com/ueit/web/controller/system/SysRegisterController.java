@@ -36,3 +36,4 @@ public class SysRegisterController extends BaseController
         return StringUtils.isEmpty(msg) ? success() : error(msg);
     }
 }
+

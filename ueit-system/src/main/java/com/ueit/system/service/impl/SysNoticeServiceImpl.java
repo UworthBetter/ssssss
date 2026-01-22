@@ -90,3 +90,4 @@ public class SysNoticeServiceImpl implements ISysNoticeService
         return noticeMapper.deleteNoticeByIds(noticeIds);
     }
 }
+

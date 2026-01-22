@@ -95,3 +95,4 @@ public class BaseException extends RuntimeException
         return defaultMessage;
     }
 }
+

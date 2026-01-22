@@ -59,3 +59,4 @@ public interface IUeitDeviceInfoExtendService
      */
     public int deleteUeitDeviceInfoExtendByDeviceId(Long deviceId);
 }
+

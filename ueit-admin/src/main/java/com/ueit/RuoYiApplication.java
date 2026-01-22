@@ -19,3 +19,6 @@ public class RuoYiApplication
         System.out.println("------    启动成功    ------ \n");
     }
 }
+
+
+

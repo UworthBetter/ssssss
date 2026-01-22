@@ -106,3 +106,4 @@ public class UeitHeartRateServiceImpl implements IUeitHeartRateService
         return ueitHeartRateMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
+

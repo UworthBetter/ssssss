@@ -66,3 +66,4 @@ public interface IUeitBloodService
      */
     public List<UeitBlood> getDataBoard(int userId, Date beginReadTime, Date endReadTime);
 }
+

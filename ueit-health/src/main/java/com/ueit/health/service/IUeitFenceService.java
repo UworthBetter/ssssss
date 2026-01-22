@@ -77,3 +77,4 @@ public interface IUeitFenceService
      */
     int operateUeitFence(UeitFence ueitFence);
 }
+

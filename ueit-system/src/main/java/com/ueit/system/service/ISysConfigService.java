@@ -87,3 +87,4 @@ public interface ISysConfigService
      */
     public boolean checkConfigKeyUnique(SysConfig config);
 }
+

@@ -14,3 +14,4 @@ public class UserPasswordRetryLimitExceedException extends UserException
         super("user.password.retry.limit.exceed", new Object[] { retryLimitCount, lockTime });
     }
 }
+

@@ -171,3 +171,4 @@ public interface ISysRoleService
      */
     public int insertAuthUsers(Long roleId, Long[] userIds);
 }
+

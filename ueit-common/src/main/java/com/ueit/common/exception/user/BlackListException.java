@@ -14,3 +14,4 @@ public class BlackListException extends UserException
         super("login.blocked", null);
     }
 }
+

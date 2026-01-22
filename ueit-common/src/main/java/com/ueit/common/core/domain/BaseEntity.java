@@ -116,3 +116,4 @@ public class BaseEntity implements Serializable
         this.params = params;
     }
 }
+

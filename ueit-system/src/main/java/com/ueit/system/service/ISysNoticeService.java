@@ -58,3 +58,4 @@ public interface ISysNoticeService
      */
     public int deleteNoticeByIds(Long[] noticeIds);
 }
+

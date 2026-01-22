@@ -130,3 +130,4 @@ public class SysDeptController extends BaseController
         return toAjax(deptService.deleteDeptById(deptId));
     }
 }
+

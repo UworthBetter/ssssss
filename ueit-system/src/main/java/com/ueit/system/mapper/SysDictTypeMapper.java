@@ -81,3 +81,4 @@ public interface SysDictTypeMapper
      */
     public SysDictType checkDictTypeUnique(String dictType);
 }
+

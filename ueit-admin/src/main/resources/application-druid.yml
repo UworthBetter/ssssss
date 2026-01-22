@@ -6,7 +6,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://localhost:3306/ueit_jkpt?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+                url: jdbc:mysql://localhost:3306/ueit_jkpt?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
                 username: root
                 password: 123456
             # 从库数据源
@@ -62,7 +62,7 @@ spring:
     # redis 配置
     redis:
         # 地址
-        host: localhost
+        host: 192.168.1.228
         # 端口，默认为6379
         port: 6379
         # 数据库索引

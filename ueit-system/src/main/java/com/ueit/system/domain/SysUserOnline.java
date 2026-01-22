@@ -111,3 +111,4 @@ public class SysUserOnline
         this.loginTime = loginTime;
     }
 }
+

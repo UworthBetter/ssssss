@@ -3,7 +3,7 @@ package com.ueit.framework.web.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,8 @@ import com.ueit.common.utils.uuid.IdUtils;
 import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 
 /**
  * token验证处理
@@ -176,9 +177,11 @@ public class TokenService
      */
     private String createToken(Map<String, Object> claims)
     {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         String token = Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .claims(claims)
+                .signWith(key)
+                .compact();
         return token;
     }
 
@@ -190,10 +193,12 @@ public class TokenService
      */
     private Claims parseToken(String token)
     {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     /**
@@ -229,3 +234,4 @@ public class TokenService
         return CacheConstants.LOGIN_TOKEN_KEY + uuid;
     }
 }
+

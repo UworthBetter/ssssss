@@ -35,3 +35,4 @@ public class WatchBNPushActionType {
      */
     public final static String LOCATION = "LOCATION";
 }
+

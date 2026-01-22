@@ -74,3 +74,4 @@ public class IndexServiceImpl implements IndexService {
         return deviceInfoExtendMapper.indexUserLocation();
     }
 }
+

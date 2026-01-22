@@ -1,6 +1,6 @@
 package com.ueit.generator.domain;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import com.ueit.common.core.domain.BaseEntity;
 import com.ueit.common.utils.StringUtils;
 
@@ -371,3 +371,4 @@ public class GenTableColumn extends BaseEntity
         }
     }
 }
+

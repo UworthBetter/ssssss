@@ -112,3 +112,4 @@ public class Arith
         return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
     }
 }
+

@@ -81,3 +81,4 @@ public interface GenTableMapper
      */
     public int deleteGenTableByIds(Long[] ids);
 }
+

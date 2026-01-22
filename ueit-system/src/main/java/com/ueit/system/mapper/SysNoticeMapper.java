@@ -58,3 +58,4 @@ public interface SysNoticeMapper
      */
     public int deleteNoticeByIds(Long[] noticeIds);
 }
+

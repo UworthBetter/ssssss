@@ -97,3 +97,4 @@ public interface ISysPostService
      */
     public int updatePost(SysPost post);
 }
+

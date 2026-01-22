@@ -82,3 +82,4 @@ public class UeitSpo2 extends BaseEntity
             .toString();
     }
 }
+

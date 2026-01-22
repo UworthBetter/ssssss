@@ -42,3 +42,4 @@ public interface SysRoleMenuMapper
      */
     public int batchRoleMenu(List<SysRoleMenu> roleMenuList);
 }
+

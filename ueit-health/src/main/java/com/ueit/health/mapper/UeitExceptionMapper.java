@@ -80,3 +80,4 @@ public interface UeitExceptionMapper
      */
     List<UeitException> selectUeitExceptionListByUserId(int userId);
 }
+

@@ -123,3 +123,4 @@ public interface SysMenuMapper
      */
     public SysMenu checkMenuNameUnique(@Param("menuName") String menuName, @Param("parentId") Long parentId);
 }
+

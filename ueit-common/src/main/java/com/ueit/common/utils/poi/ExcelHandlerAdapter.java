@@ -22,3 +22,4 @@ public interface ExcelHandlerAdapter
      */
     Object format(Object value, String[] args, Cell cell, Workbook wb);
 }
+

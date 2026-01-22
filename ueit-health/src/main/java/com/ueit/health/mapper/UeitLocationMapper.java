@@ -91,3 +91,4 @@ public interface UeitLocationMapper
      */
     List<RealTimeTracking> pathList(@Param("coordinateType")String coordinateType, @Param("beginReadTime") Date beginReadTime, @Param("endReadTime") Date endReadTime, @Param("userId") int userId);
 }
+

@@ -67,3 +67,4 @@ public interface IUeitTempService
      */
     public List<UeitTemp> getDataBoard(int userId, Date beginReadTime, Date endReadTime);
 }
+

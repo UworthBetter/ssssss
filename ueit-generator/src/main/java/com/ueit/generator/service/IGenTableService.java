@@ -119,3 +119,4 @@ public interface IGenTableService
      */
     public void validateEdit(GenTable genTable);
 }
+

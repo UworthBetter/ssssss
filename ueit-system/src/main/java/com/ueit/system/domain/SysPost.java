@@ -1,8 +1,8 @@
 package com.ueit.system.domain;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ueit.common.annotation.Excel;
@@ -122,3 +122,4 @@ public class SysPost extends BaseEntity
             .toString();
     }
 }
+

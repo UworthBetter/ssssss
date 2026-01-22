@@ -1,7 +1,7 @@
 package com.ueit.quartz.service.impl;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -259,3 +259,4 @@ public class SysJobServiceImpl implements ISysJobService
         return CronUtils.isValid(cronExpression);
     }
 }
+

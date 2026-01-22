@@ -26,3 +26,4 @@ public class AuthenticationContextHolder
         contextHolder.remove();
     }
 }
+

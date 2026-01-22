@@ -126,3 +126,4 @@ public interface SysUserMapper
      */
     public SysUser checkEmailUnique(String email);
 }
+

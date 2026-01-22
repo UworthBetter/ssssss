@@ -71,3 +71,4 @@ public class GenConfig
         GenConfig.tablePrefix = tablePrefix;
     }
 }
+

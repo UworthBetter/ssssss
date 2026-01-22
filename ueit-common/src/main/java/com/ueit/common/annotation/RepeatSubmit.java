@@ -29,3 +29,4 @@ public @interface RepeatSubmit
      */
     public String message() default "不允许重复提交，请稍候再试";
 }
+

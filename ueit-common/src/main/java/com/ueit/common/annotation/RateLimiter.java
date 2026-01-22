@@ -38,3 +38,4 @@ public @interface RateLimiter
      */
     public LimitType limitType() default LimitType.DEFAULT;
 }
+

@@ -19,3 +19,4 @@ public class QuartzDisallowConcurrentExecution extends AbstractQuartzJob
         JobInvokeUtil.invokeMethod(sysJob);
     }
 }
+

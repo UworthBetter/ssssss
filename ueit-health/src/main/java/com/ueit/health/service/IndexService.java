@@ -21,3 +21,4 @@ public interface IndexService {
     //查询实时数据
     List indexUserLocation();
 }
+

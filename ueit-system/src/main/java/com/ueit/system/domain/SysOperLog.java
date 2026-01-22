@@ -267,3 +267,4 @@ public class SysOperLog extends BaseEntity
         this.costTime = costTime;
     }
 }
+

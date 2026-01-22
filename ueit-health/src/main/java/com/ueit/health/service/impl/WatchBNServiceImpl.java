@@ -614,3 +614,4 @@ public class WatchBNServiceImpl implements WatchBNService {
         ueitExceptionService.insertUeitException(exception);
     }
 }
+

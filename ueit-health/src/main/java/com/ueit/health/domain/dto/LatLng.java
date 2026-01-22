@@ -14,3 +14,4 @@ public class LatLng {
         this.lng = lng;
     }
 }
+

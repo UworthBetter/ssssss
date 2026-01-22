@@ -100,3 +100,4 @@ public interface ISysJobService
      */
     public boolean checkCronExpressionIsValid(String cronExpression);
 }
+

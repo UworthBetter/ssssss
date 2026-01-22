@@ -105,3 +105,4 @@ public interface SysRoleMapper
      */
     public int deleteRoleByIds(Long[] roleIds);
 }
+

@@ -40,3 +40,4 @@ public class WatchPushActionType {
      */
     public final static String LOCATION = "location";
 }
+

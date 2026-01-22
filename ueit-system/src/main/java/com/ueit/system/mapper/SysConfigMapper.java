@@ -74,3 +74,4 @@ public interface SysConfigMapper
      */
     public int deleteConfigByIds(Long[] configIds);
 }
+

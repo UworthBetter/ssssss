@@ -115,3 +115,4 @@ public class GenConstants
     /** 需要 */
     public static final String REQUIRE = "1";
 }
+

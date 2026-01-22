@@ -14,3 +14,4 @@ public class UserPasswordNotMatchException extends UserException
         super("user.password.not.match", null);
     }
 }
+

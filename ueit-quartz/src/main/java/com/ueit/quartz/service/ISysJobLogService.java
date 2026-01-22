@@ -54,3 +54,4 @@ public interface ISysJobLogService
      */
     public void cleanJobLog();
 }
+

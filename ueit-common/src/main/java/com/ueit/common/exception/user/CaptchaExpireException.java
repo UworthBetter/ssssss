@@ -14,3 +14,4 @@ public class CaptchaExpireException extends UserException
         super("user.jcaptcha.expire", null);
     }
 }
+

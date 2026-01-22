@@ -67,3 +67,4 @@ public interface IUeitHeartRateService
     public List<UeitHeartRate> getDataBoard(int userId, Date beginReadTime, Date endReadTime);
 
 }
+

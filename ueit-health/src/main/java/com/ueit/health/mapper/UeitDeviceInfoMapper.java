@@ -94,3 +94,4 @@ public interface UeitDeviceInfoMapper
      */
     List<UserDevice> userDeviceByUserId(int userId);
 }
+

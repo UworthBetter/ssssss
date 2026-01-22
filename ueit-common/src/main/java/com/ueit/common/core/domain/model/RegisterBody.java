@@ -9,3 +9,4 @@ public class RegisterBody extends LoginBody
 {
 
 }
+

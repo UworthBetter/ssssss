@@ -59,3 +59,4 @@ public interface DataService {
      */
     List getUserDeviceByUserId(int userId);
 }
+

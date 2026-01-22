@@ -17,3 +17,4 @@ public class QuartzJobExecution extends AbstractQuartzJob
         JobInvokeUtil.invokeMethod(sysJob);
     }
 }
+

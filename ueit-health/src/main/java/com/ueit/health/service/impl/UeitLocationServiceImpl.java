@@ -132,3 +132,4 @@ public class UeitLocationServiceImpl implements IUeitLocationService {
         return ueitLocationMapper.pathList(coordinateType,beginReadTime,endReadTime,userId);
     }
 }
+

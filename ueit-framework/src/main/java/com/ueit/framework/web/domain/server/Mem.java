@@ -59,3 +59,4 @@ public class Mem
         return Arith.mul(Arith.div(used, total, 4), 100);
     }
 }
+

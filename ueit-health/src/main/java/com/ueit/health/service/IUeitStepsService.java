@@ -75,3 +75,4 @@ public interface IUeitStepsService
      */
     public List<UeitSteps> getDataBoard(int userId, Date beginReadTime, Date endReadTime);
 }
+

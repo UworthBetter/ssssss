@@ -99,3 +99,4 @@ public class Cpu
         this.free = free;
     }
 }
+

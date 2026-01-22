@@ -97,3 +97,4 @@ public class UeitBlood extends BaseEntity
             .toString();
     }
 }
+

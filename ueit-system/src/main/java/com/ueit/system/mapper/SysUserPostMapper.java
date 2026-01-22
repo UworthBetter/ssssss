@@ -42,3 +42,4 @@ public interface SysUserPostMapper
      */
     public int batchUserPost(List<SysUserPost> userPostList);
 }
+

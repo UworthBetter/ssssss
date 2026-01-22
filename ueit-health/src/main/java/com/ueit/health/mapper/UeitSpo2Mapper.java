@@ -71,3 +71,4 @@ public interface UeitSpo2Mapper
      */
     List<UeitSpo2> getDataBoard(@Param("userId") int userId, @Param("beginReadTime") Date beginReadTime, @Param("endReadTime") Date endReadTime);
 }
+

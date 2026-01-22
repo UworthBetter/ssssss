@@ -1,6 +1,6 @@
 package com.ueit.framework.config;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import com.ueit.common.utils.ServletUtils;
 
@@ -30,3 +30,4 @@ public class ServerConfig
         return url.delete(url.length() - request.getRequestURI().length(), url.length()).append(contextPath).toString();
     }
 }
+

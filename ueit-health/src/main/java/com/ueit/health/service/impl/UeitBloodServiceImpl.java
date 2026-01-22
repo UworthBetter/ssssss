@@ -1,5 +1,4 @@
 package com.ueit.health.service.impl;
-
 import java.util.Date;
 import java.util.List;
 import com.ueit.common.utils.DateUtils;
@@ -106,3 +105,4 @@ public class UeitBloodServiceImpl implements IUeitBloodService
         return ueitBloodMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
+

@@ -64,3 +64,4 @@ public class UserDetailsServiceImpl implements UserDetailsService
         return new LoginUser(user.getUserId(), user.getDeptId(), user, permissionService.getMenuPermission(user));
     }
 }
+

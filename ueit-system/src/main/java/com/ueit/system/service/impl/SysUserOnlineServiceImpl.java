@@ -94,3 +94,4 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
         return sysUserOnline;
     }
 }
+

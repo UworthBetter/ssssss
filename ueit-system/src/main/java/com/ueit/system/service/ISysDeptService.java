@@ -122,3 +122,4 @@ public interface ISysDeptService
      */
     public int deleteDeptById(Long deptId);
 }
+

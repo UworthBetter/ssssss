@@ -46,3 +46,4 @@ public interface ISysOperLogService
      */
     public void cleanOperLog();
 }
+

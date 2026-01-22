@@ -1,7 +1,7 @@
 package com.ueit.health.controller;
 
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -102,3 +102,4 @@ public class UeitDeviceInfoExtendController extends BaseController
         return toAjax(ueitDeviceInfoExtendService.deleteUeitDeviceInfoExtendByDeviceIds(deviceIds));
     }
 }
+

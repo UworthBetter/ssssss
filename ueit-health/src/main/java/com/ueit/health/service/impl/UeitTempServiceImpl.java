@@ -106,3 +106,4 @@ public class UeitTempServiceImpl implements IUeitTempService
         return ueitTempMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
+

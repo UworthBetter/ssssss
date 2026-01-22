@@ -26,3 +26,4 @@ public @interface DataSource
      */
     public DataSourceType value() default DataSourceType.MASTER;
 }
+

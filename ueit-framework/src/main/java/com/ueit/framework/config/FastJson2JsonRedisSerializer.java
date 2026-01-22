@@ -50,3 +50,4 @@ public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T>
         return JSON.parseObject(str, clazz, AUTO_TYPE_FILTER);
     }
 }
+

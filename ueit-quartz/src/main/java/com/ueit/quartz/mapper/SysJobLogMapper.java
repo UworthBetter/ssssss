@@ -62,3 +62,4 @@ public interface SysJobLogMapper
      */
     public void cleanJobLog();
 }
+

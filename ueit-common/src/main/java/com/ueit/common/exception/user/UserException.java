@@ -16,3 +16,4 @@ public class UserException extends BaseException
         super("user", code, args, null);
     }
 }
+

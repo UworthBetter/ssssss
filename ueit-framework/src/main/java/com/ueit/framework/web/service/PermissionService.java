@@ -157,3 +157,4 @@ public class PermissionService
         return permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission));
     }
 }
+

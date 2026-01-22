@@ -34,12 +34,10 @@ echo ====================================
 echo.
 echo [1] 启动后端 (升级版 - Spring Boot 3.2.2 + Java 17)
 echo [2] 启动前端 (Vue3 + Vite - 端口 8080)
-echo [3] 启动前端 (Vue2 - 稳定版本 - 端口 8080)
-echo [4] 一键启动 (后端 + Vue3前端)
-echo [5] 一键启动 (后端 + Vue2前端)
-echo [6] 查看运行状态
-echo [7] 停止所有服务
-echo [8] 重新启动所有服务
+echo [3] 一键启动 (后端 + Vue3前端)
+echo [4] 查看运行状态
+echo [5] 停止所有服务
+echo [6] 重新启动所有服务
 echo [0] 退出
 echo.
 echo ====================================
@@ -48,12 +46,10 @@ set /p choice="请输入选项: "
 
 if "%choice%"=="1" goto start-backend
 if "%choice%"=="2" goto start-frontend-vue3
-if "%choice%"=="3" goto start-frontend-vue2
-if "%choice%"=="4" goto start-all-vue3
-if "%choice%"=="5" goto start-all-vue2
-if "%choice%"=="6" goto check-status
-if "%choice%"=="7" goto stop-all
-if "%choice%"=="8" goto restart-all
+if "%choice%"=="3" goto start-all-vue3
+if "%choice%"=="4" goto check-status
+if "%choice%"=="5" goto stop-all
+if "%choice%"=="6" goto restart-all
 if "%choice%"=="0" goto exit
 goto menu
 
@@ -68,17 +64,6 @@ goto menu
 echo.
 echo 正在启动前端 (Vue3)...
 cd /d d:\jishe\1.19\RuoYi-Vue3-Modern
-start /MIN "Frontend" cmd /c "npm run dev"
-timeout /t 3 /nobreak >nul
-echo.
-echo 前端已启动: http://localhost:8080
-pause
-goto menu
-
-:start-frontend-vue2
-echo.
-echo 正在启动前端 (Vue2)...
-cd /d d:\jishe\1.19\ueit-ui
 start /MIN "Frontend" cmd /c "npm run dev"
 timeout /t 3 /nobreak >nul
 echo.
@@ -157,18 +142,30 @@ goto menu
 
 :stop-all
 echo.
-call d:\jishe\1.19\stop-simple-v2.bat
+echo 正在停止后端（Java）...
+taskkill /F /IM java.exe
+echo.
+echo 正在停止前端（Node.js）...
+taskkill /F /IM node.exe
+echo.
+echo ====================================
+echo 停止完成！
+echo ====================================
+echo.
 pause
 goto menu
 
 :restart-all
 echo.
 echo 正在停止所有服务...
-call d:\jishe\1.19\stop-simple-v2.bat
+echo 正在停止后端（Java）...
+taskkill /F /IM java.exe
+echo 正在停止前端（Node.js）...
+taskkill /F /IM node.exe
 timeout /t 2 /nobreak >nul
 echo.
 echo 正在重新启动...
-goto start-all
+goto start-all-vue3
 
 :exit
 exit

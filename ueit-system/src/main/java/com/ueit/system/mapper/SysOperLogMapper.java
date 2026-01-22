@@ -46,3 +46,4 @@ public interface SysOperLogMapper
      */
     public void cleanOperLog();
 }
+

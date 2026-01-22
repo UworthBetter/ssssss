@@ -59,3 +59,4 @@ public class IndexController extends BaseController {
         return success(indexService.indexUserLocation());
     }
 }
+

@@ -61,17 +61,35 @@ spring:
       # 设置总上传的文件大小
       max-request-size: 20MB
   # 服务模块
+  input:
+    file:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   devtools:
     restart:
       # 热部署开关
       enabled: true
+  # Spring AI配置
+  ai:
+    openai:
+      # API Key (请替换为实际的API Key，支持OpenAI、Azure OpenAI或兼容的API)
+      api-key: ${AI_API_KEY:your-api-key-here}
+      # 基础URL，可以修改为国内API服务商（如通义千问、智谱AI等）
+      base-url: ${AI_BASE_URL:https://api.openai.com}
+      chat:
+        options:
+          # 模型名称
+          model: ${AI_MODEL:gpt-3.5-turbo}
+          # 温度参数 (0-2)
+          temperature: ${AI_TEMPERATURE:0.7}
 
 # token配置
 token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥
-  secret: abcdefghijklmnopqrstuvwxyz
+  secret: abcdefghijklmnopqrstuvwxyz1234567890ABCDEF
   # 令牌有效期（默认30分钟）
   expireTime: 30
 

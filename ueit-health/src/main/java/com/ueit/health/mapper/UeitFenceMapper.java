@@ -73,3 +73,4 @@ public interface UeitFenceMapper
      */
     public int deleteUeitFenceByIds(Long[] ids);
 }
+

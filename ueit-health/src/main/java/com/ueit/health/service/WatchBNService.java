@@ -15,3 +15,4 @@ public interface WatchBNService {
      */
     public AjaxResult handle(WatchBNDto watchBNDto);
 }
+

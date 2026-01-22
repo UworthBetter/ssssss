@@ -2,7 +2,7 @@ package com.ueit.system.service.impl;
 
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ueit.common.annotation.DataSource;
@@ -230,3 +230,4 @@ public class SysConfigServiceImpl implements ISysConfigService
         return CacheConstants.SYS_CONFIG_KEY + configKey;
     }
 }
+

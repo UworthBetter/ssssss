@@ -87,3 +87,4 @@ public interface IUeitLocationService
      */
     List<RealTimeTracking> pathList(String coordinateType, Date beginReadTime, Date endReadTime, int userId);
 }
+

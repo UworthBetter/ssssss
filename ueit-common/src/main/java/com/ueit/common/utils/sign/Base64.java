@@ -289,3 +289,4 @@ public final class Base64
         return newSize;
     }
 }
+

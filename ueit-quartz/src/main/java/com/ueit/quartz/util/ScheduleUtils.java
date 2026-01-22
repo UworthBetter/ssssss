@@ -139,3 +139,4 @@ public class ScheduleUtils
                 && !StringUtils.containsAnyIgnoreCase(beanPackageName, Constants.JOB_ERROR_STR);
     }
 }
+

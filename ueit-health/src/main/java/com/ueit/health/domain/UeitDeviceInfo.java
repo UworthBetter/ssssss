@@ -101,3 +101,4 @@ public class UeitDeviceInfo extends BaseEntity
             .toString();
     }
 }
+

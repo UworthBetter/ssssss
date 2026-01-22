@@ -222,3 +222,4 @@ public class UeitFence extends BaseEntity
                 .toString();
     }
 }
+

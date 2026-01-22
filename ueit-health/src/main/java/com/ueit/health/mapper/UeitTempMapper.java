@@ -71,3 +71,4 @@ public interface UeitTempMapper
      */
     List<UeitTemp> getDataBoard(@Param("userId") int userId, @Param("beginReadTime") Date beginReadTime, @Param("endReadTime") Date endReadTime);
 }
+
