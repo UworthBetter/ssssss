@@ -49,6 +49,25 @@ public class AiServiceImpl implements IAiService {
                 .call()
                 .chatResponse();
     }
+
+    @Override
+    public String detectFall(com.ueit.ai.domain.FallDetectionRequest request) {
+        try {
+            // 调用 Python 算法服务
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String pythonServiceUrl = "http://localhost:8000/api/algorithms/detect_fall";
+
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+            org.springframework.http.HttpEntity<com.ueit.ai.domain.FallDetectionRequest> entity = new org.springframework.http.HttpEntity<>(
+                    request, headers);
+
+            String response = restTemplate.postForObject(pythonServiceUrl, entity, String.class);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\": \"算法服务调用失败: " + e.getMessage() + "\"}";
+        }
+    }
 }
-
-

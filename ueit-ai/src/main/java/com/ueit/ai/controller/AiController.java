@@ -47,5 +47,18 @@ public class AiController {
             return AjaxResult.error("测试失败：" + e.getMessage());
         }
     }
-}
 
+    /**
+     * 嘉庆算法-跌倒检测
+     */
+    @Operation(summary = "跌倒检测", description = "基于传感器数据的AI跌倒检测")
+    @PostMapping("/detect/fall")
+    public AjaxResult detectFall(@RequestBody com.ueit.ai.domain.FallDetectionRequest request) {
+        try {
+            String result = aiService.detectFall(request);
+            return AjaxResult.success(result);
+        } catch (Exception e) {
+            return AjaxResult.error("检测失败：" + e.getMessage());
+        }
+    }
+}

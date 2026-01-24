@@ -34,6 +34,12 @@ public interface IAiService {
      * @return 响应对象
      */
     ChatResponse chatWithResponse(String message);
+
+    /**
+     * 跌倒检测 (Jiaqing Algorithm)
+     * 
+     * @param request 检测请求参数
+     * @return 检测结果 JSON字符串
+     */
+    String detectFall(com.ueit.ai.domain.FallDetectionRequest request);
 }
-
-
