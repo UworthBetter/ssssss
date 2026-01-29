@@ -111,6 +111,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/captchaImage").permitAll()
                         .requestMatchers("/watch/push").permitAll()
                         .requestMatchers("/watch/require").permitAll()
+                        // 健康数据模拟上传接口，允许匿名访问（设备鉴权）
+                        .requestMatchers("/health/mock/**").permitAll()
                         // 静态资源，可匿名访问
                         .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.html", "/**/*.css", "/**/*.js",
                                 "/profile/**")
