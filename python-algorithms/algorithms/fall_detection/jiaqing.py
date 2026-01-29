@@ -51,44 +51,58 @@ class JiaqingDetection:
 
     def _llm_enhancement(self, data, traditional_result):
         """
-        Use LLM to verify the fall and analyze context.
+        Use LLM to verify the fall and analyze context (Detective Mode).
         """
         system_prompt = """
-        You are "Jiaqing", an advanced AI Fall Detection Analyst for smart health watches. 
-        Your goal is to distinguish between REAL FALLS and FALSE ALARMS (like jumping, clapping, hard sitting).
+        You are 'Jiaqing' (嘉庆), an intelligent Senior Safety Detective. 
+        Your mission is to analyze sensor data to determine if a senior citizen has TRULY fallen, or if it is a false alarm.
+
+        # RULES
+        1. **Language**: You MUST output your reasoning and recommendations in **Simplified Chinese (简体中文)**.
+        2. **Context**: Analyze Location, Time, and Vitals.
         
-        Analyze the provided sensor context JSON.
-        
-        Output valid JSON only:
+        # YOUR OUTPUT (JSON)
         {
-            "is_fall": boolean,
-            "confidence": float (0.0-1.0),
-            "reasoning": "string explanation",
-            "severity": "low"|"medium"|"high",
-            "action_recommendation": "string"
+            "is_fall": boolean, 
+            "confidence": float, 
+            "severity": "low" | "medium" | "critical",
+            "reasoning": "用中文解释你的推理过程 (e.g., '检测到高加速度，但发生在公园跑步期间...').",
+            "action_recommendation": "用中文建议后续行动 (e.g., '立即拨打120', '确认老人状态', '无需处理')."
         }
         """
         
         # Enrich data with derived metrics for LLM
+        # In a real app, 'history' comes from a database.
         context_data = {
-            "sensor_raw": data,
-            "traditional_analysis": traditional_result,
-            "user_profile": {
-                "age": data.get('age', 60),
-                "history": "Previous fall recorded 2 months ago"
+            "evidence": {
+                "sensor_metrics": {
+                    "acceleration_magnitude": f"{traditional_result.get('magnitude', 0):.2f} G",
+                    "heart_rate": data.get('heart_rate', 'unknown'),
+                    "blood_pressure": data.get('blood_pressure', 'unknown')
+                },
+                "context": {
+                    "location": data.get('location', "unknown"),
+                    "timestamp": data.get('timestamp', "unknown"),
+                    "activity_status": data.get('activity_status', "unknown") # e.g., 'walking', 'sleeping'
+                },
+                "suspect_profile": {
+                    "age": data.get('age', 65),
+                    "notes": data.get('medical_history', "Hypertension")
+                }
             },
-            "environment": {
-                "location": data.get('location', "unknown"),
-                "time": data.get('timestamp', "unknown")
-            }
+            "initial_suspect_analysis": traditional_result
         }
         
         response = self.llm.analyze_json(system_prompt, context_data)
         
         try:
-            # Try to parse LLM JSON
-            # Clean up potential markdown code blocks
-            response_clean = response.replace("```json", "").replace("```", "").strip()
+            # Robust JSON cleaning
+            response_clean = response.strip()
+            if "```json" in response_clean:
+                response_clean = response_clean.split("```json")[1].split("```")[0].strip()
+            elif "```" in response_clean:
+                response_clean = response_clean.split("```")[1].split("```")[0].strip()
+                
             result_json = json.loads(response_clean)
             
             # Merge results
@@ -106,6 +120,7 @@ class JiaqingDetection:
             
         except Exception as e:
             print(f"LLM parsing failed: {e}. Raw response: {response}")
-            # Fallback to traditional result if LLM fails
-            traditional_result['llm_error'] = str(e)
+            # Fallback to traditional result if LLM fails, but mark error
+            traditional_result['llm_verification_failed'] = True
+            traditional_result['llm_raw_response'] = response
             return traditional_result
