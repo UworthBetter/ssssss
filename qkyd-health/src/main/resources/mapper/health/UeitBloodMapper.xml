@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ueit.health.mapper.UeitBloodMapper">
+
+    <resultMap type="UeitBlood" id="UeitBloodResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="diastolic"    column="diastolic"    />
+        <result property="systolic"    column="systolic"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectUeitBloodVo">
+        select id, user_id, device_id, diastolic, systolic, create_time from qkyd_blood
+    </sql>
+
+    <select id="selectUeitBloodList" parameterType="UeitBlood" resultMap="UeitBloodResult">
+        <include refid="selectUeitBloodVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="deviceId != null "> and device_id = #{deviceId}</if>
+            <if test="diastolic != null "> and diastolic = #{diastolic}</if>
+            <if test="systolic != null "> and systolic = #{systolic}</if>
+        </where>
+        order by qkyd_blood.id desc
+    </select>
+    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitBlood">
+        select id, user_id, device_id, diastolic, systolic, create_time as readTime from qkyd_blood
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="beginReadTime != null and endReadTime != null"> and create_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
+        </where>
+    </select>
+    <select id="selectUeitBloodById" parameterType="Long" resultMap="UeitBloodResult">
+        <include refid="selectUeitBloodVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertUeitBlood" parameterType="UeitBlood" useGeneratedKeys="true" keyProperty="id">
+        insert into qkyd_blood
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="diastolic != null">diastolic,</if>
+            <if test="systolic != null">systolic,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="diastolic != null">#{diastolic},</if>
+            <if test="systolic != null">#{systolic},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUeitBlood" parameterType="UeitBlood">
+        update qkyd_blood
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="diastolic != null">diastolic = #{diastolic},</if>
+            <if test="systolic != null">systolic = #{systolic},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUeitBloodById" parameterType="Long">
+        delete from qkyd_blood where id = #{id}
+    </delete>
+
+    <delete id="deleteUeitBloodByIds" parameterType="String">
+        delete from qkyd_blood where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getAgeSexGroupCount" resultType="com.ueit.health.domain.dto.AgeSexGroupCountDto">
+		SELECT
+ 		SUM(CASE WHEN sex = '0' THEN 1 ELSE 0 END) AS man,
+ 		SUM(CASE WHEN sex = '1' THEN 1 ELSE 0 END) AS woman,
+ 		SUM(CASE WHEN sex = '2' THEN 1 ELSE 0 END) AS nono,
+ 		SUM(CASE WHEN age BETWEEN 6 AND 14 THEN 1 ELSE 0 END) AS a,
+ 		SUM(CASE WHEN age BETWEEN 15 AND 19 THEN 1 ELSE 0 END) AS b,
+ 		SUM(CASE WHEN age BETWEEN 20 AND 39 THEN 1 ELSE 0 END) AS c,
+ 		SUM(CASE WHEN age BETWEEN 40 AND 59 THEN 1 ELSE 0 END) AS d,
+ 		SUM(CASE WHEN age >= 60 THEN 1 ELSE 0 END) AS e
+		FROM sys_user;
+	</select>
+</mapper>

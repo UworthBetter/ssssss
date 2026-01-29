@@ -56,7 +56,9 @@ goto menu
 :start-backend
 echo.
 echo 正在启动后端...
-call d:\jishe\1.19\ueit-backend-upgrade\start-backend.bat
+cd /d d:\jishe\1.19\qkyd-admin
+start /MIN "Backend" cmd /c "mvn spring-boot:run"
+echo 后端正在启动...
 pause
 goto menu
 
@@ -76,7 +78,7 @@ echo.
 echo 正在启动所有服务...
 echo.
 echo [1/2] 启动后端...
-start /MIN "Backend" cmd /c "cd /d d:\jishe\1.19\ueit-backend-upgrade && \"C:\Program Files (x86)\java\jdk-21.0.4+7\bin\java.exe\" -jar ueit-admin.jar"
+start /MIN "Backend" cmd /c "cd /d d:\jishe\1.19\qkyd-admin && \"C:\Program Files (x86)\java\jdk-21.0.4+7\bin\java.exe\" -Dfile.encoding=UTF-8 -jar target/qkyd-admin.jar"
 timeout /t 3 /nobreak >nul
 echo.
 echo [2/2] 启动前端 (Vue3)...

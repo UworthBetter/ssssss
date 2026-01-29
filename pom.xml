@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-    <groupId>com.ueit</groupId>
+    <groupId>com.qkyd</groupId>
     <artifactId>jkpt</artifactId>
     <version>3.8.7</version>
 
-    <name>ueit</name>
+    <name>qkyd</name>
     <url>http://www.ruoyi.vip</url>
     <description>健康管理平台</description>
     
     <properties>
-        <ueit.version>3.8.7</ueit.version>
+        <qkyd.version>3.8.7</qkyd.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
@@ -164,64 +164,64 @@
 
             <!-- 定时任务-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-quartz</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-quartz</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-generator</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-generator</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-framework</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-framework</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-system</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-system</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-common</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-common</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- 健康模块-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-health</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-health</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
 
             <!-- AI模块-->
             <dependency>
-                <groupId>com.ueit</groupId>
-                <artifactId>ueit-ai</artifactId>
-                <version>${ueit.version}</version>
+                <groupId>com.qkyd</groupId>
+                <artifactId>qkyd-ai</artifactId>
+                <version>${qkyd.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
-        <module>ueit-admin</module>
-        <module>ueit-framework</module>
-        <module>ueit-system</module>
-        <module>ueit-quartz</module>
-        <module>ueit-generator</module>
-        <module>ueit-common</module>
-        <module>ueit-health</module>
-        <module>ueit-ai</module>
+        <module>qkyd-admin</module>
+        <module>qkyd-framework</module>
+        <module>qkyd-system</module>
+        <module>qkyd-quartz</module>
+        <module>qkyd-generator</module>
+        <module>qkyd-common</module>
+        <module>qkyd-health</module>
+        <module>qkyd-ai</module>
     </modules>
     <packaging>pom</packaging>
 
