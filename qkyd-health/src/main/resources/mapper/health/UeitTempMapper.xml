@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitTempMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitTempMapper">
 
     <resultMap type="UeitTemp" id="UeitTempResult">
         <result property="id"    column="id"    />
@@ -30,7 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectUeitTempVo"/>
         where id = #{id}
     </select>
-    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitTemp">
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitTemp">
         select id, user_id, device_id, value, create_time as readTime from qkyd_temp
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>

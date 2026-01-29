@@ -27,7 +27,7 @@ class TestHealthEndpoints:
         response = client.get("/")
         assert response.status_code == 200
         data = response.json()
-        assert data["service"] == "ueit-ai-service"
+        assert data["service"] == "qkyd-ai-service"
         assert data["status"] == "running"
     
     def test_health(self, client):

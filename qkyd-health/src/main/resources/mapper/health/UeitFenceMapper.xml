@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitFenceMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitFenceMapper">
 
     <resultMap type="UeitFence" id="UeitFenceResult">
         <result property="id"    column="id"    />
@@ -51,7 +51,7 @@
         where id = #{id}
     </select>
 
-    <select id="selectUeitFenceListByUserId" resultType="com.ueit.health.domain.UeitFence">
+    <select id="selectUeitFenceListByUserId" resultType="com.qkyd.health.domain.UeitFence">
         select id, user_id, name, fence_type, detail, radius, warn_type, status, longitude, latitude, create_time, shape, level, begin_read_time, end_read_time from qkyd_fence
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>

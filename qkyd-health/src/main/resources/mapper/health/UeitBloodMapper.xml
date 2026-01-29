@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitBloodMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitBloodMapper">
 
     <resultMap type="UeitBlood" id="UeitBloodResult">
         <result property="id"    column="id"    />
@@ -27,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         order by qkyd_blood.id desc
     </select>
-    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitBlood">
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitBlood">
         select id, user_id, device_id, diastolic, systolic, create_time as readTime from qkyd_blood
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
@@ -80,7 +80,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="getAgeSexGroupCount" resultType="com.ueit.health.domain.dto.AgeSexGroupCountDto">
+    <select id="getAgeSexGroupCount" resultType="com.qkyd.health.domain.dto.AgeSexGroupCountDto">
 		SELECT
  		SUM(CASE WHEN sex = '0' THEN 1 ELSE 0 END) AS man,
  		SUM(CASE WHEN sex = '1' THEN 1 ELSE 0 END) AS woman,

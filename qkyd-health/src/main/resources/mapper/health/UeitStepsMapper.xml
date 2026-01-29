@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitStepsMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitStepsMapper">
 
     <resultMap type="UeitSteps" id="UeitStepsResult">
         <result property="id"    column="id"    />
@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectUeitStepsVo"/>
         where id = #{id}
     </select>
-    <select id="selectUeitSteps" resultType="com.ueit.health.domain.UeitSteps">
+    <select id="selectUeitSteps" resultType="com.qkyd.health.domain.UeitSteps">
         <include refid="selectUeitStepsVo"/>
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
@@ -43,7 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="date != null "> and DATE_FORMAT(date, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d')</if>
         </where>
     </select>
-    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitSteps">
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitSteps">
         select id, user_id, device_id, date, value, calories, date_time as readTime from qkyd_steps
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>

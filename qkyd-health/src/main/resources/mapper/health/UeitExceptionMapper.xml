@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitExceptionMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitExceptionMapper">
 
     <resultMap type="UeitException" id="UeitExceptionResult">
         <result property="id"    column="id"    />
@@ -44,14 +44,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
         where id = #{id}
     </select>
-    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitException">
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitException">
         select id, user_id, device_id, type, value, longitude, latitude, state, create_time as readTime, update_by, update_time, update_content, location from qkyd_exception
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="beginReadTime != null and endReadTime != null"> and create_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
         </where>
     </select>
-    <select id="getExceptionData" resultType="com.ueit.health.domain.UeitException">
+    <select id="getExceptionData" resultType="com.qkyd.health.domain.UeitException">
         SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
         qkyd_exception.id, qkyd_exception.user_id, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by, qkyd_exception.update_time, qkyd_exception.update_content, qkyd_exception.location
         FROM sys_user su
@@ -71,7 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         GROUP BY type;
     </select>
-    <select id="selectUeitExceptionListByUserId" resultType="com.ueit.health.domain.UeitException">
+    <select id="selectUeitExceptionListByUserId" resultType="com.qkyd.health.domain.UeitException">
         SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
         qkyd_exception.id, qkyd_exception.user_id as userIdWho, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by as updateByWho, qkyd_exception.update_time as updateTimeWho, qkyd_exception.update_content, qkyd_exception.location
         FROM sys_user su

@@ -14,12 +14,12 @@
 - 一些新的Controller和Service文件已经创建
 
 从git status的untracked files部分可以看到已创建的控制器：
-- `ueit-ai/src/main/java/com/ueit/ai/controller/AbnormalDetectionController.java`
-- `ueit-ai/src/main/java/com/ueit/ai/controller/AlgorithmDashboardController.java`
-- `ueit-ai/src/main/java/com/ueit/ai/controller/DataQualityController.java`
-- `ueit-ai/src/main/java/com/ueit/ai/controller/FallDetectionController.java`
-- `ueit-ai/src/main/java/com/ueit/ai/controller/RiskScoreController.java`
-- `ueit-ai/src/main/java/com/ueit/ai/controller/TrendAnalysisController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/AbnormalDetectionController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/AlgorithmDashboardController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/DataQualityController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/FallDetectionController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/RiskScoreController.java`
+- `ueit-ai/src/main/java/com/qkyd/ai/controller/TrendAnalysisController.java`
 
 还有一些Service实现类也在git status中被修改。
 

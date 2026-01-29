@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.AiHealthRecordMapper">
+<mapper namespace="com.qkyd.health.mapper.AiHealthRecordMapper">
 
-    <resultMap type="com.ueit.health.domain.AiHealthRecord" id="AiHealthRecordResult">
+    <resultMap type="com.qkyd.health.domain.AiHealthRecord" id="AiHealthRecordResult">
         <id property="id" column="id"/>
         <result property="deviceId" column="device_id"/>
         <result property="userId" column="user_id"/>
@@ -29,7 +29,7 @@
         where id = #{id}
     </select>
 
-    <select id="selectAiHealthRecordList" parameterType="com.ueit.health.domain.AiHealthRecord" resultMap="AiHealthRecordResult">
+    <select id="selectAiHealthRecordList" parameterType="com.qkyd.health.domain.AiHealthRecord" resultMap="AiHealthRecordResult">
         <include refid="selectAiHealthRecordVo"/>
         <where>
             <if test="deviceId != null and deviceId != ''">
@@ -52,7 +52,7 @@
         limit 1
     </select>
 
-    <insert id="insertAiHealthRecord" parameterType="com.ueit.health.domain.AiHealthRecord" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertAiHealthRecord" parameterType="com.qkyd.health.domain.AiHealthRecord" useGeneratedKeys="true" keyProperty="id">
         insert into ai_health_record
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="deviceId != null and deviceId != ''">device_id,</if>
@@ -78,7 +78,7 @@
         </trim>
     </insert>
 
-    <update id="updateAiHealthRecord" parameterType="com.ueit.health.domain.AiHealthRecord">
+    <update id="updateAiHealthRecord" parameterType="com.qkyd.health.domain.AiHealthRecord">
         update ai_health_record
         <trim prefix="SET" suffixOverrides=",">
             <if test="deviceId != null and deviceId != ''">device_id = #{deviceId},</if>

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitLocationMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitLocationMapper">
 
     <resultMap type="UeitLocation" id="UeitLocationResult">
         <result property="id"    column="id"    />
@@ -42,20 +42,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectUeitLocationVo"/>
         where id = #{id}
     </select>
-    <select id="getDataBoard" resultType="com.ueit.health.domain.UeitLocation">
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitLocation">
         select id, user_id, device_id, accuracy, altitude, latitude, longitude, location, create_time as readTime1, read_time,type from qkyd_location
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="beginReadTime != null and endReadTime != null"> and create_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
         </where>
     </select>
-    <select id="realTimeTracking" resultType="com.ueit.health.domain.dto.RealTimeTracking">
+    <select id="realTimeTracking" resultType="com.qkyd.health.domain.dto.RealTimeTracking">
         select accuracy, altitude, latitude, longitude, create_time as readTime from qkyd_location
         WHERE user_id = #{userId}
         ORDER BY create_time desc
         LIMIT 1;
     </select>
-    <select id="pathList" resultType="com.ueit.health.domain.dto.RealTimeTracking">
+    <select id="pathList" resultType="com.qkyd.health.domain.dto.RealTimeTracking">
         select accuracy, altitude, latitude, longitude, type, create_time as readTime from qkyd_location
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         ORDER BY create_time
     </select>
-    <select id="selectUeitLocationByUserId" resultType="com.ueit.health.domain.UeitLocation">
+    <select id="selectUeitLocationByUserId" resultType="com.qkyd.health.domain.UeitLocation">
         <include refid="selectUeitLocationVo"/>
         where user_id = #{userId}
         ORDER BY create_time DESC

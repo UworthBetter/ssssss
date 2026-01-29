@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ueit.health.mapper.UeitDeviceInfoMapper">
+<mapper namespace="com.qkyd.health.mapper.UeitDeviceInfoMapper">
 
     <resultMap type="UeitDeviceInfo" id="UeitDeviceInfoResult">
         <result property="id" column="id"/>
@@ -33,12 +33,12 @@
         where id = #{id}
     </select>
 
-    <select id="selectUeitDeviceInfoByImei" resultType="com.ueit.health.domain.UeitDeviceInfo">
+    <select id="selectUeitDeviceInfoByImei" resultType="com.qkyd.health.domain.UeitDeviceInfo">
         select id, user_id, name, imei, type, create_time from qkyd_device_info
         where imei = #{imei}
     </select>
 
-    <select id="getUserDevice" resultType="com.ueit.health.domain.dto.UserDevice">
+    <select id="getUserDevice" resultType="com.qkyd.health.domain.dto.UserDevice">
         SELECT
         sys_user.user_id as userId,
         qkyd_device_info.id AS deviceId,
@@ -62,7 +62,7 @@
         </where>
         order by qkyd_device_info.id desc
     </select>
-    <select id="getDeviceListWithoutUser" parameterType="UeitDeviceInfo" resultType="com.ueit.health.domain.UeitDeviceInfo">
+    <select id="getDeviceListWithoutUser" parameterType="UeitDeviceInfo" resultType="com.qkyd.health.domain.UeitDeviceInfo">
         SELECT id as deviceId, user_id, name, imei, type, create_time
         FROM qkyd_device_info
         <where>
@@ -70,7 +70,7 @@
             <if test="imei != null  and imei != ''">and qkyd_device_info.imei like concat('%', #{imei}, '%')</if>
         </where>
     </select>
-    <select id="userDeviceByUserId" resultType="com.ueit.health.domain.dto.UserDevice">
+    <select id="userDeviceByUserId" resultType="com.qkyd.health.domain.dto.UserDevice">
         SELECT
         sys_user.user_id as userId,
         qkyd_device_info.id AS deviceId,
