@@ -1,0 +1,122 @@
+{
+  "timestamp": "2026-02-01T11:45:14.060996",
+  "results": [
+    {
+      "name": "ThresholdDetector (no LLM)",
+      "total_time": 0.0027,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 366122.91,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "StatisticalDetector (no LLM)",
+      "total_time": 0.0472,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0011,
+      "p50_time": 0.0,
+      "p95_time": 0.0001,
+      "p99_time": 0.0002,
+      "throughput": 21167.53,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "FallDetection (no LLM)",
+      "total_time": 0.0022,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 464023.01,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "RiskAssessment (no LLM)",
+      "total_time": 0.0017,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0001,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 594346.61,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "LLM Call (cache miss)",
+      "total_time": 1.9378,
+      "avg_time": 0.1938,
+      "min_time": 0.0,
+      "max_time": 1.9377,
+      "p50_time": 0.0,
+      "p95_time": 1.9377,
+      "p99_time": 1.9377,
+      "throughput": 5.16,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "LLM Call (cache hit)",
+      "total_time": 0.0002,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 288070.33,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "Concurrent FallDetection (concurrency=1)",
+      "total_time": 0.0005,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 221101.95,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "Concurrent FallDetection (concurrency=10)",
+      "total_time": 0.0027,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 36689.15,
+      "success_rate": 100.0,
+      "errors": 0
+    },
+    {
+      "name": "Concurrent FallDetection (concurrency=50)",
+      "total_time": 0.0027,
+      "avg_time": 0.0,
+      "min_time": 0.0,
+      "max_time": 0.0,
+      "p50_time": 0.0,
+      "p95_time": 0.0,
+      "p99_time": 0.0,
+      "throughput": 37644.09,
+      "success_rate": 100.0,
+      "errors": 0
+    }
+  ]
+}
