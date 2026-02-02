@@ -6,6 +6,22 @@
 
 ## 更新日志
 
+### v1.2.1 (2026-02-02 20:00:00)
+**文档修正：修正路径错误和配置不准确**
+
+#### 修正内容
+- 🐛 **修正前端大屏路径**：`algorithm-dashboard/` → `ai/algorithm-dashboard/`
+- 🐛 **修正后端API路径**：删除错误的 `/api` 前缀，统一使用 `/ai`
+- 🐛 **修正Controller名称**：`RiskPredictionController` → `RiskScoreController`
+- 🐛 **修正Python算法路径**：`risk_scoring.py` → `risk_assessment/risk_scorer.py`
+- 🐛 **修正Python服务端口**：8888 → 8011
+- 🐛 **修正WebSocket工具路径**：`utils/websocket.js` → `views/ai/algorithm-dashboard/hooks/useWebSocket.js`
+- 📝 **补充模块说明**：新增 `TrendAnalysisController`、`DataQualityController` 等
+- 📝 **补充算法目录**：详细列出所有Python算法子目录
+- 📝 **补充前端组件**：新增 `DashboardHeader.vue`、`DigitalFlop.vue` 等
+
+---
+
 ### v1.2.0 (2026-02-02 18:00:00)
 **重大更新：P1算法大屏真实API对接完成**
 
@@ -88,7 +104,7 @@
 ```
 [前端 Vue3] <---> [后端 Spring Boot:8098] <---> [MySQL + Redis]
                          |
-                         +---> [Python AI服务:8888] (异常检测、跌倒检测等)
+                         +---> [Python AI服务:8011] (异常检测、跌倒检测等)
                          +---> [OpenAI API] (可选，健康建议生成)
 ```
 
@@ -113,9 +129,11 @@
 
 #### 后端 (Java)
 - [x] 基础框架搭建（若依框架改造）
-- [x] 异常检测 API (`/api/abnormal/detect`)
-- [x] 风险评分 API (`/api/risk/predict`)
-- [x] 跌倒检测 API (`/api/fall/detect`)
+- [x] 异常检测 API (`/ai/abnormal/detect`)
+- [x] 风险评分 API (`/ai/risk/assess`)
+- [x] 跌倒检测 API (`/ai/fall/detect`)
+- [x] 趋势分析 API (`/ai/trend/analyze`)
+- [x] 数据质量评估 API (`/ai/dataQuality/evaluate`)
 - [x] Python 算法服务集成
 - [x] Spring AI 集成配置
 - [x] 健康数据实体类（心率、血氧、体温、血压等）
@@ -194,10 +212,20 @@
 qkyd-ai/src/main/java/com/qkyd/ai/
 ├── controller/
 │   ├── AbnormalDetectionController.java    # 异常检测接口
-│   ├── RiskPredictionController.java       # 风险预测接口
-│   └── FallDetectionController.java        # 跌倒检测接口
+│   ├── RiskScoreController.java           # 风险评分接口（修正：原名RiskPredictionController）
+│   ├── FallDetectionController.java        # 跌倒检测接口
+│   ├── TrendAnalysisController.java        # 趋势分析接口
+│   ├── DataQualityController.java         # 数据质量接口
+│   └── AiDashboardController.java         # 算法大屏接口
 ├── service/impl/
 │   └── AbnormalDetectionServiceImpl.java   # 算法调用实现
+├── model/
+│   ├── entity/                         # 实体类（AbnormalRecord、RiskScoreRecord等）
+│   ├── dto/                            # 数据传输对象（RiskScoreResultDTO等）
+│   ├── vo/                              # 视图对象
+│   ├── enums/                          # 枚举类
+│   └── constant/                       # 常量类
+└── mapper/                             # MyBatis映射接口
 
 qkyd-health/src/main/java/com/qkyd/heal/
 ├── domain/                                 # 健康数据实体
@@ -208,12 +236,13 @@ qkyd-health/src/main/java/com/qkyd/heal/
 ### 5.2 前端核心文件
 ```
 RuoYi-Vue3-Modern/src/
-├── views/algorithm-dashboard/
+├── views/ai/algorithm-dashboard/
 │   ├── index.vue                           # 大屏主页面
 │   ├── hooks/
 │   │   ├── useAlgorithmData.js            # 算法数据Hook（API集成）
 │   │   ├── useRealtimeData.js             # 实时数据Hook
-│   │   └── useCanvasAnimation.js          # Canvas动画Hook
+│   │   ├── useCanvasAnimation.js          # Canvas动画Hook
+│   │   └── useWebSocket.js             # WebSocket封装
 │   └── components/
 │       ├── AlgorithmVisualization.vue      # 滑动窗口异常检测
 │       ├── RiskPredictionFlow.vue          # 风险预测流程
@@ -221,15 +250,23 @@ RuoYi-Vue3-Modern/src/
 │       ├── AbnormalAlertList.vue           # 异常告警列表
 │       ├── PatientSelector.vue             # 患者选择器
 │       ├── PatientCardList.vue             # 患者卡片列表
-│       └── MetricsPanel.vue                # 统计指标面板
+│       ├── MetricsPanel.vue                # 统计指标面板
+│       ├── DashboardHeader.vue             # 大屏头部
+│       └── DigitalFlop.vue                # 实时指标数字翻牌
 ├── api/ai/
 │   ├── abnormalDetection.js                # 异常检测API
 │   ├── risk.js                             # 风险评分API
 │   └── fallDetection.js                    # 跌倒检测API
+├── api/health/
+│   ├── subject.js                         # 服务对象API
+│   ├── report.js                          # 健康报告API
+│   └── deviceBinding.js                   # 设备绑定API
 ├── store/modules/
 │   └── realtimeMonitor.js                 # 实时监控Store
-└── utils/
-    └── websocket.js                        # WebSocket 封装
+└── views/health/
+    ├── alert/index.vue                      # 告警处理页面
+    ├── report/index.vue                     # 健康报告页面
+    └── subject/index.vue                    # 服务对象管理页面
 ```
 
 ### 5.3 Python 算法文件
@@ -238,10 +275,17 @@ python-algorithms/
 ├── main.py                                 # FastAPI 服务入口
 ├── schemas.py                              # 数据模型定义
 ├── algorithms/
-│   ├── abnormal_detection.py               # 异常检测算法
-│   ├── risk_scoring.py                     # 风险评分算法
-│   ├── fall_detection.py                   # 跌倒检测算法
-│   └── data_quality.py                     # 数据质量评估
+│   ├── abnormal_detection/               # 异常检测算法
+│   │   ├── threshold_detector.py
+│   │   └── statistical_detector.py
+│   ├── risk_assessment/                 # 风险评分算法（修正：原名risk_scoring.py）
+│   │   ├── health_oracle.py
+│   │   └── risk_scorer.py
+│   ├── fall_detection/                   # 跌倒检测算法
+│   │   └── safety_guardian.py
+│   ├── data_quality/                     # 数据质量评估
+│   │   └── data_sentinel.py
+│   └── trend_analysis/                  # 趋势分析算法（新增）
 └── utils/
     └── async_llm_client.py                 # LLM 异步客户端
 ```
@@ -293,8 +337,8 @@ python-algorithms/
 # 后端端口
 server.port: 8098
 
-# Python 算法服务
-python.service.url: http://localhost:8888
+# Python 算法服务（修正：实际端口为8011）
+python.service.url: http://localhost:8011
 
 # 数据库
 spring.datasource.url: jdbc:mysql://localhost:3306/qkyd_jkpt
@@ -313,10 +357,10 @@ cd RuoYi-Vue3-Modern
 npm install --registry=https://registry.npmmirror.com
 npm run dev
 
-# Python 算法服务
+# Python 算法服务（修正：使用uvicorn启动FastAPI）
 cd python-algorithms
 pip install -r requirements.txt
-python main.py
+uvicorn main:app --host 0.0.0.0 --port 8011
 ```
 
 ---
@@ -392,7 +436,7 @@ A:
 
 ### Q: 如何调试算法可视化？
 A:
-1. 确保 Python 服务已启动（端口 8888）
+1. 确保 Python 服务已启动（端口 8011）
 2. 访问 http://localhost:8098/doc.html 查看 Swagger API 文档
 3. 前端页面 http://localhost:8080/ai/algorithm-dashboard
 4. 打开浏览器控制台查看日志和网络请求
@@ -430,8 +474,8 @@ A:
 
 ---
 
-**最后更新**: 2026-02-02 18:00:00
-**版本**: v1.2.0
+**最后更新**: 2026-02-02 20:00:00
+**版本**: v1.2.1
 **状态**: 开发中（P0+P1核心功能已完成）
 **主要更新**:
 - 完成算法大屏真实API对接（后端+前端）
@@ -439,4 +483,5 @@ A:
 - 实现实时数据更新机制（5秒轮询）
 - 修复前端编译bug
 - 完成算法大屏全面功能测试（16大项，50+测试用例）
+- 修正PROJECT_CONTEXT.md文档：修正所有路径错误、配置不准确、名称不一致问题
 - P0+P1核心功能全部完成，可投入演示使用
