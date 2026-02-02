@@ -2,16 +2,17 @@ package com.qkyd.health.service.ai;
 
 import com.alibaba.fastjson2.JSON;
 import com.qkyd.health.config.AiServiceProperties;
-import com.qkyd.health.domain.AiHealthRecord;
+import com.qkyd.health.domain.*;
 import com.qkyd.health.domain.dto.ai.*;
 import com.qkyd.health.mapper.AiHealthRecordMapper;
+import com.qkyd.health.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -30,62 +31,135 @@ public class HealthDataService {
     private final AiServiceProperties aiServiceProperties;
     private final AiHealthRecordMapper aiHealthRecordMapper;
 
+    // Inject vital sign services
+    private final IUeitHeartRateService heartRateService;
+    private final IUeitBloodService bloodService;
+    private final IUeitSpo2Service spo2Service;
+    private final IUeitTempService tempService;
+    private final IUeitDeviceInfoService deviceInfoService;
+    private final IHealthSubjectService subjectService;
+
     public HealthDataService(
             AiServiceClient aiServiceClient,
             AiServiceProperties aiServiceProperties,
-            AiHealthRecordMapper aiHealthRecordMapper) {
+            AiHealthRecordMapper aiHealthRecordMapper,
+            IUeitHeartRateService heartRateService,
+            IUeitBloodService bloodService,
+            IUeitSpo2Service spo2Service,
+            IUeitTempService tempService,
+            IUeitDeviceInfoService deviceInfoService,
+            IHealthSubjectService subjectService) {
         this.aiServiceClient = aiServiceClient;
         this.aiServiceProperties = aiServiceProperties;
         this.aiHealthRecordMapper = aiHealthRecordMapper;
+        this.heartRateService = heartRateService;
+        this.bloodService = bloodService;
+        this.spo2Service = spo2Service;
+        this.tempService = tempService;
+        this.deviceInfoService = deviceInfoService;
+        this.subjectService = subjectService;
     }
 
     /**
      * 处理原始体征数据（同步方式）
-     *
-     * @param deviceId 设备ID
-     * @param userId   用户ID (可选)
-     * @param dataList 体征数据列表
-     * @return AI健康检查响应
      */
     public AiHealthCheckResponse processRawData(String deviceId, Long userId, List<VitalSignData> dataList) {
         log.info("[HealthDataService] 开始处理体征数据, 设备: {}, 数据点数: {}", deviceId, dataList.size());
 
-        // 1. 构建请求
-        AiHealthCheckRequest request = new AiHealthCheckRequest(dataList);
+        // 1. 实现用户绑定自动兜底
+        Long finalUserId = userId;
+        if (finalUserId == null || finalUserId == 1L) {
+            // 如果传入的是默认ID或空，尝试查找第一个受试者
+            List<HealthSubject> subjects = subjectService.selectHealthSubjectList(new HealthSubject());
+            if (subjects != null && !subjects.isEmpty()) {
+                finalUserId = subjects.get(0).getSubjectId();
+                log.info("[HealthDataService] 自动匹配受试者: {}", finalUserId);
+            }
+        }
 
-        // 2. 调用AI服务
+        // 2. 构建请求并调用AI服务
+        AiHealthCheckRequest request = new AiHealthCheckRequest(dataList);
         AiHealthCheckResponse response = aiServiceClient.healthCheck(request);
 
-        // 3. 保存结果到数据库
+        // 3. 保存AI分析结果
         if (response != null && response.isSuccess()) {
-            saveHealthRecord(deviceId, userId, dataList, response);
-        } else {
-            log.warn("[HealthDataService] AI服务调用失败或响应异常, 设备: {}", deviceId);
+            saveHealthRecord(deviceId, finalUserId, dataList, response);
+        }
+
+        // 4. 持久化具体的体征指标到业务表（确保大屏能看到数据）
+        persistVitalSigns(deviceId, finalUserId, dataList);
+
+        // 5. 注入调试信息到响应中（方便用户在大屏调试）
+        if (response != null) {
+            Map<String, Object> meta = new HashMap<>();
+            meta.put("matchedUserId", finalUserId);
+            meta.put("targetDeviceId", deviceId);
+            meta.put("timestamp", System.currentTimeMillis());
+            response.setRiskFactors(Collections.singletonList("Backend Debug: Matched User " + finalUserId));
         }
 
         return response;
     }
 
     /**
+     * 持久化具体的体征指标到真实业务表
+     */
+    private void persistVitalSigns(String deviceImei, Long userId, List<VitalSignData> dataList) {
+        try {
+            // 解析设备ID (Long)
+            UeitDeviceInfo deviceInfo = deviceInfoService.selectUeitDeviceInfoByImei(deviceImei);
+            Long dbDeviceId = (deviceInfo != null) ? deviceInfo.getId() : 0L;
+
+            log.info("[HealthDataService] 准备持久化体征, 受试者ID: {}, 设备IMEI: {}, 数据库设备ID: {}",
+                    userId, deviceImei, dbDeviceId);
+
+            for (VitalSignData data : dataList) {
+                Date readTime = data.getTimestamp() != null ? new Date(data.getTimestamp()) : new Date();
+
+                // 1. 保存心率
+                if (data.getHeartRate() != null && data.getHeartRate() > 0) {
+                    UeitHeartRate hr = new UeitHeartRate();
+                    hr.setUserId(userId);
+                    hr.setDeviceId(dbDeviceId);
+                    hr.setValue(data.getHeartRate().floatValue());
+                    // 这里虽然 Service 可能会重置时间，但我们尽量先设好
+                    hr.setCreateTime(readTime);
+                    heartRateService.insertUeitHeartRate(hr);
+                    log.info("[HealthDataService] 心率入库成功: {} bpm", data.getHeartRate());
+                }
+
+                // 2. 保存血压
+                if (data.getBloodPressure() != null && data.getBloodPressure().contains("/")) {
+                    String[] bp = data.getBloodPressure().split("/");
+                    if (bp.length == 2) {
+                        UeitBlood blood = new UeitBlood();
+                        blood.setUserId(userId);
+                        blood.setDeviceId(dbDeviceId);
+                        blood.setSystolic(Integer.parseInt(bp[0]));
+                        blood.setDiastolic(Integer.parseInt(bp[1]));
+                        blood.setCreateTime(readTime);
+                        bloodService.insertUeitBlood(blood);
+                        log.info("[HealthDataService] 血压入库成功: {}/{}", bp[0], bp[1]);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("[HealthDataService] 业务指标持久化过程发生严重错误: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
      * 异步处理原始体征数据
-     *
-     * @param deviceId 设备ID
-     * @param userId   用户ID (可选)
-     * @param dataList 体征数据列表
-     * @return CompletableFuture 包含处理结果
      */
     @Async
     public CompletableFuture<AiHealthCheckResponse> processRawDataAsync(
             String deviceId, Long userId, List<VitalSignData> dataList) {
         log.info("[HealthDataService] 异步处理体征数据开始, 设备: {}", deviceId);
-
         try {
             AiHealthCheckResponse response = processRawData(deviceId, userId, dataList);
-            log.info("[HealthDataService] 异步处理完成, 设备: {}, 风险等级: {}",
-                    deviceId, response != null ? response.getRiskLevel() : "N/A");
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
-            log.error("[HealthDataService] 异步处理失败, 设备: {}, 错误: {}", deviceId, e.getMessage(), e);
+            log.error("[HealthDataService] 异步处理失败, 设备: {}, 错误: {}", deviceId, e.getMessage());
             return CompletableFuture.completedFuture(null);
         }
     }
@@ -96,16 +170,10 @@ public class HealthDataService {
     private void saveHealthRecord(String deviceId, Long userId,
             List<VitalSignData> dataList, AiHealthCheckResponse response) {
         try {
-            if (response == null || response.getRiskLevel() == null) {
-                log.warn("[HealthDataService] 响应内容不完整，跳过数据库保存");
-                return;
-            }
-
             AiHealthRecord record = new AiHealthRecord();
             record.setDeviceId(deviceId);
             record.setUserId(userId);
             record.setRiskLevel(response.getRiskLevel());
-            // 增加空值保护
             double score = response.getRiskScore() != null ? response.getRiskScore() : 0.0;
             record.setRiskScore(BigDecimal.valueOf(score));
             record.setAnomalyCount(response.getAnomalyCount() != null ? response.getAnomalyCount() : 0);
@@ -113,40 +181,21 @@ public class HealthDataService {
             record.setRawData(JSON.toJSONString(dataList));
             record.setDataPoints(response.getDataPointsAnalyzed() != null ? response.getDataPointsAnalyzed() : 0);
 
-            log.info("[HealthDataService] 准备保存健康记录, 设备: {}", deviceId);
-            int rows = aiHealthRecordMapper.insertAiHealthRecord(record);
-            log.info("[HealthDataService] 健康记录保存成功, ID: {}, 影响行数: {}", record.getId(), rows);
-
+            aiHealthRecordMapper.insertAiHealthRecord(record);
+            log.info("[HealthDataService] 健康分析结果已记录, ID: {}", record.getId());
         } catch (Exception e) {
-            log.error("[HealthDataService] 保存健康记录失败: {}, 错误详情: {}", e.getMessage(), e);
-            // 这里抛出异常是为了让调用者（Controller）能感知到数据库错误
-            throw new RuntimeException("数据库保存失败: " + e.getMessage());
+            log.error("[HealthDataService] 保存健康记录记录失败: {}", e.getMessage());
         }
     }
 
-    /**
-     * 查询设备最新的健康分析记录
-     *
-     * @param deviceId 设备ID
-     * @return 最新的健康分析记录
-     */
     public AiHealthRecord getLatestRecord(String deviceId) {
         return aiHealthRecordMapper.selectLatestByDeviceId(deviceId);
     }
 
-    /**
-     * 查询健康分析记录列表
-     *
-     * @param record 查询条件
-     * @return 健康分析记录列表
-     */
     public List<AiHealthRecord> listRecords(AiHealthRecord record) {
         return aiHealthRecordMapper.selectAiHealthRecordList(record);
     }
 
-    /**
-     * 检查AI服务是否可用
-     */
     public boolean isAiServiceAvailable() {
         return aiServiceClient.isServiceAvailable();
     }

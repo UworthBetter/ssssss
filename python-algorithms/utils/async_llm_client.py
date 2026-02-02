@@ -193,6 +193,8 @@ class AsyncLLMClient:
             LLMParseError: 解析失败时抛出
         """
         try:
+            if isinstance(response, dict):
+                return response
             clean = response.strip()
 
             # 移除 Markdown 代码块标记

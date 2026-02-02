@@ -254,10 +254,36 @@ class ApiResponse(BaseModel):
 # 健康检查模型
 # ============================================================================
 
+# ============================================================================
+# 兼容性模型 (用于 qkyd-health 调用)
+# ============================================================================
+
+class VitalSignData(BaseModel):
+    heart_rate: int
+    blood_pressure: str
+    steps: int = Field(0)
+    timestamp: Optional[int] = None
+
+class HealthCheckRequest(BaseModel):
+    data: list[VitalSignData]
+
+class AlgoHealthCheckResponse(BaseModel):
+    code: int = 200
+    message: str = "success"
+    risk_level: str = "low"
+    risk_score: float = 0.0
+    anomaly_count: int = 0
+    risk_factors: list[str] = Field(default_factory=list)
+    data_points_analyzed: int = 0
+
+# ============================================================================
+# 健康检查模型 (服务状态)
+# ============================================================================
+
 class HealthCheckResponse(BaseModel):
-    """健康检查响应"""
-    status: Literal['healthy', 'degraded', 'unhealthy'] = Field(..., description="服务状态")
-    service: str = Field(..., description="服务名称")
-    version: str = Field(..., description="版本号")
-    uptime: float = Field(..., description="运行时间(秒)")
-    checks: Dict[str, bool] = Field(default_factory=dict, description="各组件状态")
+    """服务状态健康检查响应"""
+    status: str
+    service: str
+    version: str
+    uptime: float
+    checks: Dict[str, bool] = {}

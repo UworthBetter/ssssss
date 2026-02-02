@@ -16,7 +16,7 @@ public class AiServiceProperties {
     /**
      * Python算法服务地址
      */
-    private String serviceUrl = "http://localhost:8001";
+    private String serviceUrl = "http://localhost:8011";
 
     /**
      * 连接超时时间 (毫秒)

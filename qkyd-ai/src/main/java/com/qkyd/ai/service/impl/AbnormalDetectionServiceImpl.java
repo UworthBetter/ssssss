@@ -24,6 +24,9 @@ public class AbnormalDetectionServiceImpl implements IAbnormalDetectionService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private com.qkyd.ai.mapper.AbnormalRecordMapper abnormalRecordMapper;
+
     @Override
     public Object detect(Map<String, Object> data) {
         String url = pythonConfig.getPythonServiceUrl() + "/api/abnormal/detect";
@@ -39,6 +42,11 @@ public class AbnormalDetectionServiceImpl implements IAbnormalDetectionService {
             AbnormalDetectionResultDTO dto = mapper.convertValue(response.get("data"),
                     AbnormalDetectionResultDTO.class);
 
+            // Save record if abnormal
+            if (Boolean.TRUE.equals(dto.getIs_abnormal())) {
+                saveAbnormalRecord(data, dto);
+            }
+
             AbnormalDetectionVO vo = new AbnormalDetectionVO();
             vo.setAbnormal(dto.getIs_abnormal());
             vo.setMessage(dto.getMsg());
@@ -49,6 +57,28 @@ public class AbnormalDetectionServiceImpl implements IAbnormalDetectionService {
         } catch (Exception e) {
             log.error("Error calling Python service", e);
             throw new RuntimeException("Abnormal detection failed: " + e.getMessage());
+        }
+    }
+
+    private void saveAbnormalRecord(Map<String, Object> data, AbnormalDetectionResultDTO dto) {
+        try {
+            com.qkyd.ai.model.entity.AbnormalRecord record = new com.qkyd.ai.model.entity.AbnormalRecord();
+            if (data.get("userId") != null) {
+                record.setUserId(Long.valueOf(String.valueOf(data.get("userId"))));
+            }
+            record.setDeviceId((String) data.getOrDefault("deviceId", "unknown"));
+            record.setMetricType((String) data.get("metricType"));
+            record.setAbnormalValue(String.valueOf(data.get("value")));
+            record.setAbnormalType(dto.getType());
+            // Default risk level for now, can be refined later
+            record.setRiskLevel("warning");
+            record.setDetectionMethod("statistical");
+            record.setDetectedTime(new java.util.Date());
+            record.setCreateTime(new java.util.Date());
+
+            abnormalRecordMapper.insert(record);
+        } catch (Exception e) {
+            log.error("Failed to save abnormal record", e);
         }
     }
 }

@@ -128,7 +128,7 @@ xss:
 ueit:
   ai:
     # Python算法服务地址
-    service-url: ${AI_SERVICE_URL:http://localhost:8001}
+    service-url: ${AI_SERVICE_URL:http://localhost:8011}
     # 连接超时时间 (毫秒)
     connect-timeout: 5000
     # 读取超时时间 (毫秒)

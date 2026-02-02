@@ -7,6 +7,7 @@ requests>=2.31.0
 numpy>=1.24.0
 tenacity>=8.2.0
 httpx>=0.25.0
+fastapi-offline>=1.7.0
 
 # 性能测试依赖
 psutil>=5.9.0

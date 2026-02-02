@@ -6,7 +6,8 @@ import os
 import time
 from contextlib import asynccontextmanager
 from typing import Dict, Any, Optional
-from fastapi import FastAPI, HTTPException, Body, status
+from fastapi import FastAPI, HTTPException, Body, status, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi_offline import FastAPIOffline
 import uvicorn
@@ -35,7 +36,9 @@ from schemas import (
     DataQualityRequest,
     DataQualityResponse,
     ApiResponse,
-    HealthCheckResponse
+    HealthCheckResponse,
+    HealthCheckRequest,
+    AlgoHealthCheckResponse
 )
 
 
@@ -107,6 +110,16 @@ app = FastAPIOffline(
     description="耆康云盾智能健康算法服务（异步 + 类型安全）",
     lifespan=lifespan
 )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """捕获并记录验证错误详情"""
+    error_msg = exc.errors()
+    api_logger.error(f"Validation Error: {error_msg}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        content={"detail": error_msg, "msg": "数据验证失败", "code": 422},
+    )
 
 
 # ============================================================================
@@ -391,6 +404,61 @@ async def check_quality(request: DataQualityRequest):
 
 
 # ============================================================================
+# 兼容性桥接接口 (对接旧版 Java 调用)
+# ============================================================================
+
+@app.post(
+    "/algo/v1/health-check",
+    response_model=AlgoHealthCheckResponse,
+    summary="[兼容性接口] 综合健康检查",
+    description="支持 qkyd-health 直接调用，内部调用 HealthOracle 进行分析"
+)
+async def bridge_health_check(request: HealthCheckRequest):
+    """
+    桥接接口：将旧版数据格式转为新版 RiskAssessment 逻辑。
+    """
+    api_logger.info(f"Bridge health check request - points: {len(request.data)}")
+    
+    try:
+        oracle = state.algorithms.get("health_oracle")
+        if not oracle:
+            raise HTTPException(status_code=503, detail="HealthOracle not initialized")
+
+        # 1. 转换数据 (提取最近一个点的主要指标)
+        last_point = request.data[-1]
+        
+        # 兼容性映射
+        assess_data = {
+            "heart_rate": last_point.heart_rate,
+            "movement": 5.0, # 默认值
+            "sleep": 8.0,    # 默认值
+            "age": 65,       # 默认值
+        }
+
+        # 2. 调用新版评估逻辑
+        result = await oracle.evaluate(data=assess_data, enable_llm=False)
+
+        # 3. 映射回旧版响应格式
+        return AlgoHealthCheckResponse(
+            code=200,
+            message="success",
+            risk_level=result.get("level", "low").lower(),
+            risk_score=result.get("total_score", 0.0) / 100.0,
+            anomaly_count=1 if result.get("level") == "High" else 0,
+            risk_factors=[result.get("msg", "正常")],
+            data_points_analyzed=len(request.data)
+        )
+
+    except Exception as e:
+        api_logger.error(f"Bridge assessment failed: {e}", exc_info=True)
+        return AlgoHealthCheckResponse(
+            code=500,
+            message=f"Analysis Error: {str(e)}",
+            data_points_analyzed=len(request.data)
+        )
+
+
+# ============================================================================
 # 清除缓存端点
 # ============================================================================
 
@@ -411,7 +479,7 @@ async def clear_cache():
 # ============================================================================
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8001))
     uvicorn.run(
         app,
         host="0.0.0.0",

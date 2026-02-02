@@ -17,4 +17,15 @@ public class AbnormalDetectionController {
     public AjaxResult detect(@RequestBody Map<String, Object> data) {
         return AjaxResult.success(abnormalDetectionService.detect(data));
     }
+
+    @Autowired
+    private com.qkyd.ai.mapper.AbnormalRecordMapper abnormalRecordMapper;
+
+    /**
+     * Get recent abnormal records for dashboard
+     */
+    @GetMapping("/recent")
+    public AjaxResult getRecentAbnormals(@RequestParam(defaultValue = "10") int limit) {
+        return AjaxResult.success(abnormalRecordMapper.selectRecent(limit));
+    }
 }
