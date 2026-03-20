@@ -1,0 +1,36 @@
+{
+  "name": "qkyd-vue3-new",
+  "version": "1.0.0",
+  "description": "耆康云盾 - 新版Vue3前端",
+  "author": "qkyd",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "pinia": "^2.3.0",
+    "element-plus": "^2.9.0",
+    "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.7.9",
+    "echarts": "^5.6.0",
+    "@jiaminghi/data-view": "^2.10.0",
+    "@amap/amap-jsapi-loader": "^1.0.1",
+    "vue-cropper": "^1.1.1",
+    "@vueup/vue-quill": "^1.2.0",
+    "pinia-plugin-persistedstate": "^3.2.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.5",
+    "sass": "^1.83.0",
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.5",
+    "@vue/eslint-config-typescript": "^14.2.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-vue": "^9.32.0"
+  }
+}
