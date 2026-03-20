@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -8,44 +8,31 @@
         <version>3.8.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
+
     <artifactId>qkyd-admin</artifactId>
 
     <description>
-        web服务入口
+        Web服务入口
     </description>
 
     <dependencies>
 
-        <!-- spring-boot-devtools -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional> <!-- 表示依赖不会传递 -->
-        </dependency>
-
-        <!-- SpringDoc OpenAPI -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-
-         <!-- Mysql驱动包 -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-        </dependency>
-
-        <!-- 健康模块-->
+        <!-- 通用工具-->
         <dependency>
             <groupId>com.qkyd</groupId>
-            <artifactId>qkyd-health</artifactId>
+            <artifactId>qkyd-common</artifactId>
         </dependency>
 
         <!-- 核心模块-->
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-framework</artifactId>
+        </dependency>
+
+        <!-- 系统模块-->
+        <dependency>
+            <groupId>com.qkyd</groupId>
+            <artifactId>qkyd-system</artifactId>
         </dependency>
 
         <!-- 定时任务-->
@@ -60,10 +47,34 @@
             <artifactId>qkyd-generator</artifactId>
         </dependency>
 
+        <!-- 健康模块-->
+        <dependency>
+            <groupId>com.qkyd</groupId>
+            <artifactId>qkyd-health</artifactId>
+        </dependency>
+
         <!-- AI模块-->
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-ai</artifactId>
+        </dependency>
+
+        <!-- WebSocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- SpringDoc OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- MySQL 连接器 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
     </dependencies>
@@ -73,8 +84,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.5</version>
                 <configuration>
-                    <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
+                    <fork>true</fork>
                 </configuration>
                 <executions>
                     <execution>
@@ -84,17 +96,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <warName>${project.artifactId}</warName>
-                </configuration>
-           </plugin>
         </plugins>
-        <finalName>${project.artifactId}</finalName>
     </build>
 
 </project>

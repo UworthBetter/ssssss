@@ -71,4 +71,14 @@ public class AbnormalDetectionResultDTO implements Serializable {
     public void setStd(Double std) {
         this.std = std;
     }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    private String method;
 }

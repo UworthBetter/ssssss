@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 @Configuration
 public class PythonIntegrationConfig {
 
-    @Value("${ai.python.url:http://localhost:8000}")
+    @Value("${ueit.ai.service-url:http://localhost:8011}")
     private String pythonServiceUrl;
 
     public String getPythonServiceUrl() {

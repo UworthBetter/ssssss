@@ -55,7 +55,7 @@ public class AiServiceImpl implements IAiService {
         try {
             // 调用 Python 算法服务
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            String pythonServiceUrl = "http://localhost:8000/api/algorithms/detect_fall";
+            String pythonServiceUrl = "http://localhost:8011/api/algorithms/detect_fall";
 
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);

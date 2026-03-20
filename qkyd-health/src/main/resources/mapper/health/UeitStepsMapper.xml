@@ -40,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="deviceId != null "> and device_id = #{deviceId}</if>
-            <if test="date != null "> and DATE_FORMAT(date, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d')</if>
+            <if test="date != null "> and DATE(date) = DATE(#{date})</if>
         </where>
     </select>
     <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitSteps">
