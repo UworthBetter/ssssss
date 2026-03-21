@@ -31,7 +31,7 @@
 
     <!-- ================= 2. 左侧：全息渐变翼 ================= -->
     <div class="hud-side-panel hud-left fade-left">
-      <transition name="fade" mode="out-in">
+      <transition name="panel-fade" mode="out-in">
         <div v-if="!activePill" class="hud-content-block flex-fill" key="default">
           <div class="holo-title">DEMOGRAPHICS <span>// 人群画像</span></div>
           <div class="table-wrapper">
@@ -56,7 +56,7 @@
 
     <!-- ================= 3. 右侧：全息渐变翼 ================= -->
     <div class="hud-side-panel hud-right fade-right">
-      <transition name="fade" mode="out-in">
+      <transition name="panel-fade" mode="out-in">
         <div :key="activePill ? 'active' : 'default'" class="hud-content-block h-full flex-fill" style="display: flex; flex-direction: column;">
           <div class="hud-content-block">
             <div class="holo-title">
@@ -113,13 +113,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Location, Close } from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/core'
+import { PieChart, LineChart } from 'echarts/charts'
+import { TooltipComponent, GridComponent } from 'echarts/components'
+import { LabelLayout } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { ElMessage } from 'element-plus'
 import { getRecentAbnormal } from '@/api/ai'
 import { getAgeSexGroupCount, getIndexException, getRealTimeData } from '@/api/index'
+
+echarts.use([PieChart, LineChart, TooltipComponent, GridComponent, LabelLayout, CanvasRenderer])
 
 interface GenericRow {
   [key: string]: unknown
@@ -135,6 +141,7 @@ interface ExceptionRow extends GenericRow {
   latitude?: number | string
   _lng?: number
   _lat?: number
+  _markerKey?: string
 }
 
 interface RecentAbnormalRow {
@@ -178,9 +185,18 @@ const mapLoadFailed = ref(false)
 let amapInstance: any = null
 let amapInfoWindow: any = null
 let mapMarkers: any[] = []
+const markerMap = new Map<string, any>()
+let lastExceptionDigest = ''
+let lastFitSignature = ''
+let fitViewTimer: ReturnType<typeof setTimeout> | null = null
 let refreshTimer: ReturnType<typeof setInterval> | null = null
+let resizeTimer: ReturnType<typeof setTimeout> | null = null
+let pollRound = 0
+let amapLoaderPromise: Promise<any> | null = null
 
 const MAP_CENTER: [number, number] = [116.397428, 39.90923]
+const POLL_INTERVAL = 30000
+const DETAIL_REFRESH_EVERY_ROUNDS = 2
 
 const toNumber = (value: unknown, fallback = 0) => {
   const num = Number(value)
@@ -276,21 +292,25 @@ const renderKpiPieChart = () => {
 const togglePill = async (item: any) => {
   if (!item) {
     activePill.value = null
-    filterMapMarkers()
+    setTimeout(() => filterMapMarkers(), 50)
     return
   }
 
   if (activePill.value === item.key) {
     activePill.value = null
-    filterMapMarkers()
+    setTimeout(() => filterMapMarkers(), 50)
   } else {
     activePill.value = item.key
     activePillName.value = item.label
     activeColor.value = pillColors[item.key] || '#0ea5e9'
-    filterMapMarkers(item.keywords)
+    
+    // Defer heavy map updates so Vue reactivity handles the sidebar transition first
+    setTimeout(() => filterMapMarkers(item.keywords), 50)
 
-    await nextTick()
-    renderTrendChart()
+    // With out-in transition, the new node appears after the leave transition (~150ms)
+    setTimeout(() => {
+      renderTrendChart()
+    }, 200)
   }
 }
 
@@ -433,6 +453,16 @@ const fallbackLngLat = (index: number): [number, number] => {
   return [MAP_CENTER[0] + offsetLng, MAP_CENTER[1] + offsetLat]
 }
 
+const getMarkerKey = (item: ExceptionRow, index: number) => {
+  if (item.id !== undefined && item.id !== null && String(item.id).trim() !== '') {
+    return `id:${String(item.id)}`
+  }
+  const nick = String(item.nickName ?? '')
+  const type = String(item.type ?? '')
+  const location = String(item.location ?? '')
+  return `row:${nick}|${type}|${location}|${index}`
+}
+
 const normalizeExceptionList = (input: unknown): ExceptionRow[] => {
   if (!Array.isArray(input)) return []
   return input.map((row, index) => {
@@ -446,7 +476,8 @@ const normalizeExceptionList = (input: unknown): ExceptionRow[] => {
       ...item,
       state: String(item.state ?? '0'),
       _lng: Number.isFinite(lng) ? lng : (fromLocation?.[0] ?? fallbackLng),
-      _lat: Number.isFinite(lat) ? lat : (fromLocation?.[1] ?? fallbackLat)
+      _lat: Number.isFinite(lat) ? lat : (fromLocation?.[1] ?? fallbackLat),
+      _markerKey: getMarkerKey(item, index)
     }
   })
 }
@@ -469,7 +500,8 @@ const buildMockExceptions = (seedRows: RecentAbnormalRow[]): ExceptionRow[] => {
       state: index % 3 === 0 ? '1' : '0',
       location: `演示坐标 ${lng.toFixed(6)}, ${lat.toFixed(6)}`,
       _lng: lng,
-      _lat: lat
+      _lat: lat,
+      _markerKey: `mock-${index}`
     }
   })
 }
@@ -487,20 +519,24 @@ const initAmap = async () => {
   window._AMapSecurityConfig = { securityJsCode: amapSecurityJsCode }
 
   try {
-    const AMap = await AMapLoader.load({
-      key: amapKey,
-      version: '2.0',
-      plugins: ['AMap.Scale', 'AMap.Marker', 'AMap.InfoWindow']
-    })
+    if (!amapLoaderPromise) {
+      amapLoaderPromise = AMapLoader.load({
+        key: amapKey,
+        version: '2.0',
+        plugins: ['AMap.Scale', 'AMap.Marker', 'AMap.InfoWindow']
+      })
+    }
+    const AMap = await amapLoaderPromise
 
+    const isLowPowerDevice = ((navigator.hardwareConcurrency ?? 8) <= 4)
     amapInstance = new AMap.Map(amapRef.value, {
-      viewMode: '3D',
+      viewMode: isLowPowerDevice ? '2D' : '3D',
       zoom: 14,
       center: MAP_CENTER,
       mapStyle: 'amap://styles/light',
-      pitch: 55,
+      pitch: isLowPowerDevice ? 0 : 45,
       skyColor: '#f1f5f9',
-      showBuildingBlock: true
+      showBuildingBlock: !isLowPowerDevice
     })
 
     amapInfoWindow = new AMap.InfoWindow({ isCustom: true, autoMove: true, offset: new AMap.Pixel(0, -25) })
@@ -508,7 +544,7 @@ const initAmap = async () => {
     mapLoadFailed.value = false
 
     if (exceptionList.value.length > 0) {
-      renderAllMapMarkers()
+      syncMapMarkers(exceptionList.value)
       const active = allPieCards.value.find((card) => card.key === activePill.value)
       filterMapMarkers(active?.keywords)
     }
@@ -518,31 +554,92 @@ const initAmap = async () => {
   }
 }
 
-const renderAllMapMarkers = () => {
+const buildMarkerContent = (row: ExceptionRow) => {
+  const isResolved = String(row.state) === '1'
+  const isCritical = String(row.type ?? '').toUpperCase().includes('SOS') || String(row.type ?? '').includes('求救')
+  const matchedPill = allPieCards.value.find((pill) =>
+    pill.keywords?.some((kw) => String(row.type ?? '').includes(kw))
+  )
+  const customColor = matchedPill && pillColors[matchedPill.key] ? pillColors[matchedPill.key] : null
+
+  let markerColorClass = isResolved ? 'pulse-resolved' : 'pulse-custom'
+  let customStyle = ''
+  let coreStyle = ''
+
+  if (!isResolved) {
+    if (customColor) {
+      customStyle = `color: ${customColor};`
+      coreStyle = `background: ${customColor};`
+    } else {
+      markerColorClass = isCritical ? 'pulse-danger' : 'pulse-warning'
+    }
+  }
+
+  return `<div class="holo-marker ${markerColorClass}" style="${customStyle}"><div class="core" style="${coreStyle}"></div><div class="ripple"></div></div>`
+}
+
+const syncMapMarkers = (rows: ExceptionRow[]) => {
   if (!amapInstance || !window.AMap) return
-  amapInstance.remove(mapMarkers)
-  mapMarkers = []
 
-  exceptionList.value.forEach((row) => {
+  const nextKeys = new Set<string>()
+  const addedMarkers: any[] = []
+
+  rows.forEach((row, index) => {
     if (!Number.isFinite(row._lng) || !Number.isFinite(row._lat)) return
+    const key = row._markerKey || getMarkerKey(row, index)
+    nextKeys.add(key)
 
+    const marker = markerMap.get(key)
     const position: [number, number] = [row._lng as number, row._lat as number]
-    const isCritical = String(row.type ?? '').toUpperCase().includes('SOS') || String(row.type ?? '').includes('求救')
-    const isResolved = String(row.state) === '1'
-    const markerColorClass = isResolved ? 'pulse-resolved' : (isCritical ? 'pulse-danger' : 'pulse-warning')
+    const content = buildMarkerContent(row)
 
-    const marker = new window.AMap.Marker({
+    if (marker) {
+      marker.setPosition(position)
+      marker.setExtData(row)
+      marker.setContent(content)
+      return
+    }
+
+    const nextMarker = new window.AMap.Marker({
       position,
-      content: `<div class="holo-marker ${markerColorClass}"><div class="core"></div><div class="ripple"></div></div>`,
+      content,
       anchor: 'center',
       extData: row
     })
-
-    marker.on('click', () => openTechInfoWindow(marker))
-    mapMarkers.push(marker)
+    nextMarker.on('click', () => openTechInfoWindow(nextMarker))
+    markerMap.set(key, nextMarker)
+    addedMarkers.push(nextMarker)
   })
 
-  amapInstance.add(mapMarkers)
+  const removedMarkers: any[] = []
+  markerMap.forEach((marker, key) => {
+    if (!nextKeys.has(key)) {
+      removedMarkers.push(marker)
+      markerMap.delete(key)
+    }
+  })
+
+  if (removedMarkers.length > 0) {
+    amapInstance.remove(removedMarkers)
+  }
+  if (addedMarkers.length > 0) {
+    amapInstance.add(addedMarkers)
+  }
+
+  mapMarkers = Array.from(markerMap.values())
+}
+
+const scheduleFitView = (markers: any[], signature: string) => {
+  if (!amapInstance || markers.length === 0) return
+  if (signature === lastFitSignature) return
+
+  lastFitSignature = signature
+  if (fitViewTimer) {
+    clearTimeout(fitViewTimer)
+  }
+  fitViewTimer = setTimeout(() => {
+    amapInstance?.setFitView(markers, false)
+  }, 80)
 }
 
 const filterMapMarkers = (keywords?: string[]) => {
@@ -562,9 +659,9 @@ const filterMapMarkers = (keywords?: string[]) => {
   })
 
   if (visibleMarkers.length > 0 && keywords) {
-    amapInstance.setFitView(visibleMarkers, false)
+    scheduleFitView(visibleMarkers, `kw:${keywords.join('|')}|${visibleMarkers.length}`)
   } else if (!keywords) {
-    amapInstance.setFitView(mapMarkers, false)
+    scheduleFitView(mapMarkers, `all:${mapMarkers.length}`)
   }
 }
 
@@ -591,44 +688,59 @@ const openTechInfoWindow = (marker: any) => {
 const handleRowClick = (row: ExceptionRow) => {
   if (!amapInstance || !Number.isFinite(row._lng) || !Number.isFinite(row._lat)) return
   amapInstance.panTo([row._lng, row._lat])
-  const targetMarker = mapMarkers.find((marker) => {
+  const targetMarker = row._markerKey ? markerMap.get(row._markerKey) : mapMarkers.find((marker) => {
     const pos = marker.getPosition()
     return pos.lng === row._lng && pos.lat === row._lat
   })
   if (targetMarker) setTimeout(() => openTechInfoWindow(targetMarker), 300)
 }
 
-const fetchAll = async () => {
+const fetchAll = async (forceFull = false) => {
   if (fetching.value) return
 
   fetching.value = true
   try {
-    const [rtRes, ageRes, recentRes, exceptionRes] = await Promise.all([
-      getRealTimeData(),
-      getAgeSexGroupCount(),
-      getRecentAbnormal(8),
-      getIndexException('all', 1)
-    ])
+    const shouldRefreshDetails = forceFull || (pollRound % DETAIL_REFRESH_EVERY_ROUNDS === 0)
+    const requests: Promise<unknown>[] = [getRealTimeData()]
+    if (shouldRefreshDetails) {
+      requests.push(getAgeSexGroupCount(), getRecentAbnormal(8), getIndexException('all', 1))
+    }
 
+    const results = await Promise.all(requests)
+    const rtRes = results[0] as Record<string, any>
     realTimeData.value = (rtRes.data ?? {}) as Record<string, unknown>
-    ageSexTable.value = normalizeAgeSexTable(ageRes.data)
-    recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
 
-    const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
-    const normalizedExceptions = normalizeExceptionList(rawExceptions)
-    if (normalizedExceptions.length > 0) {
-      useMockExceptionData.value = false
-      exceptionList.value = normalizedExceptions
-    } else {
-      useMockExceptionData.value = true
-      exceptionList.value = buildMockExceptions(recentAbnormal.value)
-    }
+    if (shouldRefreshDetails) {
+      const ageRes = results[1] as Record<string, any>
+      const recentRes = results[2] as Record<string, any>
+      const exceptionRes = results[3] as Record<string, any>
 
-    if (amapInstance) {
-      renderAllMapMarkers()
-      const active = allPieCards.value.find((card) => card.key === activePill.value)
-      filterMapMarkers(active?.keywords)
+      ageSexTable.value = normalizeAgeSexTable(ageRes.data)
+      recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
+
+      const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
+      const normalizedExceptions = normalizeExceptionList(rawExceptions)
+      if (normalizedExceptions.length > 0) {
+        useMockExceptionData.value = false
+        exceptionList.value = normalizedExceptions
+      } else {
+        useMockExceptionData.value = true
+        exceptionList.value = buildMockExceptions(recentAbnormal.value)
+      }
+
+      if (amapInstance) {
+        const digest = exceptionList.value
+          .map((row) => `${row._markerKey}|${row._lng}|${row._lat}|${row.state}|${row.type}`)
+          .join(';')
+        if (digest !== lastExceptionDigest) {
+          lastExceptionDigest = digest
+          syncMapMarkers(exceptionList.value)
+        }
+        const active = allPieCards.value.find((card) => card.key === activePill.value)
+        filterMapMarkers(active?.keywords)
+      }
     }
+    pollRound += 1
   } catch (error) {
     ElMessage.error('系统数据链路中断')
   } finally {
@@ -639,22 +751,24 @@ const fetchAll = async () => {
 watch(() => pieData.value.map((item) => item.value).join('|'), renderKpiPieChart)
 
 const handleResize = () => {
-  kpiPieChart?.resize()
-  trendChartInstance?.resize()
-  amapInstance?.resize?.()
+  if (resizeTimer) clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    kpiPieChart?.resize()
+    trendChartInstance?.resize()
+    amapInstance?.resize?.()
+  }, 120)
 }
 
 onMounted(async () => {
-  await fetchAll()
+  await Promise.all([fetchAll(true), initAmap()])
   if (!kpiPieChart && kpiPieRef.value) {
     kpiPieChart = echarts.init(kpiPieRef.value)
   }
   renderKpiPieChart()
-  await initAmap()
 
   refreshTimer = setInterval(() => {
     void fetchAll()
-  }, 30000)
+  }, POLL_INTERVAL)
 
   window.addEventListener('resize', handleResize)
 })
@@ -665,6 +779,15 @@ onBeforeUnmount(() => {
     clearInterval(refreshTimer)
     refreshTimer = null
   }
+  if (fitViewTimer) {
+    clearTimeout(fitViewTimer)
+    fitViewTimer = null
+  }
+  if (resizeTimer) {
+    clearTimeout(resizeTimer)
+    resizeTimer = null
+  }
+  markerMap.clear()
   kpiPieChart?.dispose()
   trendChartInstance?.dispose()
   amapInfoWindow?.close()
@@ -782,6 +905,10 @@ onBeforeUnmount(() => {
 /* 面板掉落动画 */
 .panel-drop-enter-active, .panel-drop-leave-active { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .panel-drop-enter-from, .panel-drop-leave-to { opacity: 0; transform: translate(-50%, -20px) scale(0.95); }
+
+/* 快响应侧边栏过渡 */
+.panel-fade-enter-active, .panel-fade-leave-active { transition: opacity 0.15s ease-out; }
+.panel-fade-enter-from, .panel-fade-leave-to { opacity: 0; }
 
 /* 图表/表格通用样式 */
 .kpi-pie-slim { width: 100%; height: 180px; }
