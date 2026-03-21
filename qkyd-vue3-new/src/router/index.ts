@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+﻿import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/store/user'
 
 export const appChildrenRoutes: RouteRecordRaw[] = [
@@ -6,7 +6,7 @@ export const appChildrenRoutes: RouteRecordRaw[] = [
     path: 'dashboard',
     name: 'Dashboard',
     component: () => import('@/views/DashboardView.vue'),
-    meta: { title: '健康驾驶舱', icon: 'DataBoard' }
+    meta: { title: '健康总览', icon: 'DataBoard' }
   },
   {
     path: 'subject',

@@ -1,0 +1,125 @@
+﻿# production profile
+swagger:
+  enabled: true
+  pathMapping: /prod-api
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+ruoyi:
+  name: RuoYi
+  version: 3.8.7
+  copyrightYear: 2023
+  profile: ${RUOYI_PROFILE:/app/upload}
+  addressEnabled: false
+  captchaType: math
+
+spring:
+  application:
+    name: qkyd
+  ai:
+    openai:
+      api-key: ${AI_API_KEY:sk-placeholder-key-for-startup-fix}
+      base-url: ${AI_BASE_URL:https://api.openai.com}
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/${MYSQL_DB:qkyd_jkpt}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: ${MYSQL_USER:root}
+        password: ${MYSQL_PASSWORD:123456}
+      slave:
+        enabled: false
+        url:
+        username:
+        password:
+      initialSize: 5
+      minIdle: 10
+      maxActive: 20
+      maxWait: 60000
+      connectTimeout: 30000
+      socketTimeout: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        allow:
+        url-pattern: /druid/*
+        login-username: ${DRUID_USER:ruoyi}
+        login-password: ${DRUID_PASSWORD:123456}
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10s
+      lettuce:
+        pool:
+          min-idle: 0
+          max-idle: 8
+          max-active: 8
+          max-wait: -1ms
+
+user:
+  password:
+    maxRetryCount: 5
+    lockTime: 10
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.qkyd.**.domain
+
+logging:
+  level:
+    com.qkyd: info
+    org.springframework: warn
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: ${LOG_FILE:/app/logs/qkyd.log}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+token:
+  header: Authorization
+  secret: ${TOKEN_SECRET:abcdefghijklmnopqrstuvwxyz1234567890ABCDEF}
+  expireTime: ${TOKEN_EXPIRE_MINUTES:30}
+
+xss:
+  enabled: true
+  excludes: /system/notice
+  urlPatterns: /system/*,/monitor/*,/tool/*

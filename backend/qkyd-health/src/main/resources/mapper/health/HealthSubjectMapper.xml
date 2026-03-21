@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkyd.health.mapper.HealthSubjectMapper">
+    
+    <resultMap type="com.qkyd.health.domain.HealthSubject" id="HealthSubjectResult">
+        <id property="subjectId" column="subject_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="subjectName" column="subject_name"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="email" column="email"/>
+        <result property="phonenumber" column="phonenumber"/>
+        <result property="age" column="age"/>
+        <result property="sex" column="sex"/>
+        <result property="avatar" column="avatar"/>
+        <result property="password" column="password"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="loginIp" column="login_ip"/>
+        <result property="loginDate" column="login_date"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <association property="dept" column="dept_id" javaType="com.qkyd.common.core.domain.entity.SysDept" resultMap="com.qkyd.system.mapper.SysDeptMapper.SysDeptResult"/>
+    </resultMap>
+
+    <sql id="selectHealthSubjectVo">
+        select u.subject_id, u.dept_id, u.subject_name, u.nick_name, u.user_type, u.email, u.phonenumber, u.age, u.sex, u.avatar, u.password, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.update_by, u.update_time, u.remark,
+               d.dept_id, d.parent_id, d.dept_name, d.order_num, d.leader, d.phone, d.email, d.status as dept_status
+        from health_subject u
+        left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectHealthSubjectList" parameterType="com.qkyd.health.domain.HealthSubject" resultMap="HealthSubjectResult">
+        <include refid="selectHealthSubjectVo"/>
+        <where>
+            <if test="subjectName != null and subjectName != ''">
+                AND u.subject_name like concat('%', #{subjectName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND u.status = #{status}
+            </if>
+            <if test="phonenumber != null and phonenumber != ''">
+                AND u.phonenumber like concat('%', #{phonenumber}, '%')
+            </if>
+            <if test="deptId != null and deptId != 0">
+                AND (u.dept_id = #{deptId} OR u.dept_id IN (SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId}, ancestors)))
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND DATE(u.create_time) &gt;= DATE(#{params.beginTime})
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND DATE(u.create_time) &lt;= DATE(#{params.endTime})
+            </if>
+        </where>
+        order by u.create_time desc
+    </select>
+    
+    <select id="selectHealthSubjectBySubjectId" parameterType="Long" resultMap="HealthSubjectResult">
+        <include refid="selectHealthSubjectVo"/>
+        where u.subject_id = #{subjectId}
+    </select>
+        
+    <insert id="insertHealthSubject" parameterType="com.qkyd.health.domain.HealthSubject" useGeneratedKeys="true" keyProperty="subjectId">
+        insert into health_subject
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">dept_id,</if>
+            <if test="subjectName != null">subject_name,</if>
+            <if test="nickName != null">nick_name,</if>
+            <if test="userType != null">user_type,</if>
+            <if test="email != null">email,</if>
+            <if test="phonenumber != null">phonenumber,</if>
+            <if test="age != null">age,</if>
+            <if test="sex != null">sex,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="password != null">password,</if>
+            <if test="status != null">status,</if>
+            <if test="loginIp != null">login_ip,</if>
+            <if test="loginDate != null">login_date,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">#{deptId},</if>
+            <if test="subjectName != null">#{subjectName},</if>
+            <if test="nickName != null">#{nickName},</if>
+            <if test="userType != null">#{userType},</if>
+            <if test="email != null">#{email},</if>
+            <if test="phonenumber != null">#{phonenumber},</if>
+            <if test="age != null">#{age},</if>
+            <if test="sex != null">#{sex},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="password != null">#{password},</if>
+            <if test="status != null">#{status},</if>
+            <if test="loginIp != null">#{loginIp},</if>
+            <if test="loginDate != null">#{loginDate},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHealthSubject" parameterType="com.qkyd.health.domain.HealthSubject">
+        update health_subject
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="subjectName != null">subject_name = #{subjectName},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="userType != null">user_type = #{userType},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phonenumber != null">phonenumber = #{phonenumber},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="loginIp != null">login_ip = #{loginIp},</if>
+            <if test="loginDate != null">login_date = #{loginDate},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where subject_id = #{subjectId}
+    </update>
+
+    <delete id="deleteHealthSubjectBySubjectId" parameterType="Long">
+        update health_subject set del_flag = '2' where subject_id = #{subjectId}
+    </delete>
+
+    <delete id="deleteHealthSubjectBySubjectIds" parameterType="String">
+        update health_subject set del_flag = '2' where subject_id in 
+        <foreach item="subjectId" collection="array" open="(" separator="," close=")">
+            #{subjectId}
+        </foreach>
+    </delete>
+</mapper>

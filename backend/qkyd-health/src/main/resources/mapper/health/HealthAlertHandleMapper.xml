@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkyd.health.mapper.HealthAlertHandleMapper">
+
+    <resultMap type="HealthAlertHandle" id="HealthAlertHandleResult">
+        <result property="id"    column="id"    />
+        <result property="alertId"    column="alert_id"    />
+        <result property="alertType"    column="alert_type"    />
+        <result property="handlerId"    column="handler_id"    />
+        <result property="handlerName"    column="handler_name"    />
+        <result property="handleAction"    column="handle_action"    />
+        <result property="handleResult"    column="handle_result"    />
+        <result property="handleTime"    column="handle_time"    />
+        <result property="nextAction"    column="next_action"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectHealthAlertHandleVo">
+        select id, alert_id, alert_type, handler_id, handler_name, handle_action, handle_result, handle_time, next_action, status, create_time, update_by, update_time from health_alert_handle
+    </sql>
+
+    <select id="selectHealthAlertHandleList" parameterType="HealthAlertHandle" resultMap="HealthAlertHandleResult">
+        <include refid="selectHealthAlertHandleVo"/>
+        <where>
+            <if test="alertId != null "> and alert_id = #{alertId}</if>
+            <if test="alertType != null  and alertType != ''"> and alert_type = #{alertType}</if>
+            <if test="handlerId != null "> and handler_id = #{handlerId}</if>
+            <if test="handlerName != null  and handlerName != ''"> and handler_name like concat('%', #{handlerName}, '%')</if>
+            <if test="handleAction != null  and handleAction != ''"> and handle_action = #{handleAction}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+        order by handle_time desc
+    </select>
+
+    <select id="selectHealthAlertHandleById" parameterType="Long" resultMap="HealthAlertHandleResult">
+        <include refid="selectHealthAlertHandleVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByAlertId" parameterType="Long" resultMap="HealthAlertHandleResult">
+        <include refid="selectHealthAlertHandleVo"/>
+        where alert_id = #{alertId} and status = '1'
+        order by handle_time desc
+    </select>
+
+    <insert id="insertHealthAlertHandle" parameterType="HealthAlertHandle" useGeneratedKeys="true" keyProperty="id">
+        insert into health_alert_handle
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="alertId != null">alert_id,</if>
+            <if test="alertType != null">alert_type,</if>
+            <if test="handlerId != null">handler_id,</if>
+            <if test="handlerName != null">handler_name,</if>
+            <if test="handleAction != null">handle_action,</if>
+            <if test="handleResult != null">handle_result,</if>
+            <if test="handleTime != null">handle_time,</if>
+            <if test="nextAction != null">next_action,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="alertId != null">#{alertId},</if>
+            <if test="alertType != null">#{alertType},</if>
+            <if test="handlerId != null">#{handlerId},</if>
+            <if test="handlerName != null">#{handlerName},</if>
+            <if test="handleAction != null">#{handleAction},</if>
+            <if test="handleResult != null">#{handleResult},</if>
+            <if test="handleTime != null">#{handleTime},</if>
+            <if test="nextAction != null">#{nextAction},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHealthAlertHandle" parameterType="HealthAlertHandle">
+        update health_alert_handle
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="alertId != null">alert_id = #{alertId},</if>
+            <if test="alertType != null">alert_type = #{alertType},</if>
+            <if test="handlerId != null">handler_id = #{handlerId},</if>
+            <if test="handlerName != null">handler_name = #{handlerName},</if>
+            <if test="handleAction != null">handle_action = #{handleAction},</if>
+            <if test="handleResult != null">handle_result = #{handleResult},</if>
+            <if test="handleTime != null">handle_time = #{handleTime},</if>
+            <if test="nextAction != null">next_action = #{nextAction},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHealthAlertHandleById" parameterType="Long">
+        delete from health_alert_handle where id = #{id}
+    </delete>
+
+    <delete id="deleteHealthAlertHandleByIds" parameterType="Long">
+        delete from health_alert_handle where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

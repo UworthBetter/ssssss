@@ -4,7 +4,12 @@ export function chatAi(message: string) {
   return request({
     url: '/ai/chat',
     method: 'post',
-    data: message
+    timeout: 60000,
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    // Send JSON string payload to avoid axios defaulting plain strings to form-urlencoded.
+    data: JSON.stringify(message)
   })
 }
 

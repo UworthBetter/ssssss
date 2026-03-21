@@ -1,7 +1,10 @@
-<template>
+﻿<template>
   <div class="login-page">
     <div class="login-art">
-      <h1>智能健康管理平台</h1>
+      <h1 class="brand-title">
+        <img src="/logo-qkyd-wide.png" alt="耆康云盾健康监测平台" class="brand-logo" />
+        <span class="brand-text">耆康云盾健康监测平台</span>
+      </h1>
       <p>整合设备数据、AI 风险识别与告警处置，帮助照护团队更快发现问题。</p>
       <ul>
         <li>多源健康数据实时监测</li>
@@ -105,43 +108,91 @@ onMounted(refreshCaptcha)
 <style scoped lang="scss">
 .login-page {
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1.1fr 460px;
   gap: 28px;
   align-items: center;
   padding: 24px;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.22), transparent 34%),
-    radial-gradient(circle at 80% 85%, rgba(59, 130, 246, 0.22), transparent 36%),
-    #ecf4f7;
+  background: transparent;
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.06);
+  z-index: 0;
 }
 
 .login-art {
-  color: #104156;
-  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+  color: #f4f9ff;
+  width: fit-content;
+  max-width: 560px;
+  padding: 16px 18px;
+  background: rgba(9, 22, 33, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
 
   h1 {
     margin-bottom: 12px;
     font-size: 40px;
     line-height: 1.2;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  }
+
+  .brand-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-logo {
+    width: clamp(64px, 8vw, 88px);
+    height: clamp(64px, 8vw, 88px);
+    max-width: 100%;
+    object-fit: contain;
+    flex: 0 0 auto;
+    display: block;
+  }
+
+  .brand-text {
+    font-size: clamp(24px, 2.7vw, 38px);
+    line-height: 1.2;
+    font-weight: 700;
+    color: #f4f9ff;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   }
 
   p {
-    max-width: 520px;
-    color: #35627a;
+    max-width: 500px;
+    color: rgba(244, 249, 255, 0.92);
     margin-bottom: 18px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.38);
   }
 
   ul {
     padding-left: 20px;
-    color: #35627a;
+    color: rgba(244, 249, 255, 0.9);
     line-height: 1.9;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   }
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   padding: 28px;
   border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .login-tip {

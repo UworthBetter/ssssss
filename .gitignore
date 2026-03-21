@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+target/
+.idea/
+.idea_root_backup/
+.vscode/
+.pytest_cache/
+*.log
+*.tar

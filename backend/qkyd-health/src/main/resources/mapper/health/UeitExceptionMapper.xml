@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qkyd.health.mapper.UeitExceptionMapper">
+
+    <resultMap type="UeitException" id="UeitExceptionResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="type"    column="type"    />
+        <result property="value"    column="value"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="state"    column="state"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateContent"    column="update_content"    />
+        <result property="location"    column="location"    />
+    </resultMap>
+
+    <sql id="selectUeitExceptionVo">
+        select id, user_id, device_id, type, value, longitude, latitude, state, create_time, update_by, update_time, update_content, location from qkyd_exception
+    </sql>
+
+    <select id="selectUeitExceptionList" parameterType="UeitException" resultMap="UeitExceptionResult">
+        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone, qkyd_exception.*
+        FROM sys_user su
+        JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
+        <where>
+            <if test="userId != null "> and su.user_id = #{userId}</if>
+            <if test="phone != null  and phone != ''">AND su.phonenumber  like concat('%', #{phone}, '%')</if>
+            <if test="type != null  and type != ''">AND qkyd_exception.type = #{type}</if>
+            <if test="state != null  and state != ''">AND qkyd_exception.state = #{state}</if>
+            <if test="startCreateTime != null  and endCreateTime != null">AND qkyd_exception.create_time BETWEEN #{startCreateTime} AND #{endCreateTime}</if>
+        </where>
+        order by qkyd_exception.id desc
+    </select>
+
+    <select id="selectUeitExceptionById" parameterType="Long" resultMap="UeitExceptionResult">
+        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber, qkyd_exception.*
+        FROM sys_user su
+        JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
+        where id = #{id}
+    </select>
+    <select id="getDataBoard" resultType="com.qkyd.health.domain.UeitException">
+        select id, user_id, device_id, type, value, longitude, latitude, state, create_time as readTime, update_by, update_time, update_content, location from qkyd_exception
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="beginReadTime != null and endReadTime != null"> and create_time BETWEEN #{beginReadTime} AND #{endReadTime}</if>
+        </where>
+    </select>
+    <select id="getExceptionData" resultType="com.qkyd.health.domain.UeitException">
+        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
+        qkyd_exception.id, qkyd_exception.user_id, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by, qkyd_exception.update_time, qkyd_exception.update_content, qkyd_exception.location
+        FROM sys_user su
+        JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
+        <where>
+            <if test="type != null  and type != '' and type != 'all'">AND qkyd_exception.type = #{type}</if>
+        </where>
+        order by qkyd_exception.id desc
+        limit 10
+    </select>
+    <select id="getTotal" resultType="java.lang.Integer">
+        SELECT COUNT(*) AS total
+        FROM qkyd_exception
+        <where>
+            user_id IS NOT NULL
+            <if test="type != null  and type != '' and type != 'all'">AND qkyd_exception.type = #{type}</if>
+        </where>
+    </select>
+    <select id="selectUeitExceptionListByUserId" resultType="com.qkyd.health.domain.UeitException">
+        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
+        qkyd_exception.id, qkyd_exception.user_id as userIdWho, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by as updateByWho, qkyd_exception.update_time as updateTimeWho, qkyd_exception.update_content, qkyd_exception.location
+        FROM sys_user su
+        JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
+        <where>
+            <if test="userId != null "> and su.user_id = #{userId}</if>
+            <if test="phone != null  and phone != ''">AND su.phonenumber  like concat('%', #{phone}, '%')</if>
+            <if test="type != null  and type != ''">AND qkyd_exception.type = #{type}</if>
+            <if test="state != null  and state != ''">AND qkyd_exception.state = #{state}</if>
+            <if test="startCreateTime != null  and endCreateTime != null">AND qkyd_exception.create_time BETWEEN #{startCreateTime} AND #{endCreateTime}</if>
+        </where>
+        order by qkyd_exception.id desc
+    </select>
+
+    <select id="selectExceptionForDashboard" resultType="com.qkyd.health.domain.UeitException">
+        select id, user_id, device_id, type, value, longitude, latitude, state, create_time as readTime, location
+        from qkyd_exception
+        order by id desc
+    </select>
+
+    <insert id="insertUeitException" parameterType="UeitException" useGeneratedKeys="true" keyProperty="id">
+        insert into qkyd_exception
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deviceId != null">device_id,</if>
+            <if test="type != null">type,</if>
+            <if test="value != null">value,</if>
+            <if test="longitude != null">longitude,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="state != null">state,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateContent != null">update_content,</if>
+            <if test="location != null">location,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deviceId != null">#{deviceId},</if>
+            <if test="type != null">#{type},</if>
+            <if test="value != null">#{value},</if>
+            <if test="longitude != null">#{longitude},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="state != null">#{state},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateContent != null">#{updateContent},</if>
+            <if test="location != null">#{location},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUeitException" parameterType="UeitException">
+        update qkyd_exception
+        <trim prefix="SET" suffixOverrides=",">
+            state = 1,
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deviceId != null">device_id = #{deviceId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="value != null">value = #{value},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateContent != null">update_content = #{updateContent},</if>
+            <if test="location != null">location = #{location},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUeitExceptionById" parameterType="Long">
+        delete from qkyd_exception where id = #{id}
+    </delete>
+
+    <delete id="deleteUeitExceptionByIds" parameterType="String">
+        delete from qkyd_exception where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
