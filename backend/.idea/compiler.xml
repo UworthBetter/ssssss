@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="qkyd-generator" />
+        <module name="qkyd-health" />
+        <module name="qkyd-admin" />
+        <module name="qkyd-common" />
+        <module name="qkyd-framework" />
+        <module name="qkyd-ai" />
+        <module name="qkyd-quartz" />
+        <module name="qkyd-system" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="jkpt" options="-parameters" />
+      <module name="qkyd-admin" options="-parameters" />
+      <module name="qkyd-ai" options="-parameters" />
+      <module name="qkyd-common" options="-parameters" />
+      <module name="qkyd-framework" options="-parameters" />
+      <module name="qkyd-generator" options="-parameters" />
+      <module name="qkyd-health" options="-parameters" />
+      <module name="qkyd-quartz" options="-parameters" />
+      <module name="qkyd-system" options="-parameters" />
+    </option>
+  </component>
+</project>
