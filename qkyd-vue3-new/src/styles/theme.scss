@@ -1,14 +1,19 @@
 :root {
-  --bg-page: #f4f8fb;
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --text-main: #143049;
-  --text-sub: #4f6577;
-  --line-soft: #d8e3ed;
-  --brand: #0d9488;
-  --brand-soft: #ccfbf1;
-  --warn: #f59e0b;
-  --danger: #ef4444;
-  --shadow-soft: 0 12px 30px rgba(16, 46, 75, 0.08);
+  --bg-page: #f3f2f1;
+  --bg-page-gradient:
+    radial-gradient(circle at 12% 16%, rgba(183, 203, 218, 0.34), transparent 42%),
+    radial-gradient(circle at 88% 18%, rgba(225, 205, 205, 0.28), transparent 44%),
+    radial-gradient(circle at 76% 88%, rgba(193, 218, 206, 0.24), transparent 46%),
+    #f3f2f1;
+  --bg-card: rgba(255, 255, 255, 0.74);
+  --text-main: #2f3f4d;
+  --text-sub: #6f8090;
+  --line-soft: #dde3e9;
+  --brand: #6f9ba0;
+  --brand-soft: #e8f1ef;
+  --warn: #c79d6a;
+  --danger: #c57f86;
+  --shadow-soft: 0 12px 30px rgba(65, 86, 102, 0.08);
 }
 
 * {
@@ -19,10 +24,7 @@ body {
   margin: 0;
   font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   color: var(--text-main);
-  background:
-    radial-gradient(circle at 0% 10%, rgba(13, 148, 136, 0.16), transparent 36%),
-    radial-gradient(circle at 100% 100%, rgba(14, 116, 144, 0.12), transparent 38%),
-    var(--bg-page);
+  background: var(--bg-page-gradient);
 }
 
 .page-shell {
@@ -31,8 +33,10 @@ body {
 
 .panel {
   border: 1px solid rgba(216, 227, 237, 0.9);
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: var(--shadow-soft);
 }
 

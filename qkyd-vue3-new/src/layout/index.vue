@@ -1,11 +1,11 @@
-<template>
+﻿<template>
   <el-container class="layout-container">
     <el-aside :width="sidebarWidth" class="sidebar panel">
       <div class="brand">
-        <div class="brand-logo">H+</div>
+        <img class="brand-logo" src="/logo-qkyd-wide.png" alt="耆康云盾" />
         <div v-show="appStore.sidebar.opened" class="brand-text">
-          <p class="brand-title">qkyd 健康管理</p>
-          <p class="brand-sub">智能监测运营端</p>
+          <p class="brand-title">耆康云盾健康监测平台</p>
+          <p class="brand-sub">智能监测管理端</p>
         </div>
       </div>
       <el-menu :default-active="activeMenu" :collapse="!appStore.sidebar.opened" router>
@@ -32,8 +32,8 @@
           <div class="date-chip">{{ nowText }}</div>
           <el-dropdown @command="onUserCommand">
             <div class="user-entry">
-              <el-avatar :size="32">{{ avatarText }}</el-avatar>
-              <span>{{ userStore.userInfo.nickName || userStore.userInfo.userName }}</span>
+              <el-avatar :size="32" :src="userAvatar">{{ avatarText }}</el-avatar>
+              <span>{{ displayName }}</span>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
@@ -70,9 +70,11 @@ const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const displayName = '小康'
+const userAvatar = '/avatar-qkyd-2.jpg'
 
 const navItems: NavItem[] = [
-  { path: '/dashboard', title: '健康驾驶舱', icon: DataBoard },
+  { path: '/dashboard', title: '健康总览', icon: DataBoard },
   { path: '/subject', title: '服务对象管理', icon: UserFilled },
   { path: '/device', title: '设备管理', icon: Watch },
   { path: '/exception', title: '异常告警中心', icon: WarningFilled },
@@ -83,7 +85,7 @@ const activeMenu = computed(() => route.path)
 const breadcrumbs = computed(() => route.matched.filter((item) => item.meta?.title))
 const sidebarWidth = computed(() => (appStore.sidebar.opened ? '248px' : '76px'))
 const avatarText = computed(() => {
-  const source = userStore.userInfo.nickName || userStore.userInfo.userName || 'U'
+  const source = displayName || userStore.userInfo.nickName || userStore.userInfo.userName || 'U'
   return String(source).slice(0, 1).toUpperCase()
 })
 
@@ -151,14 +153,14 @@ onBeforeUnmount(() => {
 }
 
 .brand-logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-weight: 700;
-  background: linear-gradient(135deg, #0d9488, #0f766e);
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: contain;
+  object-position: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2px;
+  flex: 0 0 auto;
 }
 
 .brand-title {
