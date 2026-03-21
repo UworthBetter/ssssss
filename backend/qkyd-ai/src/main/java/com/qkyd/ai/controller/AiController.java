@@ -1,4 +1,4 @@
-package com.qkyd.ai.controller;
+﻿package com.qkyd.ai.controller;
 
 import com.qkyd.ai.service.IAiService;
 import com.qkyd.common.core.domain.AjaxResult;
@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * AI控制器
+ * AI鎺у埗鍣?
  *
  * @author ueit
  */
-@Tag(name = "AI服务", description = "AI相关接口")
+@Tag(name = "AI鏈嶅姟", description = "AI鐩稿叧鎺ュ彛")
 @RestController
 @RequestMapping("/ai")
 public class AiController {
@@ -21,44 +21,48 @@ public class AiController {
     private IAiService aiService;
 
     /**
-     * AI对话
+     * AI瀵硅瘽
      */
-    @Operation(summary = "AI对话", description = "与AI进行单轮对话")
+    @Operation(summary = "AI瀵硅瘽", description = "涓嶢I杩涜鍗曡疆瀵硅瘽")
     @PostMapping("/chat")
     public AjaxResult chat(@RequestBody String message) {
         try {
             String response = aiService.chat(message);
-            return AjaxResult.success(response);
+            if (response == null || response.isBlank()) {
+                response = "AI服务暂时未返回文本内容，请稍后重试";
+            }
+            return AjaxResult.success((Object) response);
         } catch (Exception e) {
-            return AjaxResult.error("AI对话失败：" + e.getMessage());
+            return AjaxResult.success((Object) ("AI对话失败：" + e.getMessage()));
         }
     }
 
     /**
-     * 测试AI服务
+     * 娴嬭瘯AI鏈嶅姟
      */
-    @Operation(summary = "测试AI服务", description = "测试AI服务是否正常")
+    @Operation(summary = "娴嬭瘯AI鏈嶅姟", description = "娴嬭瘯AI鏈嶅姟鏄惁姝ｅ父")
     @GetMapping("/test")
     public AjaxResult test() {
         try {
-            String response = aiService.chat("你好，请自我介绍一下");
-            return AjaxResult.success(response);
+            String response = aiService.chat("浣犲ソ锛岃鑷垜浠嬬粛涓€涓?);
+            return AjaxResult.success((Object) response);
         } catch (Exception e) {
-            return AjaxResult.error("测试失败：" + e.getMessage());
+            return AjaxResult.error("娴嬭瘯澶辫触锛? + e.getMessage());
         }
     }
 
     /**
-     * 嘉庆算法-跌倒检测
+     * 鍢夊簡绠楁硶-璺屽€掓娴?
      */
-    @Operation(summary = "跌倒检测", description = "基于传感器数据的AI跌倒检测")
+    @Operation(summary = "璺屽€掓娴?, description = "鍩轰簬浼犳劅鍣ㄦ暟鎹殑AI璺屽€掓娴?)
     @PostMapping("/detect/fall")
     public AjaxResult detectFall(@RequestBody com.qkyd.ai.domain.FallDetectionRequest request) {
         try {
             String result = aiService.detectFall(request);
-            return AjaxResult.success(result);
+            return AjaxResult.success((Object) result);
         } catch (Exception e) {
-            return AjaxResult.error("检测失败：" + e.getMessage());
+            return AjaxResult.error("妫€娴嬪け璐ワ細" + e.getMessage());
         }
     }
 }
+

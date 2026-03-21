@@ -45,7 +45,13 @@ public class FallDetectionServiceImpl implements IFallDetectionService {
             Map<String, Object> response = restTemplate.postForObject(url, sensorData, Map.class);
 
             if (response == null || !response.containsKey("data")) {
-                throw new RuntimeException("Invalid response from Python service");
+                FallDetectionVO fallback = new FallDetectionVO();
+                fallback.setDetected(false);
+                fallback.setConfidence(BigDecimal.ZERO);
+                fallback.setRiskLevel("unknown");
+                fallback.setAnalysis("AI service returned empty payload");
+                fallback.setAdvice("Please check Python algorithm service response format");
+                return fallback;
             }
 
             // Convert 'data' part to DTO
@@ -60,7 +66,7 @@ public class FallDetectionServiceImpl implements IFallDetectionService {
             // 2. Process Result
             FallDetectionVO vo = new FallDetectionVO();
             vo.setDetected(result.getIs_fall());
-            vo.setConfidence(BigDecimal.valueOf(result.getConfidence()));
+            vo.setConfidence(BigDecimal.valueOf(result.getConfidence() != null ? result.getConfidence() : 0D));
 
             if (result.getEnhanced_features() != null) {
                 vo.setAnalysis(result.getEnhanced_features().getReasoning());
@@ -88,7 +94,13 @@ public class FallDetectionServiceImpl implements IFallDetectionService {
 
         } catch (Exception e) {
             log.error("Error calling Python service", e);
-            throw new RuntimeException("Fall detection failed: " + e.getMessage());
+            FallDetectionVO fallback = new FallDetectionVO();
+            fallback.setDetected(false);
+            fallback.setConfidence(BigDecimal.ZERO);
+            fallback.setRiskLevel("unknown");
+            fallback.setAnalysis("Fall detection degraded: " + e.getMessage());
+            fallback.setAdvice("Check AI Python service and payload schema");
+            return fallback;
         }
     }
 }

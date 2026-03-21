@@ -100,7 +100,7 @@ const activeTab = ref('chat')
 const running = ref(false)
 
 const chatMessage = ref('请给出今日慢病老人的健康关注重点')
-const chatResult = ref('{}')
+const chatResult = ref('')
 
 const fallForm = ref({
   acc_x: 1.2,
@@ -157,7 +157,7 @@ const withRun = async (runner: () => Promise<void>) => {
 const runChat = async () =>
   withRun(async () => {
     const res = await chatAi(chatMessage.value)
-    chatResult.value = prettify(res.data)
+    chatResult.value = typeof res.data === 'string' ? res.data : prettify(res.data)
   })
 
 const runFall = async () =>

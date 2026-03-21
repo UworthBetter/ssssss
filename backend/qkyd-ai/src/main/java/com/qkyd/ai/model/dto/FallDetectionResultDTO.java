@@ -1,11 +1,14 @@
 package com.qkyd.ai.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Result DTO from Python Service
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FallDetectionResultDTO implements Serializable {
     private Boolean is_fall;
     private Double confidence;
@@ -44,6 +47,7 @@ public class FallDetectionResultDTO implements Serializable {
         this.original_result = original_result;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class EnhancedFeatures implements Serializable {
         private String severity;
         private String reasoning;

@@ -110,6 +110,7 @@ public class SecurityConfig {
                         // 对于登录login 注册register 验证码captchaImage 允许匿名访问
                         .requestMatchers("/login", "/register", "/captchaImage").permitAll()
                         .requestMatchers("/watch/push").permitAll()
+                        .requestMatchers("/ai/chat").permitAll()
                         .requestMatchers("/watch/require").permitAll()
                         // 健康数据模拟上传接口，允许匿名访问（设备鉴权）
                         .requestMatchers("/health/mock/**").permitAll()
