@@ -5,18 +5,18 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import com.qkyd.common.utils.spring.SpringUtils;
 
 /**
- * 获取i18n资源文件
+ * 鑾峰彇i18n璧勬簮鏂囦欢
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class MessageUtils
 {
     /**
-     * 根据消息键和参数 获取消息 委托给spring messageSource
+     * 鏍规嵁娑堟伅閿拰鍙傛暟 鑾峰彇娑堟伅 濮旀墭缁檚pring messageSource
      *
-     * @param code 消息键
-     * @param args 参数
-     * @return 获取国际化翻译值
+     * @param code 娑堟伅閿?
+     * @param args 鍙傛暟
+     * @return 鑾峰彇鍥介檯鍖栫炕璇戝€?
      */
     public static String message(String code, Object... args)
     {
@@ -24,4 +24,5 @@ public class MessageUtils
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 }
+
 

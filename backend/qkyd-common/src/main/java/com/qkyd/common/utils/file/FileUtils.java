@@ -13,26 +13,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.utils.DateUtils;
 import com.qkyd.common.utils.StringUtils;
 import com.qkyd.common.utils.uuid.IdUtils;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * 文件处理工具类
+ * 鏂囦欢澶勭悊宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class FileUtils
 {
     public static String FILENAME_PATTERN = "[a-zA-Z0-9_\\-\\|\\.\\u4e00-\\u9fa5]+";
 
     /**
-     * 输出指定文件的byte数组
+     * 杈撳嚭鎸囧畾鏂囦欢鐨刡yte鏁扮粍
      * 
-     * @param filePath 文件路径
-     * @param os 输出流
+     * @param filePath 鏂囦欢璺緞
+     * @param os 杈撳嚭娴?
      * @return
      */
     public static void writeBytes(String filePath, OutputStream os) throws IOException
@@ -65,24 +65,24 @@ public class FileUtils
     }
 
     /**
-     * 写数据到文件中
+     * 鍐欐暟鎹埌鏂囦欢涓?
      *
-     * @param data 数据
-     * @return 目标文件
-     * @throws IOException IO异常
+     * @param data 鏁版嵁
+     * @return 鐩爣鏂囦欢
+     * @throws IOException IO寮傚父
      */
     public static String writeImportBytes(byte[] data) throws IOException
     {
-        return writeBytes(data, RuoYiConfig.getImportPath());
+        return writeBytes(data, QkydConfig.getImportPath());
     }
 
     /**
-     * 写数据到文件中
+     * 鍐欐暟鎹埌鏂囦欢涓?
      *
-     * @param data 数据
-     * @param uploadDir 目标文件
-     * @return 目标文件
-     * @throws IOException IO异常
+     * @param data 鏁版嵁
+     * @param uploadDir 鐩爣鏂囦欢
+     * @return 鐩爣鏂囦欢
+     * @throws IOException IO寮傚父
      */
     public static String writeBytes(byte[] data, String uploadDir) throws IOException
     {
@@ -104,16 +104,16 @@ public class FileUtils
     }
 
     /**
-     * 删除文件
+     * 鍒犻櫎鏂囦欢
      * 
-     * @param filePath 文件
+     * @param filePath 鏂囦欢
      * @return
      */
     public static boolean deleteFile(String filePath)
     {
         boolean flag = false;
         File file = new File(filePath);
-        // 路径为文件且不为空则进行删除
+        // 璺緞涓烘枃浠朵笖涓嶄负绌哄垯杩涜鍒犻櫎
         if (file.isFile() && file.exists())
         {
             flag = file.delete();
@@ -122,10 +122,10 @@ public class FileUtils
     }
 
     /**
-     * 文件名称验证
+     * 鏂囦欢鍚嶇О楠岃瘉
      * 
-     * @param filename 文件名称
-     * @return true 正常 false 非法
+     * @param filename 鏂囦欢鍚嶇О
+     * @return true 姝ｅ父 false 闈炴硶
      */
     public static boolean isValidFilename(String filename)
     {
@@ -133,35 +133,35 @@ public class FileUtils
     }
 
     /**
-     * 检查文件是否可下载
+     * 妫€鏌ユ枃浠舵槸鍚﹀彲涓嬭浇
      * 
-     * @param resource 需要下载的文件
-     * @return true 正常 false 非法
+     * @param resource 闇€瑕佷笅杞界殑鏂囦欢
+     * @return true 姝ｅ父 false 闈炴硶
      */
     public static boolean checkAllowDownload(String resource)
     {
-        // 禁止目录上跳级别
+        // 绂佹鐩綍涓婅烦绾у埆
         if (StringUtils.contains(resource, ".."))
         {
             return false;
         }
 
-        // 检查允许下载的文件规则
+        // 妫€鏌ュ厑璁镐笅杞界殑鏂囦欢瑙勫垯
         if (ArrayUtils.contains(MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION, FileTypeUtils.getFileType(resource)))
         {
             return true;
         }
 
-        // 不在允许下载的文件规则
+        // 涓嶅湪鍏佽涓嬭浇鐨勬枃浠惰鍒?
         return false;
     }
 
     /**
-     * 下载文件名重新编码
+     * 涓嬭浇鏂囦欢鍚嶉噸鏂扮紪鐮?
      * 
-     * @param request 请求对象
-     * @param fileName 文件名
-     * @return 编码后的文件名
+     * @param request 璇锋眰瀵硅薄
+     * @param fileName 鏂囦欢鍚?
+     * @return 缂栫爜鍚庣殑鏂囦欢鍚?
      */
     public static String setFileDownloadHeader(HttpServletRequest request, String fileName) throws UnsupportedEncodingException
     {
@@ -169,33 +169,33 @@ public class FileUtils
         String filename = fileName;
         if (agent.contains("MSIE"))
         {
-            // IE浏览器
+            // IE娴忚鍣?
             filename = URLEncoder.encode(filename, "utf-8");
             filename = filename.replace("+", " ");
         }
         else if (agent.contains("Firefox"))
         {
-            // 火狐浏览器
+            // 鐏嫄娴忚鍣?
             filename = new String(fileName.getBytes(), "ISO8859-1");
         }
         else if (agent.contains("Chrome"))
         {
-            // google浏览器
+            // google娴忚鍣?
             filename = URLEncoder.encode(filename, "utf-8");
         }
         else
         {
-            // 其它浏览器
+            // 鍏跺畠娴忚鍣?
             filename = URLEncoder.encode(filename, "utf-8");
         }
         return filename;
     }
 
     /**
-     * 下载文件名重新编码
+     * 涓嬭浇鏂囦欢鍚嶉噸鏂扮紪鐮?
      *
-     * @param response 响应对象
-     * @param realFileName 真实文件名
+     * @param response 鍝嶅簲瀵硅薄
+     * @param realFileName 鐪熷疄鏂囦欢鍚?
      */
     public static void setAttachmentResponseHeader(HttpServletResponse response, String realFileName) throws UnsupportedEncodingException
     {
@@ -215,10 +215,10 @@ public class FileUtils
     }
 
     /**
-     * 百分号编码工具方法
+     * 鐧惧垎鍙风紪鐮佸伐鍏锋柟娉?
      *
-     * @param s 需要百分号编码的字符串
-     * @return 百分号编码后的字符串
+     * @param s 闇€瑕佺櫨鍒嗗彿缂栫爜鐨勫瓧绗︿覆
+     * @return 鐧惧垎鍙风紪鐮佸悗鐨勫瓧绗︿覆
      */
     public static String percentEncode(String s) throws UnsupportedEncodingException
     {
@@ -227,10 +227,10 @@ public class FileUtils
     }
 
     /**
-     * 获取图像后缀
+     * 鑾峰彇鍥惧儚鍚庣紑
      * 
-     * @param photoByte 图像数据
-     * @return 后缀名
+     * @param photoByte 鍥惧儚鏁版嵁
+     * @return 鍚庣紑鍚?
      */
     public static String getFileExtendName(byte[] photoByte)
     {
@@ -256,10 +256,10 @@ public class FileUtils
     }
 
     /**
-     * 获取文件名称 /profile/upload/2022/04/16/ruoyi.png -- ruoyi.png
+     * 鑾峰彇鏂囦欢鍚嶇О /profile/upload/2022/04/16/ruoyi.png -- ruoyi.png
      * 
-     * @param fileName 路径名称
-     * @return 没有文件路径的名称
+     * @param fileName 璺緞鍚嶇О
+     * @return 娌℃湁鏂囦欢璺緞鐨勫悕绉?
      */
     public static String getName(String fileName)
     {
@@ -274,10 +274,10 @@ public class FileUtils
     }
 
     /**
-     * 获取不带后缀文件名称 /profile/upload/2022/04/16/ruoyi.png -- ruoyi
+     * 鑾峰彇涓嶅甫鍚庣紑鏂囦欢鍚嶇О /profile/upload/2022/04/16/ruoyi.png -- ruoyi
      * 
-     * @param fileName 路径名称
-     * @return 没有文件路径和后缀的名称
+     * @param fileName 璺緞鍚嶇О
+     * @return 娌℃湁鏂囦欢璺緞鍜屽悗缂€鐨勫悕绉?
      */
     public static String getNameNotSuffix(String fileName)
     {
@@ -289,4 +289,6 @@ public class FileUtils
         return baseName;
     }
 }
+
+
 

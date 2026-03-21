@@ -1,60 +1,61 @@
 package com.qkyd.common.enums;
 
 /**
- * 业务操作类型
+ * 涓氬姟鎿嶄綔绫诲瀷
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public enum BusinessType
 {
     /**
-     * 其它
+     * 鍏跺畠
      */
     OTHER,
 
     /**
-     * 新增
+     * 鏂板
      */
     INSERT,
 
     /**
-     * 修改
+     * 淇敼
      */
     UPDATE,
 
     /**
-     * 删除
+     * 鍒犻櫎
      */
     DELETE,
 
     /**
-     * 授权
+     * 鎺堟潈
      */
     GRANT,
 
     /**
-     * 导出
+     * 瀵煎嚭
      */
     EXPORT,
 
     /**
-     * 导入
+     * 瀵煎叆
      */
     IMPORT,
 
     /**
-     * 强退
+     * 寮洪€€
      */
     FORCE,
 
     /**
-     * 生成代码
+     * 鐢熸垚浠ｇ爜
      */
     GENCODE,
     
     /**
-     * 清空数据
+     * 娓呯┖鏁版嵁
      */
     CLEAN,
 }
+
 

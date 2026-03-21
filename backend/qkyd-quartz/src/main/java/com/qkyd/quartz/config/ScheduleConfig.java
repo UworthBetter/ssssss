@@ -7,9 +7,9 @@
 //import java.util.Properties;
 //
 ///**
-// * 定时任务配置（单机部署建议删除此类和qrtz数据库表，默认走内存会最高效）
+// * 瀹氭椂浠诲姟閰嶇疆锛堝崟鏈洪儴缃插缓璁垹闄ゆ绫诲拰qrtz鏁版嵁搴撹〃锛岄粯璁よ蛋鍐呭瓨浼氭渶楂樻晥锛?
 // * 
-// * @author ruoyi
+// * @author qkyd
 // */
 //@Configuration
 //public class ScheduleConfig
@@ -20,39 +20,40 @@
 //        SchedulerFactoryBean factory = new SchedulerFactoryBean();
 //        factory.setDataSource(dataSource);
 //
-//        // quartz参数
+//        // quartz鍙傛暟
 //        Properties prop = new Properties();
-//        prop.put("org.quartz.scheduler.instanceName", "RuoyiScheduler");
+//        prop.put("org.quartz.scheduler.instanceName", "QkydScheduler");
 //        prop.put("org.quartz.scheduler.instanceId", "AUTO");
-//        // 线程池配置
+//        // 绾跨▼姹犻厤缃?
 //        prop.put("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
 //        prop.put("org.quartz.threadPool.threadCount", "20");
 //        prop.put("org.quartz.threadPool.threadPriority", "5");
-//        // JobStore配置
+//        // JobStore閰嶇疆
 //        prop.put("org.quartz.jobStore.class", "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
-//        // 集群配置
+//        // 闆嗙兢閰嶇疆
 //        prop.put("org.quartz.jobStore.isClustered", "true");
 //        prop.put("org.quartz.jobStore.clusterCheckinInterval", "15000");
 //        prop.put("org.quartz.jobStore.maxMisfiresToHandleAtATime", "10");
 //        prop.put("org.quartz.jobStore.txIsolationLevelSerializable", "true");
 //
-//        // sqlserver 启用
+//        // sqlserver 鍚敤
 //        // prop.put("org.quartz.jobStore.selectWithLockSQL", "SELECT * FROM {0}LOCKS UPDLOCK WHERE LOCK_NAME = ?");
 //        prop.put("org.quartz.jobStore.misfireThreshold", "12000");
 //        prop.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
 //        factory.setQuartzProperties(prop);
 //
-//        factory.setSchedulerName("RuoyiScheduler");
-//        // 延时启动
+//        factory.setSchedulerName("QkydScheduler");
+//        // 寤舵椂鍚姩
 //        factory.setStartupDelay(1);
 //        factory.setApplicationContextSchedulerContextKey("applicationContextKey");
-//        // 可选，QuartzScheduler
-//        // 启动时更新己存在的Job，这样就不用每次修改targetObject后删除qrtz_job_details表对应记录了
+//        // 鍙€夛紝QuartzScheduler
+//        // 鍚姩鏃舵洿鏂板繁瀛樺湪鐨凧ob锛岃繖鏍峰氨涓嶇敤姣忔淇敼targetObject鍚庡垹闄rtz_job_details琛ㄥ搴旇褰曚簡
 //        factory.setOverwriteExistingJobs(true);
-//        // 设置自动启动，默认为true
+//        // 璁剧疆鑷姩鍚姩锛岄粯璁や负true
 //        factory.setAutoStartup(true);
 //
 //        return factory;
 //    }
 //}
+
 

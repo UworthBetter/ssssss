@@ -18,14 +18,14 @@ import com.qkyd.common.constant.Constants;
 import com.qkyd.common.core.text.Convert;
 
 /**
- * 客户端工具类
+ * 瀹㈡埛绔伐鍏风被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class ServletUtils
 {
     /**
-     * 获取String参数
+     * 鑾峰彇String鍙傛暟
      */
     public static String getParameter(String name)
     {
@@ -33,7 +33,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取String参数
+     * 鑾峰彇String鍙傛暟
      */
     public static String getParameter(String name, String defaultValue)
     {
@@ -41,7 +41,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Integer参数
+     * 鑾峰彇Integer鍙傛暟
      */
     public static Integer getParameterToInt(String name)
     {
@@ -49,7 +49,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Integer参数
+     * 鑾峰彇Integer鍙傛暟
      */
     public static Integer getParameterToInt(String name, Integer defaultValue)
     {
@@ -57,7 +57,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Boolean参数
+     * 鑾峰彇Boolean鍙傛暟
      */
     public static Boolean getParameterToBool(String name)
     {
@@ -65,7 +65,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Boolean参数
+     * 鑾峰彇Boolean鍙傛暟
      */
     public static Boolean getParameterToBool(String name, Boolean defaultValue)
     {
@@ -73,9 +73,9 @@ public class ServletUtils
     }
 
     /**
-     * 获得所有请求参数
+     * 鑾峰緱鎵€鏈夎姹傚弬鏁?
      *
-     * @param request 请求对象{@link ServletRequest}
+     * @param request 璇锋眰瀵硅薄{@link ServletRequest}
      * @return Map
      */
     public static Map<String, String[]> getParams(ServletRequest request)
@@ -85,9 +85,9 @@ public class ServletUtils
     }
 
     /**
-     * 获得所有请求参数
+     * 鑾峰緱鎵€鏈夎姹傚弬鏁?
      *
-     * @param request 请求对象{@link ServletRequest}
+     * @param request 璇锋眰瀵硅薄{@link ServletRequest}
      * @return Map
      */
     public static Map<String, String> getParamMap(ServletRequest request)
@@ -101,7 +101,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取request
+     * 鑾峰彇request
      */
     public static HttpServletRequest getRequest()
     {
@@ -109,7 +109,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取response
+     * 鑾峰彇response
      */
     public static HttpServletResponse getResponse()
     {
@@ -117,7 +117,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取session
+     * 鑾峰彇session
      */
     public static HttpSession getSession()
     {
@@ -131,10 +131,10 @@ public class ServletUtils
     }
 
     /**
-     * 将字符串渲染到客户端
+     * 灏嗗瓧绗︿覆娓叉煋鍒板鎴风
      * 
-     * @param response 渲染对象
-     * @param string 待渲染的字符串
+     * @param response 娓叉煋瀵硅薄
+     * @param string 寰呮覆鏌撶殑瀛楃涓?
      */
     public static void renderString(HttpServletResponse response, String string)
     {
@@ -152,7 +152,7 @@ public class ServletUtils
     }
 
     /**
-     * 是否是Ajax异步请求
+     * 鏄惁鏄疉jax寮傛璇锋眰
      * 
      * @param request
      */
@@ -181,10 +181,10 @@ public class ServletUtils
     }
 
     /**
-     * 内容编码
+     * 鍐呭缂栫爜
      * 
-     * @param str 内容
-     * @return 编码后的内容
+     * @param str 鍐呭
+     * @return 缂栫爜鍚庣殑鍐呭
      */
     public static String urlEncode(String str)
     {
@@ -199,10 +199,10 @@ public class ServletUtils
     }
 
     /**
-     * 内容解码
+     * 鍐呭瑙ｇ爜
      * 
-     * @param str 内容
-     * @return 解码后的内容
+     * @param str 鍐呭
+     * @return 瑙ｇ爜鍚庣殑鍐呭
      */
     public static String urlDecode(String str)
     {
@@ -216,4 +216,5 @@ public class ServletUtils
         }
     }
 }
+
 

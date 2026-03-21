@@ -19,18 +19,18 @@ import com.qkyd.common.utils.spring.SpringUtils;
 import com.qkyd.quartz.domain.SysJob;
 
 /**
- * 定时任务工具类
+ * 瀹氭椂浠诲姟宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  *
  */
 public class ScheduleUtils
 {
     /**
-     * 得到quartz任务类
+     * 寰楀埌quartz浠诲姟绫?
      *
-     * @param sysJob 执行计划
-     * @return 具体执行任务类
+     * @param sysJob 鎵ц璁″垝
+     * @return 鍏蜂綋鎵ц浠诲姟绫?
      */
     private static Class<? extends Job> getQuartzJobClass(SysJob sysJob)
     {
@@ -39,7 +39,7 @@ public class ScheduleUtils
     }
 
     /**
-     * 构建任务触发对象
+     * 鏋勫缓浠诲姟瑙﹀彂瀵硅薄
      */
     public static TriggerKey getTriggerKey(Long jobId, String jobGroup)
     {
@@ -47,7 +47,7 @@ public class ScheduleUtils
     }
 
     /**
-     * 构建任务键对象
+     * 鏋勫缓浠诲姟閿璞?
      */
     public static JobKey getJobKey(Long jobId, String jobGroup)
     {
@@ -55,42 +55,42 @@ public class ScheduleUtils
     }
 
     /**
-     * 创建定时任务
+     * 鍒涘缓瀹氭椂浠诲姟
      */
     public static void createScheduleJob(Scheduler scheduler, SysJob job) throws SchedulerException, TaskException
     {
         Class<? extends Job> jobClass = getQuartzJobClass(job);
-        // 构建job信息
+        // 鏋勫缓job淇℃伅
         Long jobId = job.getJobId();
         String jobGroup = job.getJobGroup();
         JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(getJobKey(jobId, jobGroup)).build();
 
-        // 表达式调度构建器
+        // 琛ㄨ揪寮忚皟搴︽瀯寤哄櫒
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());
         cronScheduleBuilder = handleCronScheduleMisfirePolicy(job, cronScheduleBuilder);
 
-        // 按新的cronExpression表达式构建一个新的trigger
+        // 鎸夋柊鐨刢ronExpression琛ㄨ揪寮忔瀯寤轰竴涓柊鐨則rigger
         CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(getTriggerKey(jobId, jobGroup))
                 .withSchedule(cronScheduleBuilder).build();
 
-        // 放入参数，运行时的方法可以获取
+        // 鏀惧叆鍙傛暟锛岃繍琛屾椂鐨勬柟娉曞彲浠ヨ幏鍙?
         jobDetail.getJobDataMap().put(ScheduleConstants.TASK_PROPERTIES, job);
 
-        // 判断是否存在
+        // 鍒ゆ柇鏄惁瀛樺湪
         if (scheduler.checkExists(getJobKey(jobId, jobGroup)))
         {
-            // 防止创建时存在数据问题 先移除，然后在执行创建操作
+            // 闃叉鍒涘缓鏃跺瓨鍦ㄦ暟鎹棶棰?鍏堢Щ闄わ紝鐒跺悗鍦ㄦ墽琛屽垱寤烘搷浣?
             scheduler.deleteJob(getJobKey(jobId, jobGroup));
         }
 
-        // 判断任务是否过期
+        // 鍒ゆ柇浠诲姟鏄惁杩囨湡
         if (StringUtils.isNotNull(CronUtils.getNextExecution(job.getCronExpression())))
         {
-            // 执行调度任务
+            // 鎵ц璋冨害浠诲姟
             scheduler.scheduleJob(jobDetail, trigger);
         }
 
-        // 暂停任务
+        // 鏆傚仠浠诲姟
         if (job.getStatus().equals(ScheduleConstants.Status.PAUSE.getValue()))
         {
             scheduler.pauseJob(ScheduleUtils.getJobKey(jobId, jobGroup));
@@ -98,7 +98,7 @@ public class ScheduleUtils
     }
 
     /**
-     * 设置定时任务策略
+     * 璁剧疆瀹氭椂浠诲姟绛栫暐
      */
     public static CronScheduleBuilder handleCronScheduleMisfirePolicy(SysJob job, CronScheduleBuilder cb)
             throws TaskException
@@ -120,10 +120,10 @@ public class ScheduleUtils
     }
 
     /**
-     * 检查包名是否为白名单配置
+     * 妫€鏌ュ寘鍚嶆槸鍚︿负鐧藉悕鍗曢厤缃?
      * 
-     * @param invokeTarget 目标字符串
-     * @return 结果
+     * @param invokeTarget 鐩爣瀛楃涓?
+     * @return 缁撴灉
      */
     public static boolean whiteList(String invokeTarget)
     {
@@ -139,4 +139,5 @@ public class ScheduleUtils
                 && !StringUtils.containsAnyIgnoreCase(beanPackageName, Constants.JOB_ERROR_STR);
     }
 }
+
 

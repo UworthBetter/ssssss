@@ -14,9 +14,9 @@ import com.qkyd.common.utils.ServletUtils;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 认证失败处理类 返回未授权
+ * 璁よ瘉澶辫触澶勭悊绫?杩斿洖鏈巿鏉?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint, Serializable
@@ -28,8 +28,9 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint, S
             throws IOException
     {
         int code = HttpStatus.UNAUTHORIZED;
-        String msg = StringUtils.format("请求访问：{}，认证失败，无法访问系统资源", request.getRequestURI());
+        String msg = StringUtils.format("璇锋眰璁块棶锛歿}锛岃璇佸け璐ワ紝鏃犳硶璁块棶绯荤粺璧勬簮", request.getRequestURI());
         ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(code, msg)));
     }
 }
+
 

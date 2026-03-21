@@ -15,14 +15,14 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.common.enums.HttpMethod;
 
 /**
- * 防止XSS攻击的过滤器
+ * 闃叉XSS鏀诲嚮鐨勮繃婊ゅ櫒
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class XssFilter implements Filter
 {
     /**
-     * 排除链接
+     * 鎺掗櫎閾炬帴
      */
     public List<String> excludes = new ArrayList<>();
 
@@ -59,7 +59,7 @@ public class XssFilter implements Filter
     {
         String url = request.getServletPath();
         String method = request.getMethod();
-        // GET DELETE 不过滤
+        // GET DELETE 涓嶈繃婊?
         if (method == null || HttpMethod.GET.matches(method) || HttpMethod.DELETE.matches(method))
         {
             return true;
@@ -73,3 +73,4 @@ public class XssFilter implements Filter
 
     }
 }
+

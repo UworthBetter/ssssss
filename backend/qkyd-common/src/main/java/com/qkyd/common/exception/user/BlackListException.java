@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.user;
 
 /**
- * 黑名单IP异常类
+ * 榛戝悕鍗旾P寮傚父绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class BlackListException extends UserException
 {
@@ -14,4 +14,5 @@ public class BlackListException extends UserException
         super("login.blocked", null);
     }
 }
+
 

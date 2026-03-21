@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import com.alibaba.druid.pool.DruidDataSource;
 
 /**
- * druid 配置属性
+ * druid 閰嶇疆灞炴€?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 public class DruidProperties
@@ -53,38 +53,39 @@ public class DruidProperties
 
     public DruidDataSource dataSource(DruidDataSource datasource)
     {
-        /** 配置初始化大小、最小、最大 */
+        /** 閰嶇疆鍒濆鍖栧ぇ灏忋€佹渶灏忋€佹渶澶?*/
         datasource.setInitialSize(initialSize);
         datasource.setMaxActive(maxActive);
         datasource.setMinIdle(minIdle);
 
-        /** 配置获取连接等待超时的时间 */
+        /** 閰嶇疆鑾峰彇杩炴帴绛夊緟瓒呮椂鐨勬椂闂?*/
         datasource.setMaxWait(maxWait);
         
-        /** 配置驱动连接超时时间，检测数据库建立连接的超时时间，单位是毫秒 */
+        /** 閰嶇疆椹卞姩杩炴帴瓒呮椂鏃堕棿锛屾娴嬫暟鎹簱寤虹珛杩炴帴鐨勮秴鏃舵椂闂达紝鍗曚綅鏄绉?*/
         datasource.setConnectTimeout(connectTimeout);
         
-        /** 配置网络超时时间，等待数据库操作完成的网络超时时间，单位是毫秒 */
+        /** 閰嶇疆缃戠粶瓒呮椂鏃堕棿锛岀瓑寰呮暟鎹簱鎿嶄綔瀹屾垚鐨勭綉缁滆秴鏃舵椂闂达紝鍗曚綅鏄绉?*/
         datasource.setSocketTimeout(socketTimeout);
 
-        /** 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 */
+        /** 閰嶇疆闂撮殧澶氫箙鎵嶈繘琛屼竴娆℃娴嬶紝妫€娴嬮渶瑕佸叧闂殑绌洪棽杩炴帴锛屽崟浣嶆槸姣 */
         datasource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
 
-        /** 配置一个连接在池中最小、最大生存的时间，单位是毫秒 */
+        /** 閰嶇疆涓€涓繛鎺ュ湪姹犱腑鏈€灏忋€佹渶澶х敓瀛樼殑鏃堕棿锛屽崟浣嶆槸姣 */
         datasource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
         datasource.setMaxEvictableIdleTimeMillis(maxEvictableIdleTimeMillis);
 
         /**
-         * 用来检测连接是否有效的sql，要求是一个查询语句，常用select 'x'。如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会起作用。
+         * 鐢ㄦ潵妫€娴嬭繛鎺ユ槸鍚︽湁鏁堢殑sql锛岃姹傛槸涓€涓煡璇㈣鍙ワ紝甯哥敤select 'x'銆傚鏋渧alidationQuery涓簄ull锛宼estOnBorrow銆乼estOnReturn銆乼estWhileIdle閮戒笉浼氳捣浣滅敤銆?
          */
         datasource.setValidationQuery(validationQuery);
-        /** 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。 */
+        /** 寤鸿閰嶇疆涓簍rue锛屼笉褰卞搷鎬ц兘锛屽苟涓斾繚璇佸畨鍏ㄦ€с€傜敵璇疯繛鎺ョ殑鏃跺€欐娴嬶紝濡傛灉绌洪棽鏃堕棿澶т簬timeBetweenEvictionRunsMillis锛屾墽琛寁alidationQuery妫€娴嬭繛鎺ユ槸鍚︽湁鏁堛€?*/
         datasource.setTestWhileIdle(testWhileIdle);
-        /** 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。 */
+        /** 鐢宠杩炴帴鏃舵墽琛寁alidationQuery妫€娴嬭繛鎺ユ槸鍚︽湁鏁堬紝鍋氫簡杩欎釜閰嶇疆浼氶檷浣庢€ц兘銆?*/
         datasource.setTestOnBorrow(testOnBorrow);
-        /** 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。 */
+        /** 褰掕繕杩炴帴鏃舵墽琛寁alidationQuery妫€娴嬭繛鎺ユ槸鍚︽湁鏁堬紝鍋氫簡杩欎釜閰嶇疆浼氶檷浣庢€ц兘銆?*/
         datasource.setTestOnReturn(testOnReturn);
         return datasource;
     }
 }
+
 

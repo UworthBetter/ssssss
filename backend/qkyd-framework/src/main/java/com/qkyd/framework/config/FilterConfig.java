@@ -13,9 +13,9 @@ import com.qkyd.common.filter.XssFilter;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * Filter配置
+ * Filter閰嶇疆
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 public class FilterConfig
@@ -56,4 +56,5 @@ public class FilterConfig
     }
 
 }
+
 

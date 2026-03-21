@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 通用http工具封装
- * 
- * @author ruoyi
+ *
+ * @author qkyd
  */
 public class HttpHelper
 {
@@ -53,4 +53,3 @@ public class HttpHelper
         return sb.toString();
     }
 }
-

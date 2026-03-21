@@ -1,21 +1,22 @@
 package com.qkyd.common.enums;
 
 /**
- * 限流类型
+ * 闄愭祦绫诲瀷
  *
- * @author ruoyi
+ * @author qkyd
  */
 
 public enum LimitType
 {
     /**
-     * 默认策略全局限流
+     * 榛樿绛栫暐鍏ㄥ眬闄愭祦
      */
     DEFAULT,
 
     /**
-     * 根据请求者IP进行限流
+     * 鏍规嵁璇锋眰鑰匢P杩涜闄愭祦
      */
     IP
 }
+
 

@@ -16,9 +16,9 @@ import com.qkyd.common.core.text.Convert;
 import com.qkyd.common.utils.DateUtils;
 
 /**
- * 反射工具类. 提供调用getter/setter方法, 访问私有变量, 调用私有方法, 获取泛型类型Class, 被AOP过的真实类等工具函数.
+ * 鍙嶅皠宸ュ叿绫? 鎻愪緵璋冪敤getter/setter鏂规硶, 璁块棶绉佹湁鍙橀噺, 璋冪敤绉佹湁鏂规硶, 鑾峰彇娉涘瀷绫诲瀷Class, 琚獳OP杩囩殑鐪熷疄绫荤瓑宸ュ叿鍑芥暟.
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @SuppressWarnings("rawtypes")
 public class ReflectUtils
@@ -32,8 +32,8 @@ public class ReflectUtils
     private static Logger logger = LoggerFactory.getLogger(ReflectUtils.class);
 
     /**
-     * 调用Getter方法.
-     * 支持多级，如：对象名.对象名.方法
+     * 璋冪敤Getter鏂规硶.
+     * 鏀寔澶氱骇锛屽锛氬璞″悕.瀵硅薄鍚?鏂规硶
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeGetter(Object obj, String propertyName)
@@ -48,8 +48,8 @@ public class ReflectUtils
     }
 
     /**
-     * 调用Setter方法, 仅匹配方法名。
-     * 支持多级，如：对象名.对象名.方法
+     * 璋冪敤Setter鏂规硶, 浠呭尮閰嶆柟娉曞悕銆?
+     * 鏀寔澶氱骇锛屽锛氬璞″悕.瀵硅薄鍚?鏂规硶
      */
     public static <E> void invokeSetter(Object obj, String propertyName, E value)
     {
@@ -71,7 +71,7 @@ public class ReflectUtils
     }
 
     /**
-     * 直接读取对象属性值, 无视private/protected修饰符, 不经过getter函数.
+     * 鐩存帴璇诲彇瀵硅薄灞炴€у€? 鏃犺private/protected淇グ绗? 涓嶇粡杩噂etter鍑芥暟.
      */
     @SuppressWarnings("unchecked")
     public static <E> E getFieldValue(final Object obj, final String fieldName)
@@ -79,7 +79,7 @@ public class ReflectUtils
         Field field = getAccessibleField(obj, fieldName);
         if (field == null)
         {
-            logger.debug("在 [" + obj.getClass() + "] 中，没有找到 [" + fieldName + "] 字段 ");
+            logger.debug("鍦?[" + obj.getClass() + "] 涓紝娌℃湁鎵惧埌 [" + fieldName + "] 瀛楁 ");
             return null;
         }
         E result = null;
@@ -89,21 +89,21 @@ public class ReflectUtils
         }
         catch (IllegalAccessException e)
         {
-            logger.error("不可能抛出的异常{}", e.getMessage());
+            logger.error("涓嶅彲鑳芥姏鍑虹殑寮傚父{}", e.getMessage());
         }
         return result;
     }
 
     /**
-     * 直接设置对象属性值, 无视private/protected修饰符, 不经过setter函数.
+     * 鐩存帴璁剧疆瀵硅薄灞炴€у€? 鏃犺private/protected淇グ绗? 涓嶇粡杩噑etter鍑芥暟.
      */
     public static <E> void setFieldValue(final Object obj, final String fieldName, final E value)
     {
         Field field = getAccessibleField(obj, fieldName);
         if (field == null)
         {
-            // throw new IllegalArgumentException("在 [" + obj.getClass() + "] 中，没有找到 [" + fieldName + "] 字段 ");
-            logger.debug("在 [" + obj.getClass() + "] 中，没有找到 [" + fieldName + "] 字段 ");
+            // throw new IllegalArgumentException("鍦?[" + obj.getClass() + "] 涓紝娌℃湁鎵惧埌 [" + fieldName + "] 瀛楁 ");
+            logger.debug("鍦?[" + obj.getClass() + "] 涓紝娌℃湁鎵惧埌 [" + fieldName + "] 瀛楁 ");
             return;
         }
         try
@@ -112,14 +112,14 @@ public class ReflectUtils
         }
         catch (IllegalAccessException e)
         {
-            logger.error("不可能抛出的异常: {}", e.getMessage());
+            logger.error("涓嶅彲鑳芥姏鍑虹殑寮傚父: {}", e.getMessage());
         }
     }
 
     /**
-     * 直接调用对象方法, 无视private/protected修饰符.
-     * 用于一次性调用的情况，否则应使用getAccessibleMethod()函数获得Method后反复调用.
-     * 同时匹配方法名+参数类型，
+     * 鐩存帴璋冪敤瀵硅薄鏂规硶, 鏃犺private/protected淇グ绗?
+     * 鐢ㄤ簬涓€娆℃€ц皟鐢ㄧ殑鎯呭喌锛屽惁鍒欏簲浣跨敤getAccessibleMethod()鍑芥暟鑾峰緱Method鍚庡弽澶嶈皟鐢?
+     * 鍚屾椂鍖归厤鏂规硶鍚?鍙傛暟绫诲瀷锛?
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeMethod(final Object obj, final String methodName, final Class<?>[] parameterTypes,
@@ -132,7 +132,7 @@ public class ReflectUtils
         Method method = getAccessibleMethod(obj, methodName, parameterTypes);
         if (method == null)
         {
-            logger.debug("在 [" + obj.getClass() + "] 中，没有找到 [" + methodName + "] 方法 ");
+            logger.debug("鍦?[" + obj.getClass() + "] 涓紝娌℃湁鎵惧埌 [" + methodName + "] 鏂规硶 ");
             return null;
         }
         try
@@ -147,9 +147,9 @@ public class ReflectUtils
     }
 
     /**
-     * 直接调用对象方法, 无视private/protected修饰符，
-     * 用于一次性调用的情况，否则应使用getAccessibleMethodByName()函数获得Method后反复调用.
-     * 只匹配函数名，如果有多个同名函数调用第一个。
+     * 鐩存帴璋冪敤瀵硅薄鏂规硶, 鏃犺private/protected淇グ绗︼紝
+     * 鐢ㄤ簬涓€娆℃€ц皟鐢ㄧ殑鎯呭喌锛屽惁鍒欏簲浣跨敤getAccessibleMethodByName()鍑芥暟鑾峰緱Method鍚庡弽澶嶈皟鐢?
+     * 鍙尮閰嶅嚱鏁板悕锛屽鏋滄湁澶氫釜鍚屽悕鍑芥暟璋冪敤绗竴涓€?
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeMethodByName(final Object obj, final String methodName, final Object[] args)
@@ -157,13 +157,13 @@ public class ReflectUtils
         Method method = getAccessibleMethodByName(obj, methodName, args.length);
         if (method == null)
         {
-            // 如果为空不报错，直接返回空。
-            logger.debug("在 [" + obj.getClass() + "] 中，没有找到 [" + methodName + "] 方法 ");
+            // 濡傛灉涓虹┖涓嶆姤閿欙紝鐩存帴杩斿洖绌恒€?
+            logger.debug("鍦?[" + obj.getClass() + "] 涓紝娌℃湁鎵惧埌 [" + methodName + "] 鏂规硶 ");
             return null;
         }
         try
         {
-            // 类型转换（将参数数据类型转换为目标方法参数类型）
+            // 绫诲瀷杞崲锛堝皢鍙傛暟鏁版嵁绫诲瀷杞崲涓虹洰鏍囨柟娉曞弬鏁扮被鍨嬶級
             Class<?>[] cs = method.getParameterTypes();
             for (int i = 0; i < cs.length; i++)
             {
@@ -220,12 +220,12 @@ public class ReflectUtils
     }
 
     /**
-     * 循环向上转型, 获取对象的DeclaredField, 并强制设置为可访问.
-     * 如向上转型到Object仍无法找到, 返回null.
+     * 寰幆鍚戜笂杞瀷, 鑾峰彇瀵硅薄鐨凞eclaredField, 骞跺己鍒惰缃负鍙闂?
+     * 濡傚悜涓婅浆鍨嬪埌Object浠嶆棤娉曟壘鍒? 杩斿洖null.
      */
     public static Field getAccessibleField(final Object obj, final String fieldName)
     {
-        // 为空不报错。直接返回 null
+        // 涓虹┖涓嶆姤閿欍€傜洿鎺ヨ繑鍥?null
         if (obj == null)
         {
             return null;
@@ -248,15 +248,15 @@ public class ReflectUtils
     }
 
     /**
-     * 循环向上转型, 获取对象的DeclaredMethod,并强制设置为可访问.
-     * 如向上转型到Object仍无法找到, 返回null.
-     * 匹配函数名+参数类型。
-     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object... args)
+     * 寰幆鍚戜笂杞瀷, 鑾峰彇瀵硅薄鐨凞eclaredMethod,骞跺己鍒惰缃负鍙闂?
+     * 濡傚悜涓婅浆鍨嬪埌Object浠嶆棤娉曟壘鍒? 杩斿洖null.
+     * 鍖归厤鍑芥暟鍚?鍙傛暟绫诲瀷銆?
+     * 鐢ㄤ簬鏂规硶闇€瑕佽澶氭璋冪敤鐨勬儏鍐? 鍏堜娇鐢ㄦ湰鍑芥暟鍏堝彇寰桵ethod,鐒跺悗璋冪敤Method.invoke(Object obj, Object... args)
      */
     public static Method getAccessibleMethod(final Object obj, final String methodName,
             final Class<?>... parameterTypes)
     {
-        // 为空不报错。直接返回 null
+        // 涓虹┖涓嶆姤閿欍€傜洿鎺ヨ繑鍥?null
         if (obj == null)
         {
             return null;
@@ -279,14 +279,14 @@ public class ReflectUtils
     }
 
     /**
-     * 循环向上转型, 获取对象的DeclaredMethod,并强制设置为可访问.
-     * 如向上转型到Object仍无法找到, 返回null.
-     * 只匹配函数名。
-     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object... args)
+     * 寰幆鍚戜笂杞瀷, 鑾峰彇瀵硅薄鐨凞eclaredMethod,骞跺己鍒惰缃负鍙闂?
+     * 濡傚悜涓婅浆鍨嬪埌Object浠嶆棤娉曟壘鍒? 杩斿洖null.
+     * 鍙尮閰嶅嚱鏁板悕銆?
+     * 鐢ㄤ簬鏂规硶闇€瑕佽澶氭璋冪敤鐨勬儏鍐? 鍏堜娇鐢ㄦ湰鍑芥暟鍏堝彇寰桵ethod,鐒跺悗璋冪敤Method.invoke(Object obj, Object... args)
      */
     public static Method getAccessibleMethodByName(final Object obj, final String methodName, int argsNum)
     {
-        // 为空不报错。直接返回 null
+        // 涓虹┖涓嶆姤閿欍€傜洿鎺ヨ繑鍥?null
         if (obj == null)
         {
             return null;
@@ -308,7 +308,7 @@ public class ReflectUtils
     }
 
     /**
-     * 改变private/protected的方法为public，尽量不调用实际改动的语句，避免JDK的SecurityManager抱怨。
+     * 鏀瑰彉private/protected鐨勬柟娉曚负public锛屽敖閲忎笉璋冪敤瀹為檯鏀瑰姩鐨勮鍙ワ紝閬垮厤JDK鐨凷ecurityManager鎶辨€ㄣ€?
      */
     public static void makeAccessible(Method method)
     {
@@ -320,7 +320,7 @@ public class ReflectUtils
     }
 
     /**
-     * 改变private/protected的成员变量为public，尽量不调用实际改动的语句，避免JDK的SecurityManager抱怨。
+     * 鏀瑰彉private/protected鐨勬垚鍛樺彉閲忎负public锛屽敖閲忎笉璋冪敤瀹為檯鏀瑰姩鐨勮鍙ワ紝閬垮厤JDK鐨凷ecurityManager鎶辨€ㄣ€?
      */
     public static void makeAccessible(Field field)
     {
@@ -332,8 +332,8 @@ public class ReflectUtils
     }
 
     /**
-     * 通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处
-     * 如无法找到, 返回Object.class.
+     * 閫氳繃鍙嶅皠, 鑾峰緱Class瀹氫箟涓０鏄庣殑娉涘瀷鍙傛暟鐨勭被鍨? 娉ㄦ剰娉涘瀷蹇呴』瀹氫箟鍦ㄧ埗绫诲
+     * 濡傛棤娉曟壘鍒? 杩斿洖Object.class.
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getClassGenricType(final Class clazz)
@@ -342,8 +342,8 @@ public class ReflectUtils
     }
 
     /**
-     * 通过反射, 获得Class定义中声明的父类的泛型参数的类型.
-     * 如无法找到, 返回Object.class.
+     * 閫氳繃鍙嶅皠, 鑾峰緱Class瀹氫箟涓０鏄庣殑鐖剁被鐨勬硾鍨嬪弬鏁扮殑绫诲瀷.
+     * 濡傛棤娉曟壘鍒? 杩斿洖Object.class.
      */
     public static Class getClassGenricType(final Class clazz, final int index)
     {
@@ -392,7 +392,7 @@ public class ReflectUtils
     }
 
     /**
-     * 将反射时的checked exception转换为unchecked exception.
+     * 灏嗗弽灏勬椂鐨刢hecked exception杞崲涓簎nchecked exception.
      */
     public static RuntimeException convertReflectionExceptionToUnchecked(String msg, Exception e)
     {
@@ -408,4 +408,5 @@ public class ReflectUtils
         return new RuntimeException(msg, e);
     }
 }
+
 

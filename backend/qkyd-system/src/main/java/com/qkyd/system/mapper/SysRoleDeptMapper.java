@@ -4,42 +4,43 @@ import java.util.List;
 import com.qkyd.system.domain.SysRoleDept;
 
 /**
- * 角色与部门关联表 数据层
+ * 瑙掕壊涓庨儴闂ㄥ叧鑱旇〃 鏁版嵁灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysRoleDeptMapper
 {
     /**
-     * 通过角色ID删除角色和部门关联
+     * 閫氳繃瑙掕壊ID鍒犻櫎瑙掕壊鍜岄儴闂ㄥ叧鑱?
      * 
-     * @param roleId 角色ID
-     * @return 结果
+     * @param roleId 瑙掕壊ID
+     * @return 缁撴灉
      */
     public int deleteRoleDeptByRoleId(Long roleId);
 
     /**
-     * 批量删除角色部门关联信息
+     * 鎵归噺鍒犻櫎瑙掕壊閮ㄩ棬鍏宠仈淇℃伅
      * 
-     * @param ids 需要删除的数据ID
-     * @return 结果
+     * @param ids 闇€瑕佸垹闄ょ殑鏁版嵁ID
+     * @return 缁撴灉
      */
     public int deleteRoleDept(Long[] ids);
 
     /**
-     * 查询部门使用数量
+     * 鏌ヨ閮ㄩ棬浣跨敤鏁伴噺
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public int selectCountRoleDeptByDeptId(Long deptId);
 
     /**
-     * 批量新增角色部门信息
+     * 鎵归噺鏂板瑙掕壊閮ㄩ棬淇℃伅
      * 
-     * @param roleDeptList 角色部门列表
-     * @return 结果
+     * @param roleDeptList 瑙掕壊閮ㄩ棬鍒楄〃
+     * @return 缁撴灉
      */
     public int batchRoleDept(List<SysRoleDept> roleDeptList);
 }
+
 

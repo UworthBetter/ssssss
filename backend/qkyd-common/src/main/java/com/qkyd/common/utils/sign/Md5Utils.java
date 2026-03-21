@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Md5加密方法
+ * Md5鍔犲瘑鏂规硶
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Md5Utils
 {
@@ -65,4 +65,5 @@ public class Md5Utils
         }
     }
 }
+
 

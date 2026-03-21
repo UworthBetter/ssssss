@@ -4,30 +4,30 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * 读取项目相关配置
+ * 璇诲彇椤圭洰鐩稿叧閰嶇疆
  * 
  * @author ruoyi
  */
 @Component
-@ConfigurationProperties(prefix = "ruoyi")
-public class RuoYiConfig
+@ConfigurationProperties(prefix = "qkyd")
+public class QkydConfig
 {
-    /** 项目名称 */
+    /** 椤圭洰鍚嶇О */
     private String name;
 
-    /** 版本 */
+    /** 鐗堟湰 */
     private String version;
 
-    /** 版权年份 */
+    /** 鐗堟潈骞翠唤 */
     private String copyrightYear;
 
-    /** 上传路径 */
+    /** 涓婁紶璺緞 */
     private static String profile;
 
-    /** 获取地址开关 */
+    /** 鑾峰彇鍦板潃寮€鍏?*/
     private static boolean addressEnabled;
 
-    /** 验证码类型 */
+    /** 楠岃瘉鐮佺被鍨?*/
     private static String captchaType;
 
     public String getName()
@@ -67,7 +67,7 @@ public class RuoYiConfig
 
     public void setProfile(String profile)
     {
-        RuoYiConfig.profile = profile;
+        QkydConfig.profile = profile;
     }
 
     public static boolean isAddressEnabled()
@@ -77,7 +77,7 @@ public class RuoYiConfig
 
     public void setAddressEnabled(boolean addressEnabled)
     {
-        RuoYiConfig.addressEnabled = addressEnabled;
+        QkydConfig.addressEnabled = addressEnabled;
     }
 
     public static String getCaptchaType() {
@@ -85,11 +85,11 @@ public class RuoYiConfig
     }
 
     public void setCaptchaType(String captchaType) {
-        RuoYiConfig.captchaType = captchaType;
+        QkydConfig.captchaType = captchaType;
     }
 
     /**
-     * 获取导入上传路径
+     * 鑾峰彇瀵煎叆涓婁紶璺緞
      */
     public static String getImportPath()
     {
@@ -97,7 +97,7 @@ public class RuoYiConfig
     }
 
     /**
-     * 获取头像上传路径
+     * 鑾峰彇澶村儚涓婁紶璺緞
      */
     public static String getAvatarPath()
     {
@@ -105,7 +105,7 @@ public class RuoYiConfig
     }
 
     /**
-     * 获取下载路径
+     * 鑾峰彇涓嬭浇璺緞
      */
     public static String getDownloadPath()
     {
@@ -113,7 +113,7 @@ public class RuoYiConfig
     }
 
     /**
-     * 获取上传路径
+     * 鑾峰彇涓婁紶璺緞
      */
     public static String getUploadPath()
     {

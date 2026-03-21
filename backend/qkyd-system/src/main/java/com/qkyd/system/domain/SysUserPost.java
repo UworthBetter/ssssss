@@ -4,16 +4,16 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 用户和岗位关联 sys_user_post
+ * 鐢ㄦ埛鍜屽矖浣嶅叧鑱?sys_user_post
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysUserPost
 {
-    /** 用户ID */
+    /** 鐢ㄦ埛ID */
     private Long userId;
     
-    /** 岗位ID */
+    /** 宀椾綅ID */
     private Long postId;
 
     public Long getUserId()
@@ -44,4 +44,5 @@ public class SysUserPost
             .toString();
     }
 }
+
 

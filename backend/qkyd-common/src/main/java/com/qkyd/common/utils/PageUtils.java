@@ -6,14 +6,14 @@ import com.qkyd.common.core.page.TableSupport;
 import com.qkyd.common.utils.sql.SqlUtil;
 
 /**
- * 分页工具类
+ * 鍒嗛〉宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class PageUtils extends PageHelper
 {
     /**
-     * 设置请求分页数据
+     * 璁剧疆璇锋眰鍒嗛〉鏁版嵁
      */
     public static void startPage()
     {
@@ -26,11 +26,12 @@ public class PageUtils extends PageHelper
     }
 
     /**
-     * 清理分页的线程变量
+     * 娓呯悊鍒嗛〉鐨勭嚎绋嬪彉閲?
      */
     public static void clearPage()
     {
         PageHelper.clearPage();
     }
 }
+
 

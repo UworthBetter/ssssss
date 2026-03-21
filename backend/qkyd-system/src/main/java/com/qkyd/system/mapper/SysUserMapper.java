@@ -6,124 +6,125 @@ import org.apache.ibatis.annotations.Param;
 import com.qkyd.common.core.domain.entity.SysUser;
 
 /**
- * 用户表 数据层
+ * 鐢ㄦ埛琛?鏁版嵁灞?
  *
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysUserMapper
 {
     /**
-     * 根据条件分页查询用户列表
+     * 鏍规嵁鏉′欢鍒嗛〉鏌ヨ鐢ㄦ埛鍒楄〃
      *
-     * @param sysUser 用户信息
-     * @return 用户信息集合信息
+     * @param sysUser 鐢ㄦ埛淇℃伅
+     * @return 鐢ㄦ埛淇℃伅闆嗗悎淇℃伅
      */
     public List<SysUser> selectUserList(SysUser sysUser);
 
     /**
-     * 根据条件分页查询已配用户角色列表
+     * 鏍规嵁鏉′欢鍒嗛〉鏌ヨ宸查厤鐢ㄦ埛瑙掕壊鍒楄〃
      *
-     * @param user 用户信息
-     * @return 用户信息集合信息
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鐢ㄦ埛淇℃伅闆嗗悎淇℃伅
      */
     public List<SysUser> selectAllocatedList(SysUser user);
 
     /**
-     * 根据条件分页查询未分配用户角色列表
+     * 鏍规嵁鏉′欢鍒嗛〉鏌ヨ鏈垎閰嶇敤鎴疯鑹插垪琛?
      *
-     * @param user 用户信息
-     * @return 用户信息集合信息
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鐢ㄦ埛淇℃伅闆嗗悎淇℃伅
      */
     public List<SysUser> selectUnallocatedList(SysUser user);
 
     /**
-     * 通过用户名查询用户
+     * 閫氳繃鐢ㄦ埛鍚嶆煡璇㈢敤鎴?
      *
-     * @param userName 用户名
-     * @return 用户对象信息
+     * @param userName 鐢ㄦ埛鍚?
+     * @return 鐢ㄦ埛瀵硅薄淇℃伅
      */
     public SysUser selectUserByUserName(String userName);
 
     /**
-     * 通过用户ID查询用户
+     * 閫氳繃鐢ㄦ埛ID鏌ヨ鐢ㄦ埛
      *
-     * @param userId 用户ID
-     * @return 用户对象信息
+     * @param userId 鐢ㄦ埛ID
+     * @return 鐢ㄦ埛瀵硅薄淇℃伅
      */
     public SysUser selectUserById(Long userId);
 
     /**
-     * 新增用户信息
+     * 鏂板鐢ㄦ埛淇℃伅
      *
-     * @param user 用户信息
-     * @return 结果
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 缁撴灉
      */
     public int insertUser(SysUser user);
 
     /**
-     * 修改用户信息
+     * 淇敼鐢ㄦ埛淇℃伅
      *
-     * @param user 用户信息
-     * @return 结果
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 缁撴灉
      */
     public int updateUser(SysUser user);
 
     /**
-     * 修改用户头像
+     * 淇敼鐢ㄦ埛澶村儚
      *
-     * @param userName 用户名
-     * @param avatar 头像地址
-     * @return 结果
+     * @param userName 鐢ㄦ埛鍚?
+     * @param avatar 澶村儚鍦板潃
+     * @return 缁撴灉
      */
     public int updateUserAvatar(@Param("userName") String userName, @Param("avatar") String avatar);
 
     /**
-     * 重置用户密码
+     * 閲嶇疆鐢ㄦ埛瀵嗙爜
      *
-     * @param userName 用户名
-     * @param password 密码
-     * @return 结果
+     * @param userName 鐢ㄦ埛鍚?
+     * @param password 瀵嗙爜
+     * @return 缁撴灉
      */
     public int resetUserPwd(@Param("userName") String userName, @Param("password") String password);
 
     /**
-     * 通过用户ID删除用户
+     * 閫氳繃鐢ㄦ埛ID鍒犻櫎鐢ㄦ埛
      *
-     * @param userId 用户ID
-     * @return 结果
+     * @param userId 鐢ㄦ埛ID
+     * @return 缁撴灉
      */
     public int deleteUserById(Long userId);
 
     /**
-     * 批量删除用户信息
+     * 鎵归噺鍒犻櫎鐢ㄦ埛淇℃伅
      *
-     * @param userIds 需要删除的用户ID
-     * @return 结果
+     * @param userIds 闇€瑕佸垹闄ょ殑鐢ㄦ埛ID
+     * @return 缁撴灉
      */
     public int deleteUserByIds(Long[] userIds);
 
     /**
-     * 校验用户名称是否唯一
+     * 鏍￠獙鐢ㄦ埛鍚嶇О鏄惁鍞竴
      *
-     * @param userName 用户名称
-     * @return 结果
+     * @param userName 鐢ㄦ埛鍚嶇О
+     * @return 缁撴灉
      */
     public SysUser checkUserNameUnique(String userName);
 
     /**
-     * 校验手机号码是否唯一
+     * 鏍￠獙鎵嬫満鍙风爜鏄惁鍞竴
      *
-     * @param phonenumber 手机号码
-     * @return 结果
+     * @param phonenumber 鎵嬫満鍙风爜
+     * @return 缁撴灉
      */
     public SysUser checkPhoneUnique(String phonenumber);
 
     /**
-     * 校验email是否唯一
+     * 鏍￠獙email鏄惁鍞竴
      *
-     * @param email 用户邮箱
-     * @return 结果
+     * @param email 鐢ㄦ埛閭
+     * @return 缁撴灉
      */
     public SysUser checkEmailUnique(String email);
 }
+
 

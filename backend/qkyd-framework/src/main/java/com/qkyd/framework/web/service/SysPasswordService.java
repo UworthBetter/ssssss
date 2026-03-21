@@ -14,9 +14,9 @@ import com.qkyd.common.utils.SecurityUtils;
 import com.qkyd.framework.security.context.AuthenticationContextHolder;
 
 /**
- * 登录密码方法
+ * 鐧诲綍瀵嗙爜鏂规硶
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class SysPasswordService
@@ -31,10 +31,10 @@ public class SysPasswordService
     private int lockTime;
 
     /**
-     * 登录账户密码错误次数缓存键名
+     * 鐧诲綍璐︽埛瀵嗙爜閿欒娆℃暟缂撳瓨閿悕
      * 
-     * @param username 用户名
-     * @return 缓存键key
+     * @param username 鐢ㄦ埛鍚?
+     * @return 缂撳瓨閿甼ey
      */
     private String getCacheKey(String username)
     {
@@ -84,4 +84,5 @@ public class SysPasswordService
         }
     }
 }
+
 

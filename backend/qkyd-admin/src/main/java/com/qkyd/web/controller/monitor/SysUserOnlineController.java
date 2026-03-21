@@ -24,9 +24,9 @@ import com.qkyd.system.domain.SysUserOnline;
 import com.qkyd.system.service.ISysUserOnlineService;
 
 /**
- * 在线用户监控
+ * 鍦ㄧ嚎鐢ㄦ埛鐩戞帶
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/monitor/online")
@@ -70,10 +70,10 @@ public class SysUserOnlineController extends BaseController
     }
 
     /**
-     * 强退用户
+     * 寮洪€€鐢ㄦ埛
      */
     @PreAuthorize("@ss.hasPermi('monitor:online:forceLogout')")
-    @Log(title = "在线用户", businessType = BusinessType.FORCE)
+    @Log(title = "鍦ㄧ嚎鐢ㄦ埛", businessType = BusinessType.FORCE)
     @DeleteMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable String tokenId)
     {
@@ -81,4 +81,5 @@ public class SysUserOnlineController extends BaseController
         return success();
     }
 }
+
 

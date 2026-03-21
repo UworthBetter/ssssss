@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <div class="home">
-    <h1>耆康云盾管理系统</h1>
-    <p>欢迎使用新版 Vue 3 前端</p>
+    <h1>耆康云盾健康监测平台</h1>
+    <p>欢迎进入耆康云盾运营与监测工作台</p>
   </div>
 </template>
 

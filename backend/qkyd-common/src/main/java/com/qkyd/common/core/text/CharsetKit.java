@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 字符集工具类
+ * 瀛楃闆嗗伐鍏风被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class CharsetKit
 {
@@ -26,9 +26,9 @@ public class CharsetKit
     public static final Charset CHARSET_GBK = Charset.forName(GBK);
 
     /**
-     * 转换为Charset对象
+     * 杞崲涓篊harset瀵硅薄
      * 
-     * @param charset 字符集，为空则返回默认字符集
+     * @param charset 瀛楃闆嗭紝涓虹┖鍒欒繑鍥為粯璁ゅ瓧绗﹂泦
      * @return Charset
      */
     public static Charset charset(String charset)
@@ -37,12 +37,12 @@ public class CharsetKit
     }
 
     /**
-     * 转换字符串的字符集编码
+     * 杞崲瀛楃涓茬殑瀛楃闆嗙紪鐮?
      * 
-     * @param source 字符串
-     * @param srcCharset 源字符集，默认ISO-8859-1
-     * @param destCharset 目标字符集，默认UTF-8
-     * @return 转换后的字符集
+     * @param source 瀛楃涓?
+     * @param srcCharset 婧愬瓧绗﹂泦锛岄粯璁SO-8859-1
+     * @param destCharset 鐩爣瀛楃闆嗭紝榛樿UTF-8
+     * @return 杞崲鍚庣殑瀛楃闆?
      */
     public static String convert(String source, String srcCharset, String destCharset)
     {
@@ -50,12 +50,12 @@ public class CharsetKit
     }
 
     /**
-     * 转换字符串的字符集编码
+     * 杞崲瀛楃涓茬殑瀛楃闆嗙紪鐮?
      * 
-     * @param source 字符串
-     * @param srcCharset 源字符集，默认ISO-8859-1
-     * @param destCharset 目标字符集，默认UTF-8
-     * @return 转换后的字符集
+     * @param source 瀛楃涓?
+     * @param srcCharset 婧愬瓧绗﹂泦锛岄粯璁SO-8859-1
+     * @param destCharset 鐩爣瀛楃闆嗭紝榛樿UTF-8
+     * @return 杞崲鍚庣殑瀛楃闆?
      */
     public static String convert(String source, Charset srcCharset, Charset destCharset)
     {
@@ -77,11 +77,12 @@ public class CharsetKit
     }
 
     /**
-     * @return 系统字符集编码
+     * @return 绯荤粺瀛楃闆嗙紪鐮?
      */
     public static String systemCharset()
     {
         return Charset.defaultCharset().name();
     }
 }
+
 

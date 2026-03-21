@@ -4,32 +4,32 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * 跌倒检测请求对象
+ * 璺屽€掓娴嬭姹傚璞?
  * 
  * @author ueit
  */
 public class FallDetectionRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 加速度X */
+    /** 鍔犻€熷害X */
     private Double acc_x;
 
-    /** 加速度Y */
+    /** 鍔犻€熷害Y */
     private Double acc_y;
 
-    /** 加速度Z */
+    /** 鍔犻€熷害Z */
     private Double acc_z;
 
-    /** 用户年龄 */
+    /** 鐢ㄦ埛骞撮緞 */
     private Integer age;
 
-    /** 地点 */
+    /** 鍦扮偣 */
     private String location;
 
-    /** 时间戳 */
+    /** 鏃堕棿鎴?*/
     private Long timestamp;
 
-    /** 其他上下文信息 */
+    /** 鍏朵粬涓婁笅鏂囦俊鎭?*/
     private Map<String, Object> extra;
 
     public Double getAcc_x() {

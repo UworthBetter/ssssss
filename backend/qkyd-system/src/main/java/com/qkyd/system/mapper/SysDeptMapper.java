@@ -5,115 +5,116 @@ import org.apache.ibatis.annotations.Param;
 import com.qkyd.common.core.domain.entity.SysDept;
 
 /**
- * 部门管理 数据层
+ * 閮ㄩ棬绠＄悊 鏁版嵁灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysDeptMapper
 {
     /**
-     * 查询部门管理数据
+     * 鏌ヨ閮ㄩ棬绠＄悊鏁版嵁
      * 
-     * @param dept 部门信息
-     * @return 部门信息集合
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 閮ㄩ棬淇℃伅闆嗗悎
      */
     public List<SysDept> selectDeptList(SysDept dept);
 
     /**
-     * 根据角色ID查询部门树信息
+     * 鏍规嵁瑙掕壊ID鏌ヨ閮ㄩ棬鏍戜俊鎭?
      * 
-     * @param roleId 角色ID
-     * @param deptCheckStrictly 部门树选择项是否关联显示
-     * @return 选中部门列表
+     * @param roleId 瑙掕壊ID
+     * @param deptCheckStrictly 閮ㄩ棬鏍戦€夋嫨椤规槸鍚﹀叧鑱旀樉绀?
+     * @return 閫変腑閮ㄩ棬鍒楄〃
      */
     public List<Long> selectDeptListByRoleId(@Param("roleId") Long roleId, @Param("deptCheckStrictly") boolean deptCheckStrictly);
 
     /**
-     * 根据部门ID查询信息
+     * 鏍规嵁閮ㄩ棬ID鏌ヨ淇℃伅
      * 
-     * @param deptId 部门ID
-     * @return 部门信息
+     * @param deptId 閮ㄩ棬ID
+     * @return 閮ㄩ棬淇℃伅
      */
     public SysDept selectDeptById(Long deptId);
 
     /**
-     * 根据ID查询所有子部门
+     * 鏍规嵁ID鏌ヨ鎵€鏈夊瓙閮ㄩ棬
      * 
-     * @param deptId 部门ID
-     * @return 部门列表
+     * @param deptId 閮ㄩ棬ID
+     * @return 閮ㄩ棬鍒楄〃
      */
     public List<SysDept> selectChildrenDeptById(Long deptId);
 
     /**
-     * 根据ID查询所有子部门（正常状态）
+     * 鏍规嵁ID鏌ヨ鎵€鏈夊瓙閮ㄩ棬锛堟甯哥姸鎬侊級
      * 
-     * @param deptId 部门ID
-     * @return 子部门数
+     * @param deptId 閮ㄩ棬ID
+     * @return 瀛愰儴闂ㄦ暟
      */
     public int selectNormalChildrenDeptById(Long deptId);
 
     /**
-     * 是否存在子节点
+     * 鏄惁瀛樺湪瀛愯妭鐐?
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public int hasChildByDeptId(Long deptId);
 
     /**
-     * 查询部门是否存在用户
+     * 鏌ヨ閮ㄩ棬鏄惁瀛樺湪鐢ㄦ埛
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public int checkDeptExistUser(Long deptId);
 
     /**
-     * 校验部门名称是否唯一
+     * 鏍￠獙閮ㄩ棬鍚嶇О鏄惁鍞竴
      * 
-     * @param deptName 部门名称
-     * @param parentId 父部门ID
-     * @return 结果
+     * @param deptName 閮ㄩ棬鍚嶇О
+     * @param parentId 鐖堕儴闂↖D
+     * @return 缁撴灉
      */
     public SysDept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") Long parentId);
 
     /**
-     * 新增部门信息
+     * 鏂板閮ㄩ棬淇℃伅
      * 
-     * @param dept 部门信息
-     * @return 结果
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 缁撴灉
      */
     public int insertDept(SysDept dept);
 
     /**
-     * 修改部门信息
+     * 淇敼閮ㄩ棬淇℃伅
      * 
-     * @param dept 部门信息
-     * @return 结果
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 缁撴灉
      */
     public int updateDept(SysDept dept);
 
     /**
-     * 修改所在部门正常状态
+     * 淇敼鎵€鍦ㄩ儴闂ㄦ甯哥姸鎬?
      * 
-     * @param deptIds 部门ID组
+     * @param deptIds 閮ㄩ棬ID缁?
      */
     public void updateDeptStatusNormal(Long[] deptIds);
 
     /**
-     * 修改子元素关系
+     * 淇敼瀛愬厓绱犲叧绯?
      * 
-     * @param depts 子元素
-     * @return 结果
+     * @param depts 瀛愬厓绱?
+     * @return 缁撴灉
      */
     public int updateDeptChildren(@Param("depts") List<SysDept> depts);
 
     /**
-     * 删除部门管理信息
+     * 鍒犻櫎閮ㄩ棬绠＄悊淇℃伅
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public int deleteDeptById(Long deptId);
 }
+
 

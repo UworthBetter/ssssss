@@ -4,46 +4,47 @@ import java.util.List;
 import com.qkyd.system.domain.SysOperLog;
 
 /**
- * 操作日志 服务层
+ * 鎿嶄綔鏃ュ織 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysOperLogService
 {
     /**
-     * 新增操作日志
+     * 鏂板鎿嶄綔鏃ュ織
      * 
-     * @param operLog 操作日志对象
+     * @param operLog 鎿嶄綔鏃ュ織瀵硅薄
      */
     public void insertOperlog(SysOperLog operLog);
 
     /**
-     * 查询系统操作日志集合
+     * 鏌ヨ绯荤粺鎿嶄綔鏃ュ織闆嗗悎
      * 
-     * @param operLog 操作日志对象
-     * @return 操作日志集合
+     * @param operLog 鎿嶄綔鏃ュ織瀵硅薄
+     * @return 鎿嶄綔鏃ュ織闆嗗悎
      */
     public List<SysOperLog> selectOperLogList(SysOperLog operLog);
 
     /**
-     * 批量删除系统操作日志
+     * 鎵归噺鍒犻櫎绯荤粺鎿嶄綔鏃ュ織
      * 
-     * @param operIds 需要删除的操作日志ID
-     * @return 结果
+     * @param operIds 闇€瑕佸垹闄ょ殑鎿嶄綔鏃ュ織ID
+     * @return 缁撴灉
      */
     public int deleteOperLogByIds(Long[] operIds);
 
     /**
-     * 查询操作日志详细
+     * 鏌ヨ鎿嶄綔鏃ュ織璇︾粏
      * 
-     * @param operId 操作ID
-     * @return 操作日志对象
+     * @param operId 鎿嶄綔ID
+     * @return 鎿嶄綔鏃ュ織瀵硅薄
      */
     public SysOperLog selectOperLogById(Long operId);
 
     /**
-     * 清空操作日志
+     * 娓呯┖鎿嶄綔鏃ュ織
      */
     public void cleanOperLog();
 }
+
 

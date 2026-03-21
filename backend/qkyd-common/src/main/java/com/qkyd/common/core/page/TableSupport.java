@@ -4,39 +4,39 @@ import com.qkyd.common.core.text.Convert;
 import com.qkyd.common.utils.ServletUtils;
 
 /**
- * 表格数据处理
+ * 琛ㄦ牸鏁版嵁澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class TableSupport
 {
     /**
-     * 当前记录起始索引
+     * 褰撳墠璁板綍璧峰绱㈠紩
      */
     public static final String PAGE_NUM = "pageNum";
 
     /**
-     * 每页显示记录数
+     * 姣忛〉鏄剧ず璁板綍鏁?
      */
     public static final String PAGE_SIZE = "pageSize";
 
     /**
-     * 排序列
+     * 鎺掑簭鍒?
      */
     public static final String ORDER_BY_COLUMN = "orderByColumn";
 
     /**
-     * 排序的方向 "desc" 或者 "asc".
+     * 鎺掑簭鐨勬柟鍚?"desc" 鎴栬€?"asc".
      */
     public static final String IS_ASC = "isAsc";
 
     /**
-     * 分页参数合理化
+     * 鍒嗛〉鍙傛暟鍚堢悊鍖?
      */
     public static final String REASONABLE = "reasonable";
 
     /**
-     * 封装分页对象
+     * 灏佽鍒嗛〉瀵硅薄
      */
     public static PageDomain getPageDomain()
     {
@@ -54,4 +54,5 @@ public class TableSupport
         return getPageDomain();
     }
 }
+
 

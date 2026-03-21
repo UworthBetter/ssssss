@@ -7,9 +7,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 自定义xss校验注解实现
+ * 鑷畾涔墄ss鏍￠獙娉ㄨВ瀹炵幇
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class XssValidator implements ConstraintValidator<Xss, String>
 {
@@ -32,3 +32,4 @@ public class XssValidator implements ConstraintValidator<Xss, String>
         return matcher.matches();
     }
 }
+

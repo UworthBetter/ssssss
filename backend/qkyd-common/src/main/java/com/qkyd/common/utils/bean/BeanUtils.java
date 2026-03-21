@@ -7,26 +7,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Bean 工具类
+ * Bean 宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class BeanUtils extends org.springframework.beans.BeanUtils
 {
-    /** Bean方法名中属性名开始的下标 */
+    /** Bean鏂规硶鍚嶄腑灞炴€у悕寮€濮嬬殑涓嬫爣 */
     private static final int BEAN_METHOD_PROP_INDEX = 3;
 
-    /** * 匹配getter方法的正则表达式 */
+    /** * 鍖归厤getter鏂规硶鐨勬鍒欒〃杈惧紡 */
     private static final Pattern GET_PATTERN = Pattern.compile("get(\\p{javaUpperCase}\\w*)");
 
-    /** * 匹配setter方法的正则表达式 */
+    /** * 鍖归厤setter鏂规硶鐨勬鍒欒〃杈惧紡 */
     private static final Pattern SET_PATTERN = Pattern.compile("set(\\p{javaUpperCase}\\w*)");
 
     /**
-     * Bean属性复制工具方法。
+     * Bean灞炴€у鍒跺伐鍏锋柟娉曘€?
      * 
-     * @param dest 目标对象
-     * @param src 源对象
+     * @param dest 鐩爣瀵硅薄
+     * @param src 婧愬璞?
      */
     public static void copyBeanProp(Object dest, Object src)
     {
@@ -41,20 +41,20 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
     }
 
     /**
-     * 获取对象的setter方法。
+     * 鑾峰彇瀵硅薄鐨剆etter鏂规硶銆?
      * 
-     * @param obj 对象
-     * @return 对象的setter方法列表
+     * @param obj 瀵硅薄
+     * @return 瀵硅薄鐨剆etter鏂规硶鍒楄〃
      */
     public static List<Method> getSetterMethods(Object obj)
     {
-        // setter方法列表
+        // setter鏂规硶鍒楄〃
         List<Method> setterMethods = new ArrayList<Method>();
 
-        // 获取所有方法
+        // 鑾峰彇鎵€鏈夋柟娉?
         Method[] methods = obj.getClass().getMethods();
 
-        // 查找setter方法
+        // 鏌ユ壘setter鏂规硶
 
         for (Method method : methods)
         {
@@ -64,24 +64,24 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
                 setterMethods.add(method);
             }
         }
-        // 返回setter方法列表
+        // 杩斿洖setter鏂规硶鍒楄〃
         return setterMethods;
     }
 
     /**
-     * 获取对象的getter方法。
+     * 鑾峰彇瀵硅薄鐨刧etter鏂规硶銆?
      * 
-     * @param obj 对象
-     * @return 对象的getter方法列表
+     * @param obj 瀵硅薄
+     * @return 瀵硅薄鐨刧etter鏂规硶鍒楄〃
      */
 
     public static List<Method> getGetterMethods(Object obj)
     {
-        // getter方法列表
+        // getter鏂规硶鍒楄〃
         List<Method> getterMethods = new ArrayList<Method>();
-        // 获取所有方法
+        // 鑾峰彇鎵€鏈夋柟娉?
         Method[] methods = obj.getClass().getMethods();
-        // 查找getter方法
+        // 鏌ユ壘getter鏂规硶
         for (Method method : methods)
         {
             Matcher m = GET_PATTERN.matcher(method.getName());
@@ -90,17 +90,17 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
                 getterMethods.add(method);
             }
         }
-        // 返回getter方法列表
+        // 杩斿洖getter鏂规硶鍒楄〃
         return getterMethods;
     }
 
     /**
-     * 检查Bean方法名中的属性名是否相等。<br>
-     * 如getName()和setName()属性名一样，getName()和setAge()属性名不一样。
+     * 妫€鏌ean鏂规硶鍚嶄腑鐨勫睘鎬у悕鏄惁鐩哥瓑銆?br>
+     * 濡俫etName()鍜宻etName()灞炴€у悕涓€鏍凤紝getName()鍜宻etAge()灞炴€у悕涓嶄竴鏍枫€?
      * 
-     * @param m1 方法名1
-     * @param m2 方法名2
-     * @return 属性名一样返回true，否则返回false
+     * @param m1 鏂规硶鍚?
+     * @param m2 鏂规硶鍚?
+     * @return 灞炴€у悕涓€鏍疯繑鍥瀟rue锛屽惁鍒欒繑鍥瀎alse
      */
 
     public static boolean isMethodPropEquals(String m1, String m2)
@@ -108,4 +108,5 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
         return m1.substring(BEAN_METHOD_PROP_INDEX).equals(m2.substring(BEAN_METHOD_PROP_INDEX));
     }
 }
+
 

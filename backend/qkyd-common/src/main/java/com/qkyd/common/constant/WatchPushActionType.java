@@ -1,42 +1,42 @@
 package com.qkyd.common.constant;
 
 /**
- * 手表推送数据类型
+ * 鎵嬭〃鎺ㄩ€佹暟鎹被鍨?
  */
 public class WatchPushActionType {
 
     /**
-     * 血压包
+     * 琛€鍘嬪寘
      */
     public final static String BLOOD = "blood";
 
     /**
-     * 心率包
+     * 蹇冪巼鍖?
      */
     public final static String HEART = "heart";
 
     /**
-     * 血氧包
+     * 琛€姘у寘
      */
     public final static String OXYGEN = "oxygen";
 
     /**
-     * 体温包
+     * 浣撴俯鍖?
      */
     public final static String TEMP = "temp";
 
     /**
-     * 告警包
+     * 鍛婅鍖?
      */
     public final static String WARN = "warn";
 
     /**
-     * 心跳包
+     * 蹇冭烦鍖?
      */
     public final static String HEARTBEAT = "heartbeat";
 
     /**
-     * 定位包
+     * 瀹氫綅鍖?
      */
     public final static String LOCATION = "location";
 }

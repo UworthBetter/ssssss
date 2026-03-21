@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.constant.Constants;
 import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.common.utils.StringUtils;
@@ -22,9 +22,9 @@ import com.qkyd.common.utils.file.FileUtils;
 import com.qkyd.framework.config.ServerConfig;
 
 /**
- * 通用请求处理
+ * 閫氱敤璇锋眰澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/common")
@@ -38,10 +38,10 @@ public class CommonController
     private static final String FILE_DELIMETER = ",";
 
     /**
-     * 通用下载请求
+     * 閫氱敤涓嬭浇璇锋眰
      * 
-     * @param fileName 文件名称
-     * @param delete 是否删除
+     * @param fileName 鏂囦欢鍚嶇О
+     * @param delete 鏄惁鍒犻櫎
      */
     @GetMapping("/download")
     public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request)
@@ -50,10 +50,10 @@ public class CommonController
         {
             if (!FileUtils.checkAllowDownload(fileName))
             {
-                throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
+                throw new Exception(StringUtils.format("鏂囦欢鍚嶇О({})闈炴硶锛屼笉鍏佽涓嬭浇銆?", fileName));
             }
             String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
-            String filePath = RuoYiConfig.getDownloadPath() + fileName;
+            String filePath = QkydConfig.getDownloadPath() + fileName;
 
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, realFileName);
@@ -65,21 +65,21 @@ public class CommonController
         }
         catch (Exception e)
         {
-            log.error("下载文件失败", e);
+            log.error("涓嬭浇鏂囦欢澶辫触", e);
         }
     }
 
     /**
-     * 通用上传请求（单个）
+     * 閫氱敤涓婁紶璇锋眰锛堝崟涓級
      */
     @PostMapping("/upload")
     public AjaxResult uploadFile(MultipartFile file) throws Exception
     {
         try
         {
-            // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath();
-            // 上传并返回新文件名称
+            // 涓婁紶鏂囦欢璺緞
+            String filePath = QkydConfig.getUploadPath();
+            // 涓婁紶骞惰繑鍥炴柊鏂囦欢鍚嶇О
             String fileName = FileUploadUtils.upload(filePath, file);
             String url = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
@@ -96,22 +96,22 @@ public class CommonController
     }
 
     /**
-     * 通用上传请求（多个）
+     * 閫氱敤涓婁紶璇锋眰锛堝涓級
      */
     @PostMapping("/uploads")
     public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception
     {
         try
         {
-            // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath();
+            // 涓婁紶鏂囦欢璺緞
+            String filePath = QkydConfig.getUploadPath();
             List<String> urls = new ArrayList<String>();
             List<String> fileNames = new ArrayList<String>();
             List<String> newFileNames = new ArrayList<String>();
             List<String> originalFilenames = new ArrayList<String>();
             for (MultipartFile file : files)
             {
-                // 上传并返回新文件名称
+                // 涓婁紶骞惰繑鍥炴柊鏂囦欢鍚嶇О
                 String fileName = FileUploadUtils.upload(filePath, file);
                 String url = serverConfig.getUrl() + fileName;
                 urls.add(url);
@@ -133,7 +133,7 @@ public class CommonController
     }
 
     /**
-     * 本地资源通用下载
+     * 鏈湴璧勬簮閫氱敤涓嬭浇
      */
     @GetMapping("/download/resource")
     public void resourceDownload(String resource, HttpServletRequest request, HttpServletResponse response)
@@ -143,13 +143,13 @@ public class CommonController
         {
             if (!FileUtils.checkAllowDownload(resource))
             {
-                throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
+                throw new Exception(StringUtils.format("璧勬簮鏂囦欢({})闈炴硶锛屼笉鍏佽涓嬭浇銆?", resource));
             }
-            // 本地资源路径
-            String localPath = RuoYiConfig.getProfile();
-            // 数据库资源地址
+            // 鏈湴璧勬簮璺緞
+            String localPath = QkydConfig.getProfile();
+            // 鏁版嵁搴撹祫婧愬湴鍧€
             String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
-            // 下载名称
+            // 涓嬭浇鍚嶇О
             String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
             FileUtils.setAttachmentResponseHeader(response, downloadName);
@@ -157,8 +157,10 @@ public class CommonController
         }
         catch (Exception e)
         {
-            log.error("下载文件失败", e);
+            log.error("涓嬭浇鏂囦欢澶辫触", e);
         }
     }
 }
+
+
 

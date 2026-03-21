@@ -6,35 +6,35 @@ import com.qkyd.common.constant.HttpStatus;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 操作消息提醒
+ * 鎿嶄綔娑堟伅鎻愰啋
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class AjaxResult extends HashMap<String, Object>
 {
     private static final long serialVersionUID = 1L;
 
-    /** 状态码 */
+    /** 鐘舵€佺爜 */
     public static final String CODE_TAG = "code";
 
-    /** 返回内容 */
+    /** 杩斿洖鍐呭 */
     public static final String MSG_TAG = "msg";
 
-    /** 数据对象 */
+    /** 鏁版嵁瀵硅薄 */
     public static final String DATA_TAG = "data";
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象，使其表示一个空消息。
+     * 鍒濆鍖栦竴涓柊鍒涘缓鐨?AjaxResult 瀵硅薄锛屼娇鍏惰〃绀轰竴涓┖娑堟伅銆?
      */
     public AjaxResult()
     {
     }
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象
+     * 鍒濆鍖栦竴涓柊鍒涘缓鐨?AjaxResult 瀵硅薄
      * 
-     * @param code 状态码
-     * @param msg 返回内容
+     * @param code 鐘舵€佺爜
+     * @param msg 杩斿洖鍐呭
      */
     public AjaxResult(int code, String msg)
     {
@@ -43,11 +43,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 初始化一个新创建的 AjaxResult 对象
+     * 鍒濆鍖栦竴涓柊鍒涘缓鐨?AjaxResult 瀵硅薄
      * 
-     * @param code 状态码
-     * @param msg 返回内容
-     * @param data 数据对象
+     * @param code 鐘舵€佺爜
+     * @param msg 杩斿洖鍐呭
+     * @param data 鏁版嵁瀵硅薄
      */
     public AjaxResult(int code, String msg, Object data)
     {
@@ -60,30 +60,30 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回成功消息
+     * 杩斿洖鎴愬姛娑堟伅
      * 
-     * @return 成功消息
+     * @return 鎴愬姛娑堟伅
      */
     public static AjaxResult success()
     {
-        return AjaxResult.success("操作成功");
+        return AjaxResult.success("鎿嶄綔鎴愬姛");
     }
 
     /**
-     * 返回成功数据
+     * 杩斿洖鎴愬姛鏁版嵁
      * 
-     * @return 成功消息
+     * @return 鎴愬姛娑堟伅
      */
     public static AjaxResult success(Object data)
     {
-        return AjaxResult.success("操作成功", data);
+        return AjaxResult.success("鎿嶄綔鎴愬姛", data);
     }
 
     /**
-     * 返回成功消息
+     * 杩斿洖鎴愬姛娑堟伅
      * 
-     * @param msg 返回内容
-     * @return 成功消息
+     * @param msg 杩斿洖鍐呭
+     * @return 鎴愬姛娑堟伅
      */
     public static AjaxResult success(String msg)
     {
@@ -91,11 +91,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回成功消息
+     * 杩斿洖鎴愬姛娑堟伅
      * 
-     * @param msg 返回内容
-     * @param data 数据对象
-     * @return 成功消息
+     * @param msg 杩斿洖鍐呭
+     * @param data 鏁版嵁瀵硅薄
+     * @return 鎴愬姛娑堟伅
      */
     public static AjaxResult success(String msg, Object data)
     {
@@ -103,10 +103,10 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回警告消息
+     * 杩斿洖璀﹀憡娑堟伅
      *
-     * @param msg 返回内容
-     * @return 警告消息
+     * @param msg 杩斿洖鍐呭
+     * @return 璀﹀憡娑堟伅
      */
     public static AjaxResult warn(String msg)
     {
@@ -114,11 +114,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回警告消息
+     * 杩斿洖璀﹀憡娑堟伅
      *
-     * @param msg 返回内容
-     * @param data 数据对象
-     * @return 警告消息
+     * @param msg 杩斿洖鍐呭
+     * @param data 鏁版嵁瀵硅薄
+     * @return 璀﹀憡娑堟伅
      */
     public static AjaxResult warn(String msg, Object data)
     {
@@ -126,20 +126,20 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回错误消息
+     * 杩斿洖閿欒娑堟伅
      * 
-     * @return 错误消息
+     * @return 閿欒娑堟伅
      */
     public static AjaxResult error()
     {
-        return AjaxResult.error("操作失败");
+        return AjaxResult.error("鎿嶄綔澶辫触");
     }
 
     /**
-     * 返回错误消息
+     * 杩斿洖閿欒娑堟伅
      * 
-     * @param msg 返回内容
-     * @return 错误消息
+     * @param msg 杩斿洖鍐呭
+     * @return 閿欒娑堟伅
      */
     public static AjaxResult error(String msg)
     {
@@ -147,11 +147,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回错误消息
+     * 杩斿洖閿欒娑堟伅
      * 
-     * @param msg 返回内容
-     * @param data 数据对象
-     * @return 错误消息
+     * @param msg 杩斿洖鍐呭
+     * @param data 鏁版嵁瀵硅薄
+     * @return 閿欒娑堟伅
      */
     public static AjaxResult error(String msg, Object data)
     {
@@ -159,11 +159,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 返回错误消息
+     * 杩斿洖閿欒娑堟伅
      * 
-     * @param code 状态码
-     * @param msg 返回内容
-     * @return 错误消息
+     * @param code 鐘舵€佺爜
+     * @param msg 杩斿洖鍐呭
+     * @return 閿欒娑堟伅
      */
     public static AjaxResult error(int code, String msg)
     {
@@ -171,9 +171,9 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 是否为成功消息
+     * 鏄惁涓烘垚鍔熸秷鎭?
      *
-     * @return 结果
+     * @return 缁撴灉
      */
     public boolean isSuccess()
     {
@@ -181,9 +181,9 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 是否为警告消息
+     * 鏄惁涓鸿鍛婃秷鎭?
      *
-     * @return 结果
+     * @return 缁撴灉
      */
     public boolean isWarn()
     {
@@ -191,9 +191,9 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 是否为错误消息
+     * 鏄惁涓洪敊璇秷鎭?
      *
-     * @return 结果
+     * @return 缁撴灉
      */
     public boolean isError()
     {
@@ -201,11 +201,11 @@ public class AjaxResult extends HashMap<String, Object>
     }
 
     /**
-     * 方便链式调用
+     * 鏂逛究閾惧紡璋冪敤
      *
-     * @param key 键
-     * @param value 值
-     * @return 数据对象
+     * @param key 閿?
+     * @param value 鍊?
+     * @return 鏁版嵁瀵硅薄
      */
     @Override
     public AjaxResult put(String key, Object value)
@@ -214,4 +214,5 @@ public class AjaxResult extends HashMap<String, Object>
         return this;
     }
 }
+
 

@@ -3,39 +3,39 @@ package com.qkyd.framework.web.domain.server;
 import com.qkyd.common.utils.Arith;
 
 /**
- * CPU相关信息
+ * CPU鐩稿叧淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Cpu
 {
     /**
-     * 核心数
+     * 鏍稿績鏁?
      */
     private int cpuNum;
 
     /**
-     * CPU总的使用率
+     * CPU鎬荤殑浣跨敤鐜?
      */
     private double total;
 
     /**
-     * CPU系统使用率
+     * CPU绯荤粺浣跨敤鐜?
      */
     private double sys;
 
     /**
-     * CPU用户使用率
+     * CPU鐢ㄦ埛浣跨敤鐜?
      */
     private double used;
 
     /**
-     * CPU当前等待率
+     * CPU褰撳墠绛夊緟鐜?
      */
     private double wait;
 
     /**
-     * CPU当前空闲率
+     * CPU褰撳墠绌洪棽鐜?
      */
     private double free;
 
@@ -99,4 +99,5 @@ public class Cpu
         this.free = free;
     }
 }
+
 

@@ -7,23 +7,23 @@ import com.qkyd.common.utils.ServletUtils;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 获取IP方法
+ * 鑾峰彇IP鏂规硶
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class IpUtils
 {
     public final static String REGX_0_255 = "(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]\\d|\\d)";
-    // 匹配 ip
+    // 鍖归厤 ip
     public final static String REGX_IP = "((" + REGX_0_255 + "\\.){3}" + REGX_0_255 + ")";
     public final static String REGX_IP_WILDCARD = "(((\\*\\.){3}\\*)|(" + REGX_0_255 + "(\\.\\*){3})|(" + REGX_0_255 + "\\." + REGX_0_255 + ")(\\.\\*){2}" + "|((" + REGX_0_255 + "\\.){3}\\*))";
-    // 匹配网段
+    // 鍖归厤缃戞
     public final static String REGX_IP_SEG = "(" + REGX_IP + "\\-" + REGX_IP + ")";
 
     /**
-     * 获取客户端IP
+     * 鑾峰彇瀹㈡埛绔疘P
      * 
-     * @return IP地址
+     * @return IP鍦板潃
      */
     public static String getIpAddr()
     {
@@ -31,10 +31,10 @@ public class IpUtils
     }
 
     /**
-     * 获取客户端IP
+     * 鑾峰彇瀹㈡埛绔疘P
      * 
-     * @param request 请求对象
-     * @return IP地址
+     * @param request 璇锋眰瀵硅薄
+     * @return IP鍦板潃
      */
     public static String getIpAddr(HttpServletRequest request)
     {
@@ -69,10 +69,10 @@ public class IpUtils
     }
 
     /**
-     * 检查是否为内部IP地址
+     * 妫€鏌ユ槸鍚︿负鍐呴儴IP鍦板潃
      * 
-     * @param ip IP地址
-     * @return 结果
+     * @param ip IP鍦板潃
+     * @return 缁撴灉
      */
     public static boolean internalIp(String ip)
     {
@@ -81,10 +81,10 @@ public class IpUtils
     }
 
     /**
-     * 检查是否为内部IP地址
+     * 妫€鏌ユ槸鍚︿负鍐呴儴IP鍦板潃
      * 
-     * @param addr byte地址
-     * @return 结果
+     * @param addr byte鍦板潃
+     * @return 缁撴灉
      */
     private static boolean internalIp(byte[] addr)
     {
@@ -124,10 +124,10 @@ public class IpUtils
     }
 
     /**
-     * 将IPv4地址转换成字节
+     * 灏咺Pv4鍦板潃杞崲鎴愬瓧鑺?
      * 
-     * @param text IPv4地址
-     * @return byte 字节
+     * @param text IPv4鍦板潃
+     * @return byte 瀛楄妭
      */
     public static byte[] textToNumericFormatV4(String text)
     {
@@ -212,9 +212,9 @@ public class IpUtils
     }
 
     /**
-     * 获取IP地址
+     * 鑾峰彇IP鍦板潃
      * 
-     * @return 本地IP地址
+     * @return 鏈湴IP鍦板潃
      */
     public static String getHostIp()
     {
@@ -229,9 +229,9 @@ public class IpUtils
     }
 
     /**
-     * 获取主机名
+     * 鑾峰彇涓绘満鍚?
      * 
-     * @return 本地主机名
+     * @return 鏈湴涓绘満鍚?
      */
     public static String getHostName()
     {
@@ -242,18 +242,18 @@ public class IpUtils
         catch (UnknownHostException e)
         {
         }
-        return "未知";
+        return "鏈煡";
     }
 
     /**
-     * 从多级反向代理中获得第一个非unknown IP地址
+     * 浠庡绾у弽鍚戜唬鐞嗕腑鑾峰緱绗竴涓潪unknown IP鍦板潃
      *
-     * @param ip 获得的IP地址
-     * @return 第一个非unknown IP地址
+     * @param ip 鑾峰緱鐨処P鍦板潃
+     * @return 绗竴涓潪unknown IP鍦板潃
      */
     public static String getMultistageReverseProxyIp(String ip)
     {
-        // 多级反向代理检测
+        // 澶氱骇鍙嶅悜浠ｇ悊妫€娴?
         if (ip != null && ip.indexOf(",") > 0)
         {
             final String[] ips = ip.trim().split(",");
@@ -270,10 +270,10 @@ public class IpUtils
     }
 
     /**
-     * 检测给定字符串是否为未知，多用于检测HTTP请求相关
+     * 妫€娴嬬粰瀹氬瓧绗︿覆鏄惁涓烘湭鐭ワ紝澶氱敤浜庢娴婬TTP璇锋眰鐩稿叧
      *
-     * @param checkString 被检测的字符串
-     * @return 是否未知
+     * @param checkString 琚娴嬬殑瀛楃涓?
+     * @return 鏄惁鏈煡
      */
     public static boolean isUnknown(String checkString)
     {
@@ -281,7 +281,7 @@ public class IpUtils
     }
 
     /**
-     * 是否为IP
+     * 鏄惁涓篒P
      */
     public static boolean isIP(String ip)
     {
@@ -289,7 +289,7 @@ public class IpUtils
     }
 
     /**
-     * 是否为IP，或 *为间隔的通配符地址
+     * 鏄惁涓篒P锛屾垨 *涓洪棿闅旂殑閫氶厤绗﹀湴鍧€
      */
     public static boolean isIpWildCard(String ip)
     {
@@ -297,7 +297,7 @@ public class IpUtils
     }
 
     /**
-     * 检测参数是否在ip通配符里
+     * 妫€娴嬪弬鏁版槸鍚﹀湪ip閫氶厤绗﹂噷
      */
     public static boolean ipIsInWildCardNoCheck(String ipWildCard, String ip)
     {
@@ -316,7 +316,7 @@ public class IpUtils
     }
 
     /**
-     * 是否为特定格式如:“10.10.10.1-10.10.10.99”的ip段字符串
+     * 鏄惁涓虹壒瀹氭牸寮忓:鈥?0.10.10.1-10.10.10.99鈥濈殑ip娈靛瓧绗︿覆
      */
     public static boolean isIPSegment(String ipSeg)
     {
@@ -324,7 +324,7 @@ public class IpUtils
     }
 
     /**
-     * 判断ip是否在指定网段中
+     * 鍒ゆ柇ip鏄惁鍦ㄦ寚瀹氱綉娈典腑
      */
     public static boolean ipIsInNetNoCheck(String iparea, String ip)
     {
@@ -349,11 +349,11 @@ public class IpUtils
     }
 
     /**
-     * 校验ip是否符合过滤串规则
+     * 鏍￠獙ip鏄惁绗﹀悎杩囨护涓茶鍒?
      * 
-     * @param filter 过滤IP列表,支持后缀'*'通配,支持网段如:`10.10.10.1-10.10.10.99`
-     * @param ip 校验IP地址
-     * @return boolean 结果
+     * @param filter 杩囨护IP鍒楄〃,鏀寔鍚庣紑'*'閫氶厤,鏀寔缃戞濡?`10.10.10.1-10.10.10.99`
+     * @param ip 鏍￠獙IP鍦板潃
+     * @return boolean 缁撴灉
      */
     public static boolean isMatchedIp(String filter, String ip)
     {
@@ -380,3 +380,4 @@ public class IpUtils
         return false;
     }
 }
+

@@ -5,41 +5,41 @@ import org.springframework.ai.chat.model.ChatResponse;
 import java.util.List;
 
 /**
- * AI服务接口
+ * AI鏈嶅姟鎺ュ彛
  *
  * @author ueit
  */
 public interface IAiService {
 
     /**
-     * 聊天对话
+     * 鑱婂ぉ瀵硅瘽
      *
-     * @param message 用户消息
-     * @return AI回复
+     * @param message 鐢ㄦ埛娑堟伅
+     * @return AI鍥炲
      */
     String chat(String message);
 
     /**
-     * 批量对话
+     * 鎵归噺瀵硅瘽
      *
-     * @param messages 消息列表
-     * @return AI回复
+     * @param messages 娑堟伅鍒楄〃
+     * @return AI鍥炲
      */
     String chat(String[] messages);
 
     /**
-     * 获取完整响应对象
+     * 鑾峰彇瀹屾暣鍝嶅簲瀵硅薄
      *
-     * @param message 用户消息
-     * @return 响应对象
+     * @param message 鐢ㄦ埛娑堟伅
+     * @return 鍝嶅簲瀵硅薄
      */
     ChatResponse chatWithResponse(String message);
 
     /**
-     * 跌倒检测 (Jiaqing Algorithm)
+     * 璺屽€掓娴?(Jiaqing Algorithm)
      * 
-     * @param request 检测请求参数
-     * @return 检测结果 JSON字符串
+     * @param request 妫€娴嬭姹傚弬鏁?
+     * @return 妫€娴嬬粨鏋?JSON瀛楃涓?
      */
     String detectFall(com.qkyd.ai.domain.FallDetectionRequest request);
 }

@@ -10,9 +10,9 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
- * redis配置
+ * redis閰嶇疆
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 @EnableCaching
@@ -27,11 +27,11 @@ public class RedisConfig extends CachingConfigurerSupport
 
         FastJson2JsonRedisSerializer serializer = new FastJson2JsonRedisSerializer(Object.class);
 
-        // 使用StringRedisSerializer来序列化和反序列化redis的key值
+        // 浣跨敤StringRedisSerializer鏉ュ簭鍒楀寲鍜屽弽搴忓垪鍖杛edis鐨刱ey鍊?
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
 
-        // Hash的key也采用StringRedisSerializer的序列化方式
+        // Hash鐨刱ey涔熼噰鐢⊿tringRedisSerializer鐨勫簭鍒楀寲鏂瑰紡
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(serializer);
 
@@ -49,7 +49,7 @@ public class RedisConfig extends CachingConfigurerSupport
     }
 
     /**
-     * 限流脚本
+     * 闄愭祦鑴氭湰
      */
     private String limitScriptText()
     {
@@ -67,4 +67,5 @@ public class RedisConfig extends CachingConfigurerSupport
                 "return tonumber(current);";
     }
 }
+
 

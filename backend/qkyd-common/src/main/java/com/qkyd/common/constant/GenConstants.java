@@ -1,118 +1,119 @@
 package com.qkyd.common.constant;
 
 /**
- * 代码生成通用常量
+ * 浠ｇ爜鐢熸垚閫氱敤甯搁噺
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class GenConstants
 {
-    /** 单表（增删改查） */
+    /** 鍗曡〃锛堝鍒犳敼鏌ワ級 */
     public static final String TPL_CRUD = "crud";
 
-    /** 树表（增删改查） */
+    /** 鏍戣〃锛堝鍒犳敼鏌ワ級 */
     public static final String TPL_TREE = "tree";
 
-    /** 主子表（增删改查） */
+    /** 涓诲瓙琛紙澧炲垹鏀规煡锛?*/
     public static final String TPL_SUB = "sub";
 
-    /** 树编码字段 */
+    /** 鏍戠紪鐮佸瓧娈?*/
     public static final String TREE_CODE = "treeCode";
 
-    /** 树父编码字段 */
+    /** 鏍戠埗缂栫爜瀛楁 */
     public static final String TREE_PARENT_CODE = "treeParentCode";
 
-    /** 树名称字段 */
+    /** 鏍戝悕绉板瓧娈?*/
     public static final String TREE_NAME = "treeName";
 
-    /** 上级菜单ID字段 */
+    /** 涓婄骇鑿滃崟ID瀛楁 */
     public static final String PARENT_MENU_ID = "parentMenuId";
 
-    /** 上级菜单名称字段 */
+    /** 涓婄骇鑿滃崟鍚嶇О瀛楁 */
     public static final String PARENT_MENU_NAME = "parentMenuName";
 
-    /** 数据库字符串类型 */
+    /** 鏁版嵁搴撳瓧绗︿覆绫诲瀷 */
     public static final String[] COLUMNTYPE_STR = { "char", "varchar", "nvarchar", "varchar2" };
 
-    /** 数据库文本类型 */
+    /** 鏁版嵁搴撴枃鏈被鍨?*/
     public static final String[] COLUMNTYPE_TEXT = { "tinytext", "text", "mediumtext", "longtext" };
 
-    /** 数据库时间类型 */
+    /** 鏁版嵁搴撴椂闂寸被鍨?*/
     public static final String[] COLUMNTYPE_TIME = { "datetime", "time", "date", "timestamp" };
 
-    /** 数据库数字类型 */
+    /** 鏁版嵁搴撴暟瀛楃被鍨?*/
     public static final String[] COLUMNTYPE_NUMBER = { "tinyint", "smallint", "mediumint", "int", "number", "integer",
             "bit", "bigint", "float", "double", "decimal" };
 
-    /** 页面不需要编辑字段 */
+    /** 椤甸潰涓嶉渶瑕佺紪杈戝瓧娈?*/
     public static final String[] COLUMNNAME_NOT_EDIT = { "id", "create_by", "create_time", "del_flag" };
 
-    /** 页面不需要显示的列表字段 */
+    /** 椤甸潰涓嶉渶瑕佹樉绀虹殑鍒楄〃瀛楁 */
     public static final String[] COLUMNNAME_NOT_LIST = { "id", "create_by", "create_time", "del_flag", "update_by",
             "update_time" };
 
-    /** 页面不需要查询字段 */
+    /** 椤甸潰涓嶉渶瑕佹煡璇㈠瓧娈?*/
     public static final String[] COLUMNNAME_NOT_QUERY = { "id", "create_by", "create_time", "del_flag", "update_by",
             "update_time", "remark" };
 
-    /** Entity基类字段 */
+    /** Entity鍩虹被瀛楁 */
     public static final String[] BASE_ENTITY = { "createBy", "createTime", "updateBy", "updateTime", "remark" };
 
-    /** Tree基类字段 */
+    /** Tree鍩虹被瀛楁 */
     public static final String[] TREE_ENTITY = { "parentName", "parentId", "orderNum", "ancestors", "children" };
 
-    /** 文本框 */
+    /** 鏂囨湰妗?*/
     public static final String HTML_INPUT = "input";
 
-    /** 文本域 */
+    /** 鏂囨湰鍩?*/
     public static final String HTML_TEXTAREA = "textarea";
 
-    /** 下拉框 */
+    /** 涓嬫媺妗?*/
     public static final String HTML_SELECT = "select";
 
-    /** 单选框 */
+    /** 鍗曢€夋 */
     public static final String HTML_RADIO = "radio";
 
-    /** 复选框 */
+    /** 澶嶉€夋 */
     public static final String HTML_CHECKBOX = "checkbox";
 
-    /** 日期控件 */
+    /** 鏃ユ湡鎺т欢 */
     public static final String HTML_DATETIME = "datetime";
 
-    /** 图片上传控件 */
+    /** 鍥剧墖涓婁紶鎺т欢 */
     public static final String HTML_IMAGE_UPLOAD = "imageUpload";
 
-    /** 文件上传控件 */
+    /** 鏂囦欢涓婁紶鎺т欢 */
     public static final String HTML_FILE_UPLOAD = "fileUpload";
 
-    /** 富文本控件 */
+    /** 瀵屾枃鏈帶浠?*/
     public static final String HTML_EDITOR = "editor";
 
-    /** 字符串类型 */
+    /** 瀛楃涓茬被鍨?*/
     public static final String TYPE_STRING = "String";
 
-    /** 整型 */
+    /** 鏁村瀷 */
     public static final String TYPE_INTEGER = "Integer";
 
-    /** 长整型 */
+    /** 闀挎暣鍨?*/
     public static final String TYPE_LONG = "Long";
 
-    /** 浮点型 */
+    /** 娴偣鍨?*/
     public static final String TYPE_DOUBLE = "Double";
 
-    /** 高精度计算类型 */
+    /** 楂樼簿搴﹁绠楃被鍨?*/
     public static final String TYPE_BIGDECIMAL = "BigDecimal";
 
-    /** 时间类型 */
+    /** 鏃堕棿绫诲瀷 */
     public static final String TYPE_DATE = "Date";
 
-    /** 模糊查询 */
+    /** 妯＄硦鏌ヨ */
     public static final String QUERY_LIKE = "LIKE";
 
-    /** 相等查询 */
+    /** 鐩哥瓑鏌ヨ */
     public static final String QUERY_EQ = "EQ";
 
-    /** 需要 */
+    /** 闇€瑕?*/
     public static final String REQUIRE = "1";
 }
+
 

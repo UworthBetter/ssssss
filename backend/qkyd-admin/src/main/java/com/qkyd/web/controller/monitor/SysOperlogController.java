@@ -20,9 +20,9 @@ import com.qkyd.system.domain.SysOperLog;
 import com.qkyd.system.service.ISysOperLogService;
 
 /**
- * 操作日志记录
+ * 鎿嶄綔鏃ュ織璁板綍
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/monitor/operlog")
@@ -40,17 +40,17 @@ public class SysOperlogController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "操作日志", businessType = BusinessType.EXPORT)
+    @Log(title = "鎿嶄綔鏃ュ織", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:operlog:export')")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysOperLog operLog)
     {
         List<SysOperLog> list = operLogService.selectOperLogList(operLog);
         ExcelUtil<SysOperLog> util = new ExcelUtil<SysOperLog>(SysOperLog.class);
-        util.exportExcel(response, list, "操作日志");
+        util.exportExcel(response, list, "鎿嶄綔鏃ュ織");
     }
 
-    @Log(title = "操作日志", businessType = BusinessType.DELETE)
+    @Log(title = "鎿嶄綔鏃ュ織", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('monitor:operlog:remove')")
     @DeleteMapping("/{operIds}")
     public AjaxResult remove(@PathVariable Long[] operIds)
@@ -58,7 +58,7 @@ public class SysOperlogController extends BaseController
         return toAjax(operLogService.deleteOperLogByIds(operIds));
     }
 
-    @Log(title = "操作日志", businessType = BusinessType.CLEAN)
+    @Log(title = "鎿嶄綔鏃ュ織", businessType = BusinessType.CLEAN)
     @PreAuthorize("@ss.hasPermi('monitor:operlog:remove')")
     @DeleteMapping("/clean")
     public AjaxResult clean()
@@ -67,4 +67,5 @@ public class SysOperlogController extends BaseController
         return success();
     }
 }
+
 

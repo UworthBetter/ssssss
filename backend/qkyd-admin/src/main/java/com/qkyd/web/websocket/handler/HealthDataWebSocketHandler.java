@@ -15,13 +15,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.alibaba.fastjson2.JSON;
 
 /**
- * 健康数据WebSocket处理器
+ * 鍋ュ悍鏁版嵁WebSocket澶勭悊鍣?
  * 
- * 功能：
- * 1. 管理WebSocket连接（支持按服务对象ID分组）
- * 2. 接收客户端订阅请求
- * 3. 广播健康数据更新
- * 4. 推送异常告警
+ * 鍔熻兘锛?
+ * 1. 绠＄悊WebSocket杩炴帴锛堟敮鎸佹寜鏈嶅姟瀵硅薄ID鍒嗙粍锛?
+ * 2. 鎺ユ敹瀹㈡埛绔闃呰姹?
+ * 3. 骞挎挱鍋ュ悍鏁版嵁鏇存柊
+ * 4. 鎺ㄩ€佸紓甯稿憡璀?
  * 
  * @author qkyd
  * @date 2026-02-02
@@ -31,25 +31,25 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(HealthDataWebSocketHandler.class);
 
-    // 存储所有WebSocket会话
+    // 瀛樺偍鎵€鏈塛ebSocket浼氳瘽
     private static final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    // 存储服务对象ID与会话ID的映射关系（用于推送特定服务对象的数据）
+    // 瀛樺偍鏈嶅姟瀵硅薄ID涓庝細璇滻D鐨勬槧灏勫叧绯伙紙鐢ㄤ簬鎺ㄩ€佺壒瀹氭湇鍔″璞＄殑鏁版嵁锛?
     private static final Map<String, String> patientSessionMap = new ConcurrentHashMap<>();
 
-    // 存储会话ID与订阅的服务对象列表的映射
+    // 瀛樺偍浼氳瘽ID涓庤闃呯殑鏈嶅姟瀵硅薄鍒楄〃鐨勬槧灏?
     private static final Map<String, Long> sessionPatientMap = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String sessionId = session.getId();
         sessions.put(sessionId, session);
-        log.info("WebSocket连接建立: sessionId={}", sessionId);
+        log.info("WebSocket杩炴帴寤虹珛: sessionId={}", sessionId);
         
-        // 发送连接成功消息
+        // 鍙戦€佽繛鎺ユ垚鍔熸秷鎭?
         sendMessage(sessionId, JSON.toJSONString(Map.of(
             "type", "connected",
-            "message", "WebSocket连接成功",
+            "message", "WebSocket杩炴帴鎴愬姛",
             "sessionId", sessionId
         )));
     }
@@ -59,37 +59,37 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
         String sessionId = session.getId();
         String payload = message.getPayload();
         
-        log.debug("收到WebSocket消息: sessionId={}, message={}", sessionId, payload);
+        log.debug("鏀跺埌WebSocket娑堟伅: sessionId={}, message={}", sessionId, payload);
         
         try {
-            // 解析客户端消息
+            // 瑙ｆ瀽瀹㈡埛绔秷鎭?
             Map<String, Object> data = JSON.parseObject(payload, Map.class);
             String type = (String) data.get("type");
             
             switch (type) {
                 case "subscribe":
-                    // 订阅服务对象数据
+                    // 璁㈤槄鏈嶅姟瀵硅薄鏁版嵁
                     handleSubscribe(sessionId, data);
                     break;
                     
                 case "unsubscribe":
-                    // 取消订阅
+                    // 鍙栨秷璁㈤槄
                     handleUnsubscribe(sessionId);
                     break;
                     
                 case "heartbeat":
-                    // 心跳检测
+                    // 蹇冭烦妫€娴?
                     handleHeartbeat(sessionId);
                     break;
                     
                 default:
-                    log.warn("未知的消息类型: type={}", type);
+                    log.warn("鏈煡鐨勬秷鎭被鍨? type={}", type);
             }
         } catch (Exception e) {
-            log.error("处理WebSocket消息失败: sessionId={}, message={}", sessionId, payload, e);
+            log.error("澶勭悊WebSocket娑堟伅澶辫触: sessionId={}, message={}", sessionId, payload, e);
             sendMessage(sessionId, JSON.toJSONString(Map.of(
                 "type", "error",
-                "message", "消息处理失败: " + e.getMessage()
+                "message", "娑堟伅澶勭悊澶辫触: " + e.getMessage()
             )));
         }
     }
@@ -99,21 +99,21 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
         String sessionId = session.getId();
         sessions.remove(sessionId);
         
-        // 清理订阅关系
+        // 娓呯悊璁㈤槄鍏崇郴
         Long patientId = sessionPatientMap.remove(sessionId);
         if (patientId != null) {
             patientSessionMap.remove(String.valueOf(patientId));
         }
         
-        log.info("WebSocket连接关闭: sessionId={}, status={}", sessionId, status);
+        log.info("WebSocket杩炴帴鍏抽棴: sessionId={}, status={}", sessionId, status);
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         String sessionId = session.getId();
-        log.error("WebSocket传输错误: sessionId={}", sessionId, exception);
+        log.error("WebSocket浼犺緭閿欒: sessionId={}", sessionId, exception);
         
-        // 清理会话
+        // 娓呯悊浼氳瘽
         sessions.remove(sessionId);
         Long patientId = sessionPatientMap.remove(sessionId);
         if (patientId != null) {
@@ -122,30 +122,30 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 处理订阅请求
+     * 澶勭悊璁㈤槄璇锋眰
      */
     private void handleSubscribe(String sessionId, Map<String, Object> data) {
         Long patientId = Long.valueOf(data.get("patientId").toString());
         
-        // 更新订阅关系
+        // 鏇存柊璁㈤槄鍏崇郴
         Long oldPatientId = sessionPatientMap.put(sessionId, patientId);
         if (oldPatientId != null) {
             patientSessionMap.remove(String.valueOf(oldPatientId));
         }
         patientSessionMap.put(String.valueOf(patientId), sessionId);
         
-        log.info("客户端订阅服务对象数据: sessionId={}, patientId={}", sessionId, patientId);
+        log.info("瀹㈡埛绔闃呮湇鍔″璞℃暟鎹? sessionId={}, patientId={}", sessionId, patientId);
         
-        // 发送订阅成功消息
+        // 鍙戦€佽闃呮垚鍔熸秷鎭?
         sendMessage(sessionId, JSON.toJSONString(Map.of(
             "type", "subscribed",
-            "message", "订阅成功",
+            "message", "璁㈤槄鎴愬姛",
             "patientId", patientId
         )));
     }
 
     /**
-     * 处理取消订阅
+     * 澶勭悊鍙栨秷璁㈤槄
      */
     private void handleUnsubscribe(String sessionId) {
         Long patientId = sessionPatientMap.remove(sessionId);
@@ -153,16 +153,16 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
             patientSessionMap.remove(String.valueOf(patientId));
         }
         
-        log.info("客户端取消订阅: sessionId={}", sessionId);
+        log.info("瀹㈡埛绔彇娑堣闃? sessionId={}", sessionId);
         
         sendMessage(sessionId, JSON.toJSONString(Map.of(
             "type", "unsubscribed",
-            "message", "取消订阅成功"
+            "message", "鍙栨秷璁㈤槄鎴愬姛"
         )));
     }
 
     /**
-     * 处理心跳检测
+     * 澶勭悊蹇冭烦妫€娴?
      */
     private void handleHeartbeat(String sessionId) {
         sendMessage(sessionId, JSON.toJSONString(Map.of(
@@ -172,12 +172,12 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 发送消息到指定会话
+     * 鍙戦€佹秷鎭埌鎸囧畾浼氳瘽
      */
     public boolean sendMessage(String sessionId, String message) {
         WebSocketSession session = sessions.get(sessionId);
         if (session == null || !session.isOpen()) {
-            log.warn("会话不存在或已关闭: sessionId={}", sessionId);
+            log.warn("浼氳瘽涓嶅瓨鍦ㄦ垨宸插叧闂? sessionId={}", sessionId);
             return false;
         }
         
@@ -185,13 +185,13 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
             session.sendMessage(new TextMessage(message));
             return true;
         } catch (IOException e) {
-            log.error("发送WebSocket消息失败: sessionId={}", sessionId, e);
+            log.error("鍙戦€乄ebSocket娑堟伅澶辫触: sessionId={}", sessionId, e);
             return false;
         }
     }
 
     /**
-     * 广播消息到所有会话
+     * 骞挎挱娑堟伅鍒版墍鏈変細璇?
      */
     public void broadcast(String message) {
         sessions.forEach((sessionId, session) -> {
@@ -202,12 +202,12 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 推送健康数据到订阅的服务对象
+     * 鎺ㄩ€佸仴搴锋暟鎹埌璁㈤槄鐨勬湇鍔″璞?
      */
     public void pushHealthData(Long patientId, Map<String, Object> data) {
         String sessionId = patientSessionMap.get(String.valueOf(patientId));
         if (sessionId == null) {
-            log.debug("没有客户端订阅服务对象: patientId={}", patientId);
+            log.debug("娌℃湁瀹㈡埛绔闃呮湇鍔″璞? patientId={}", patientId);
             return;
         }
         
@@ -222,7 +222,7 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 推送异常告警
+     * 鎺ㄩ€佸紓甯稿憡璀?
      */
     public void pushAbnormalAlert(Map<String, Object> alert) {
         Map<String, Object> message = Map.of(
@@ -231,17 +231,17 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
             "timestamp", System.currentTimeMillis()
         );
         
-        // 广播告警消息
+        // 骞挎挱鍛婅娑堟伅
         broadcast(JSON.toJSONString(message));
     }
 
     /**
-     * 推送风险评分更新
+     * 鎺ㄩ€侀闄╄瘎鍒嗘洿鏂?
      */
     public void pushRiskScore(Long patientId, Map<String, Object> riskData) {
         String sessionId = patientSessionMap.get(String.valueOf(patientId));
         if (sessionId == null) {
-            log.debug("没有客户端订阅服务对象: patientId={}", patientId);
+            log.debug("娌℃湁瀹㈡埛绔闃呮湇鍔″璞? patientId={}", patientId);
             return;
         }
         
@@ -256,14 +256,14 @@ public class HealthDataWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 获取当前连接数
+     * 鑾峰彇褰撳墠杩炴帴鏁?
      */
     public int getConnectionCount() {
         return sessions.size();
     }
 
     /**
-     * 获取订阅的服务对象数
+     * 鑾峰彇璁㈤槄鐨勬湇鍔″璞℃暟
      */
     public int getSubscriptionCount() {
         return patientSessionMap.size();

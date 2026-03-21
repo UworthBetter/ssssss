@@ -11,23 +11,23 @@ import com.qkyd.common.constant.Constants;
 import com.qkyd.common.core.text.StrFormatter;
 
 /**
- * 字符串工具类
+ * 瀛楃涓插伐鍏风被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class StringUtils extends org.apache.commons.lang3.StringUtils
 {
-    /** 空字符串 */
+    /** 绌哄瓧绗︿覆 */
     private static final String NULLSTR = "";
 
-    /** 下划线 */
+    /** 涓嬪垝绾?*/
     private static final char SEPARATOR = '_';
 
     /**
-     * 获取参数不为空值
+     * 鑾峰彇鍙傛暟涓嶄负绌哄€?
      * 
-     * @param value defaultValue 要判断的value
-     * @return value 返回值
+     * @param value defaultValue 瑕佸垽鏂殑value
+     * @return value 杩斿洖鍊?
      */
     public static <T> T nvl(T value, T defaultValue)
     {
@@ -35,10 +35,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个Collection是否为空， 包含List，Set，Queue
+     * * 鍒ゆ柇涓€涓狢ollection鏄惁涓虹┖锛?鍖呭惈List锛孲et锛孮ueue
      * 
-     * @param coll 要判断的Collection
-     * @return true：为空 false：非空
+     * @param coll 瑕佸垽鏂殑Collection
+     * @return true锛氫负绌?false锛氶潪绌?
      */
     public static boolean isEmpty(Collection<?> coll)
     {
@@ -46,10 +46,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个Collection是否非空，包含List，Set，Queue
+     * * 鍒ゆ柇涓€涓狢ollection鏄惁闈炵┖锛屽寘鍚獿ist锛孲et锛孮ueue
      * 
-     * @param coll 要判断的Collection
-     * @return true：非空 false：空
+     * @param coll 瑕佸垽鏂殑Collection
+     * @return true锛氶潪绌?false锛氱┖
      */
     public static boolean isNotEmpty(Collection<?> coll)
     {
@@ -57,10 +57,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个对象数组是否为空
+     * * 鍒ゆ柇涓€涓璞℃暟缁勬槸鍚︿负绌?
      * 
-     * @param objects 要判断的对象数组
-     ** @return true：为空 false：非空
+     * @param objects 瑕佸垽鏂殑瀵硅薄鏁扮粍
+     ** @return true锛氫负绌?false锛氶潪绌?
      */
     public static boolean isEmpty(Object[] objects)
     {
@@ -68,10 +68,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个对象数组是否非空
+     * * 鍒ゆ柇涓€涓璞℃暟缁勬槸鍚﹂潪绌?
      * 
-     * @param objects 要判断的对象数组
-     * @return true：非空 false：空
+     * @param objects 瑕佸垽鏂殑瀵硅薄鏁扮粍
+     * @return true锛氶潪绌?false锛氱┖
      */
     public static boolean isNotEmpty(Object[] objects)
     {
@@ -79,10 +79,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个Map是否为空
+     * * 鍒ゆ柇涓€涓狹ap鏄惁涓虹┖
      * 
-     * @param map 要判断的Map
-     * @return true：为空 false：非空
+     * @param map 瑕佸垽鏂殑Map
+     * @return true锛氫负绌?false锛氶潪绌?
      */
     public static boolean isEmpty(Map<?, ?> map)
     {
@@ -90,10 +90,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个Map是否为空
+     * * 鍒ゆ柇涓€涓狹ap鏄惁涓虹┖
      * 
-     * @param map 要判断的Map
-     * @return true：非空 false：空
+     * @param map 瑕佸垽鏂殑Map
+     * @return true锛氶潪绌?false锛氱┖
      */
     public static boolean isNotEmpty(Map<?, ?> map)
     {
@@ -101,10 +101,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个字符串是否为空串
+     * * 鍒ゆ柇涓€涓瓧绗︿覆鏄惁涓虹┖涓?
      * 
      * @param str String
-     * @return true：为空 false：非空
+     * @return true锛氫负绌?false锛氶潪绌?
      */
     public static boolean isEmpty(String str)
     {
@@ -112,10 +112,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个字符串是否为非空串
+     * * 鍒ゆ柇涓€涓瓧绗︿覆鏄惁涓洪潪绌轰覆
      * 
      * @param str String
-     * @return true：非空串 false：空串
+     * @return true锛氶潪绌轰覆 false锛氱┖涓?
      */
     public static boolean isNotEmpty(String str)
     {
@@ -123,10 +123,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个对象是否为空
+     * * 鍒ゆ柇涓€涓璞℃槸鍚︿负绌?
      * 
      * @param object Object
-     * @return true：为空 false：非空
+     * @return true锛氫负绌?false锛氶潪绌?
      */
     public static boolean isNull(Object object)
     {
@@ -134,10 +134,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个对象是否非空
+     * * 鍒ゆ柇涓€涓璞℃槸鍚﹂潪绌?
      * 
      * @param object Object
-     * @return true：非空 false：空
+     * @return true锛氶潪绌?false锛氱┖
      */
     public static boolean isNotNull(Object object)
     {
@@ -145,10 +145,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * * 判断一个对象是否是数组类型（Java基本型别的数组）
+     * * 鍒ゆ柇涓€涓璞℃槸鍚︽槸鏁扮粍绫诲瀷锛圝ava鍩烘湰鍨嬪埆鐨勬暟缁勶級
      * 
-     * @param object 对象
-     * @return true：是数组 false：不是数组
+     * @param object 瀵硅薄
+     * @return true锛氭槸鏁扮粍 false锛氫笉鏄暟缁?
      */
     public static boolean isArray(Object object)
     {
@@ -156,7 +156,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 去空格
+     * 鍘荤┖鏍?
      */
     public static String trim(String str)
     {
@@ -164,11 +164,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 截取字符串
+     * 鎴彇瀛楃涓?
      * 
-     * @param str 字符串
-     * @param start 开始
-     * @return 结果
+     * @param str 瀛楃涓?
+     * @param start 寮€濮?
+     * @return 缁撴灉
      */
     public static String substring(final String str, int start)
     {
@@ -195,12 +195,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 截取字符串
+     * 鎴彇瀛楃涓?
      * 
-     * @param str 字符串
-     * @param start 开始
-     * @param end 结束
-     * @return 结果
+     * @param str 瀛楃涓?
+     * @param start 寮€濮?
+     * @param end 缁撴潫
+     * @return 缁撴灉
      */
     public static String substring(final String str, int start, int end)
     {
@@ -241,10 +241,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 判断是否为空，并且不是空白字符
+     * 鍒ゆ柇鏄惁涓虹┖锛屽苟涓斾笉鏄┖鐧藉瓧绗?
      * 
-     * @param str 要判断的value
-     * @return 结果
+     * @param str 瑕佸垽鏂殑value
+     * @return 缁撴灉
      */
     public static boolean hasText(String str)
     {
@@ -265,17 +265,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 格式化文本, {} 表示占位符<br>
-     * 此方法只是简单将占位符 {} 按照顺序替换为参数<br>
-     * 如果想输出 {} 使用 \\转义 { 即可，如果想输出 {} 之前的 \ 使用双转义符 \\\\ 即可<br>
-     * 例：<br>
-     * 通常使用：format("this is {} for {}", "a", "b") -> this is a for b<br>
-     * 转义{}： format("this is \\{} for {}", "a", "b") -> this is \{} for a<br>
-     * 转义\： format("this is \\\\{} for {}", "a", "b") -> this is \a for b<br>
+     * 鏍煎紡鍖栨枃鏈? {} 琛ㄧず鍗犱綅绗?br>
+     * 姝ゆ柟娉曞彧鏄畝鍗曞皢鍗犱綅绗?{} 鎸夌収椤哄簭鏇挎崲涓哄弬鏁?br>
+     * 濡傛灉鎯宠緭鍑?{} 浣跨敤 \\杞箟 { 鍗冲彲锛屽鏋滄兂杈撳嚭 {} 涔嬪墠鐨?\ 浣跨敤鍙岃浆涔夌 \\\\ 鍗冲彲<br>
+     * 渚嬶細<br>
+     * 閫氬父浣跨敤锛歠ormat("this is {} for {}", "a", "b") -> this is a for b<br>
+     * 杞箟{}锛?format("this is \\{} for {}", "a", "b") -> this is \{} for a<br>
+     * 杞箟\锛?format("this is \\\\{} for {}", "a", "b") -> this is \a for b<br>
      * 
-     * @param template 文本模板，被替换的部分用 {} 表示
-     * @param params 参数值
-     * @return 格式化后的文本
+     * @param template 鏂囨湰妯℃澘锛岃鏇挎崲鐨勯儴鍒嗙敤 {} 琛ㄧず
+     * @param params 鍙傛暟鍊?
+     * @return 鏍煎紡鍖栧悗鐨勬枃鏈?
      */
     public static String format(String template, Object... params)
     {
@@ -287,10 +287,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 是否为http(s)://开头
+     * 鏄惁涓篽ttp(s)://寮€澶?
      * 
-     * @param link 链接
-     * @return 结果
+     * @param link 閾炬帴
+     * @return 缁撴灉
      */
     public static boolean ishttp(String link)
     {
@@ -298,11 +298,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 字符串转set
+     * 瀛楃涓茶浆set
      * 
-     * @param str 字符串
-     * @param sep 分隔符
-     * @return set集合
+     * @param str 瀛楃涓?
+     * @param sep 鍒嗛殧绗?
+     * @return set闆嗗悎
      */
     public static final Set<String> str2Set(String str, String sep)
     {
@@ -310,13 +310,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 字符串转list
+     * 瀛楃涓茶浆list
      * 
-     * @param str 字符串
-     * @param sep 分隔符
-     * @param filterBlank 过滤纯空白
-     * @param trim 去掉首尾空白
-     * @return list集合
+     * @param str 瀛楃涓?
+     * @param sep 鍒嗛殧绗?
+     * @param filterBlank 杩囨护绾┖鐧?
+     * @param trim 鍘绘帀棣栧熬绌虹櫧
+     * @return list闆嗗悎
      */
     public static final List<String> str2List(String str, String sep, boolean filterBlank, boolean trim)
     {
@@ -326,7 +326,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
             return list;
         }
 
-        // 过滤空白字符串
+        // 杩囨护绌虹櫧瀛楃涓?
         if (filterBlank && StringUtils.isBlank(str))
         {
             return list;
@@ -349,11 +349,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 判断给定的collection列表中是否包含数组array 判断给定的数组array中是否包含给定的元素value
+     * 鍒ゆ柇缁欏畾鐨刢ollection鍒楄〃涓槸鍚﹀寘鍚暟缁刟rray 鍒ゆ柇缁欏畾鐨勬暟缁刟rray涓槸鍚﹀寘鍚粰瀹氱殑鍏冪礌value
      *
-     * @param collection 给定的集合
-     * @param array 给定的数组
-     * @return boolean 结果
+     * @param collection 缁欏畾鐨勯泦鍚?
+     * @param array 缁欏畾鐨勬暟缁?
+     * @return boolean 缁撴灉
      */
     public static boolean containsAny(Collection<String> collection, String... array)
     {
@@ -375,11 +375,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 查找指定字符串是否包含指定字符串列表中的任意一个字符串同时串忽略大小写
+     * 鏌ユ壘鎸囧畾瀛楃涓叉槸鍚﹀寘鍚寚瀹氬瓧绗︿覆鍒楄〃涓殑浠绘剰涓€涓瓧绗︿覆鍚屾椂涓插拷鐣ュぇ灏忓啓
      *
-     * @param cs 指定字符串
-     * @param searchCharSequences 需要检查的字符串数组
-     * @return 是否包含任意一个字符串
+     * @param cs 鎸囧畾瀛楃涓?
+     * @param searchCharSequences 闇€瑕佹鏌ョ殑瀛楃涓叉暟缁?
+     * @return 鏄惁鍖呭惈浠绘剰涓€涓瓧绗︿覆
      */
     public static boolean containsAnyIgnoreCase(CharSequence cs, CharSequence... searchCharSequences)
     {
@@ -398,7 +398,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 驼峰转下划线命名
+     * 椹煎嘲杞笅鍒掔嚎鍛藉悕
      */
     public static String toUnderScoreCase(String str)
     {
@@ -407,11 +407,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        // 前置字符是否大写
+        // 鍓嶇疆瀛楃鏄惁澶у啓
         boolean preCharIsUpperCase = true;
-        // 当前字符是否大写
+        // 褰撳墠瀛楃鏄惁澶у啓
         boolean curreCharIsUpperCase = true;
-        // 下一字符是否大写
+        // 涓嬩竴瀛楃鏄惁澶у啓
         boolean nexteCharIsUpperCase = true;
         for (int i = 0; i < str.length(); i++)
         {
@@ -447,11 +447,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 是否包含字符串
+     * 鏄惁鍖呭惈瀛楃涓?
      * 
-     * @param str 验证字符串
-     * @param strs 字符串组
-     * @return 包含返回true
+     * @param str 楠岃瘉瀛楃涓?
+     * @param strs 瀛楃涓茬粍
+     * @return 鍖呭惈杩斿洖true
      */
     public static boolean inStringIgnoreCase(String str, String... strs)
     {
@@ -469,35 +469,35 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 将下划线大写方式命名的字符串转换为驼峰式。如果转换前的下划线大写方式命名的字符串为空，则返回空字符串。 例如：HELLO_WORLD->HelloWorld
+     * 灏嗕笅鍒掔嚎澶у啓鏂瑰紡鍛藉悕鐨勫瓧绗︿覆杞崲涓洪┘宄板紡銆傚鏋滆浆鎹㈠墠鐨勪笅鍒掔嚎澶у啓鏂瑰紡鍛藉悕鐨勫瓧绗︿覆涓虹┖锛屽垯杩斿洖绌哄瓧绗︿覆銆?渚嬪锛欻ELLO_WORLD->HelloWorld
      * 
-     * @param name 转换前的下划线大写方式命名的字符串
-     * @return 转换后的驼峰式命名的字符串
+     * @param name 杞崲鍓嶇殑涓嬪垝绾垮ぇ鍐欐柟寮忓懡鍚嶇殑瀛楃涓?
+     * @return 杞崲鍚庣殑椹煎嘲寮忓懡鍚嶇殑瀛楃涓?
      */
     public static String convertToCamelCase(String name)
     {
         StringBuilder result = new StringBuilder();
-        // 快速检查
+        // 蹇€熸鏌?
         if (name == null || name.isEmpty())
         {
-            // 没必要转换
+            // 娌″繀瑕佽浆鎹?
             return "";
         }
         else if (!name.contains("_"))
         {
-            // 不含下划线，仅将首字母大写
+            // 涓嶅惈涓嬪垝绾匡紝浠呭皢棣栧瓧姣嶅ぇ鍐?
             return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
-        // 用下划线将原始字符串分割
+        // 鐢ㄤ笅鍒掔嚎灏嗗師濮嬪瓧绗︿覆鍒嗗壊
         String[] camels = name.split("_");
         for (String camel : camels)
         {
-            // 跳过原始字符串中开头、结尾的下换线或双重下划线
+            // 璺宠繃鍘熷瀛楃涓蹭腑寮€澶淬€佺粨灏剧殑涓嬫崲绾挎垨鍙岄噸涓嬪垝绾?
             if (camel.isEmpty())
             {
                 continue;
             }
-            // 首字母大写
+            // 棣栧瓧姣嶅ぇ鍐?
             result.append(camel.substring(0, 1).toUpperCase());
             result.append(camel.substring(1).toLowerCase());
         }
@@ -505,8 +505,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 驼峰式命名法
-     * 例如：user_name->userName
+     * 椹煎嘲寮忓懡鍚嶆硶
+     * 渚嬪锛歶ser_name->userName
      */
     public static String toCamelCase(String s)
     {
@@ -543,11 +543,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 查找指定字符串是否匹配指定字符串列表中的任意一个字符串
+     * 鏌ユ壘鎸囧畾瀛楃涓叉槸鍚﹀尮閰嶆寚瀹氬瓧绗︿覆鍒楄〃涓殑浠绘剰涓€涓瓧绗︿覆
      * 
-     * @param str 指定字符串
-     * @param strs 需要检查的字符串数组
-     * @return 是否匹配
+     * @param str 鎸囧畾瀛楃涓?
+     * @param strs 闇€瑕佹鏌ョ殑瀛楃涓叉暟缁?
+     * @return 鏄惁鍖归厤
      */
     public static boolean matches(String str, List<String> strs)
     {
@@ -566,13 +566,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 判断url是否与规则配置: 
-     * ? 表示单个字符; 
-     * * 表示一层路径内的任意字符串，不可跨层级; 
-     * ** 表示任意层路径;
+     * 鍒ゆ柇url鏄惁涓庤鍒欓厤缃? 
+     * ? 琛ㄧず鍗曚釜瀛楃; 
+     * * 琛ㄧず涓€灞傝矾寰勫唴鐨勪换鎰忓瓧绗︿覆锛屼笉鍙法灞傜骇; 
+     * ** 琛ㄧず浠绘剰灞傝矾寰?
      * 
-     * @param pattern 匹配规则
-     * @param url 需要匹配的url
+     * @param pattern 鍖归厤瑙勫垯
+     * @param url 闇€瑕佸尮閰嶇殑url
      * @return
      */
     public static boolean isMatch(String pattern, String url)
@@ -588,11 +588,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 数字左边补齐0，使之达到指定长度。注意，如果数字转换为字符串后，长度大于size，则只保留 最后size个字符。
+     * 鏁板瓧宸﹁竟琛ラ綈0锛屼娇涔嬭揪鍒版寚瀹氶暱搴︺€傛敞鎰忥紝濡傛灉鏁板瓧杞崲涓哄瓧绗︿覆鍚庯紝闀垮害澶т簬size锛屽垯鍙繚鐣?鏈€鍚巗ize涓瓧绗︺€?
      * 
-     * @param num 数字对象
-     * @param size 字符串指定长度
-     * @return 返回数字的字符串格式，该字符串为指定长度。
+     * @param num 鏁板瓧瀵硅薄
+     * @param size 瀛楃涓叉寚瀹氶暱搴?
+     * @return 杩斿洖鏁板瓧鐨勫瓧绗︿覆鏍煎紡锛岃瀛楃涓蹭负鎸囧畾闀垮害銆?
      */
     public static final String padl(final Number num, final int size)
     {
@@ -600,12 +600,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
-     * 字符串左补齐。如果原始字符串s长度大于size，则只保留最后size个字符。
+     * 瀛楃涓插乏琛ラ綈銆傚鏋滃師濮嬪瓧绗︿覆s闀垮害澶т簬size锛屽垯鍙繚鐣欐渶鍚巗ize涓瓧绗︺€?
      * 
-     * @param s 原始字符串
-     * @param size 字符串指定长度
-     * @param c 用于补齐的字符
-     * @return 返回指定长度的字符串，由原字符串左补齐或截取得到。
+     * @param s 鍘熷瀛楃涓?
+     * @param size 瀛楃涓叉寚瀹氶暱搴?
+     * @param c 鐢ㄤ簬琛ラ綈鐨勫瓧绗?
+     * @return 杩斿洖鎸囧畾闀垮害鐨勫瓧绗︿覆锛岀敱鍘熷瓧绗︿覆宸﹁ˉ榻愭垨鎴彇寰楀埌銆?
      */
     public static final String padl(final String s, final int size, final char c)
     {
@@ -636,3 +636,4 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
         return sb.toString();
     }
 }
+

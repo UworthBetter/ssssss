@@ -1,9 +1,9 @@
 package com.qkyd.common.utils.sign;
 
 /**
- * Base64工具类
+ * Base64宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public final class Base64
 {
@@ -289,4 +289,5 @@ public final class Base64
         return newSize;
     }
 }
+
 

@@ -4,16 +4,16 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 角色和菜单关联 sys_role_menu
+ * 瑙掕壊鍜岃彍鍗曞叧鑱?sys_role_menu
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysRoleMenu
 {
-    /** 角色ID */
+    /** 瑙掕壊ID */
     private Long roleId;
     
-    /** 菜单ID */
+    /** 鑿滃崟ID */
     private Long menuId;
 
     public Long getRoleId()
@@ -44,4 +44,5 @@ public class SysRoleMenu
             .toString();
     }
 }
+
 

@@ -10,146 +10,146 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import com.qkyd.common.utils.poi.ExcelHandlerAdapter;
 
 /**
- * 自定义导出Excel数据注解
+ * 鑷畾涔夊鍑篍xcel鏁版嵁娉ㄨВ
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Excel
 {
     /**
-     * 导出时在excel中排序
+     * 瀵煎嚭鏃跺湪excel涓帓搴?
      */
     public int sort() default Integer.MAX_VALUE;
 
     /**
-     * 导出到Excel中的名字.
+     * 瀵煎嚭鍒癊xcel涓殑鍚嶅瓧.
      */
     public String name() default "";
 
     /**
-     * 日期格式, 如: yyyy-MM-dd
+     * 鏃ユ湡鏍煎紡, 濡? yyyy-MM-dd
      */
     public String dateFormat() default "";
 
     /**
-     * 如果是字典类型，请设置字典的type值 (如: sys_user_sex)
+     * 濡傛灉鏄瓧鍏哥被鍨嬶紝璇疯缃瓧鍏哥殑type鍊?(濡? sys_user_sex)
      */
     public String dictType() default "";
 
     /**
-     * 读取内容转表达式 (如: 0=男,1=女,2=未知)
+     * 璇诲彇鍐呭杞〃杈惧紡 (濡? 0=鐢?1=濂?2=鏈煡)
      */
     public String readConverterExp() default "";
 
     /**
-     * 分隔符，读取字符串组内容
+     * 鍒嗛殧绗︼紝璇诲彇瀛楃涓茬粍鍐呭
      */
     public String separator() default ",";
 
     /**
-     * BigDecimal 精度 默认:-1(默认不开启BigDecimal格式化)
+     * BigDecimal 绮惧害 榛樿:-1(榛樿涓嶅紑鍚疊igDecimal鏍煎紡鍖?
      */
     public int scale() default -1;
 
     /**
-     * BigDecimal 舍入规则 默认:BigDecimal.ROUND_HALF_EVEN
+     * BigDecimal 鑸嶅叆瑙勫垯 榛樿:BigDecimal.ROUND_HALF_EVEN
      */
     public int roundingMode() default BigDecimal.ROUND_HALF_EVEN;
 
     /**
-     * 导出时在excel中每个列的高度
+     * 瀵煎嚭鏃跺湪excel涓瘡涓垪鐨勯珮搴?
      */
     public double height() default 14;
 
     /**
-     * 导出时在excel中每个列的宽度
+     * 瀵煎嚭鏃跺湪excel涓瘡涓垪鐨勫搴?
      */
     public double width() default 16;
 
     /**
-     * 文字后缀,如% 90 变成90%
+     * 鏂囧瓧鍚庣紑,濡? 90 鍙樻垚90%
      */
     public String suffix() default "";
 
     /**
-     * 当值为空时,字段的默认值
+     * 褰撳€间负绌烘椂,瀛楁鐨勯粯璁ゅ€?
      */
     public String defaultValue() default "";
 
     /**
-     * 提示信息
+     * 鎻愮ず淇℃伅
      */
     public String prompt() default "";
 
     /**
-     * 设置只能选择不能输入的列内容.
+     * 璁剧疆鍙兘閫夋嫨涓嶈兘杈撳叆鐨勫垪鍐呭.
      */
     public String[] combo() default {};
 
     /**
-     * 是否需要纵向合并单元格,应对需求:含有list集合单元格)
+     * 鏄惁闇€瑕佺旱鍚戝悎骞跺崟鍏冩牸,搴斿闇€姹?鍚湁list闆嗗悎鍗曞厓鏍?
      */
     public boolean needMerge() default false;
 
     /**
-     * 是否导出数据,应对需求:有时我们需要导出一份模板,这是标题需要但内容需要用户手工填写.
+     * 鏄惁瀵煎嚭鏁版嵁,搴斿闇€姹?鏈夋椂鎴戜滑闇€瑕佸鍑轰竴浠芥ā鏉?杩欐槸鏍囬闇€瑕佷絾鍐呭闇€瑕佺敤鎴锋墜宸ュ～鍐?
      */
     public boolean isExport() default true;
 
     /**
-     * 另一个类中的属性名称,支持多级获取,以小数点隔开
+     * 鍙︿竴涓被涓殑灞炴€у悕绉?鏀寔澶氱骇鑾峰彇,浠ュ皬鏁扮偣闅斿紑
      */
     public String targetAttr() default "";
 
     /**
-     * 是否自动统计数据,在最后追加一行统计数据总和
+     * 鏄惁鑷姩缁熻鏁版嵁,鍦ㄦ渶鍚庤拷鍔犱竴琛岀粺璁℃暟鎹€诲拰
      */
     public boolean isStatistics() default false;
 
     /**
-     * 导出类型（0数字 1字符串 2图片）
+     * 瀵煎嚭绫诲瀷锛?鏁板瓧 1瀛楃涓?2鍥剧墖锛?
      */
     public ColumnType cellType() default ColumnType.STRING;
 
     /**
-     * 导出列头背景颜色
+     * 瀵煎嚭鍒楀ご鑳屾櫙棰滆壊
      */
     public IndexedColors headerBackgroundColor() default IndexedColors.GREY_50_PERCENT;
 
     /**
-     * 导出列头字体颜色
+     * 瀵煎嚭鍒楀ご瀛椾綋棰滆壊
      */
     public IndexedColors headerColor() default IndexedColors.WHITE;
 
     /**
-     * 导出单元格背景颜色
+     * 瀵煎嚭鍗曞厓鏍艰儗鏅鑹?
      */
     public IndexedColors backgroundColor() default IndexedColors.WHITE;
 
     /**
-     * 导出单元格字体颜色
+     * 瀵煎嚭鍗曞厓鏍煎瓧浣撻鑹?
      */
     public IndexedColors color() default IndexedColors.BLACK;
 
     /**
-     * 导出字段对齐方式
+     * 瀵煎嚭瀛楁瀵归綈鏂瑰紡
      */
     public HorizontalAlignment align() default HorizontalAlignment.CENTER;
 
     /**
-     * 自定义数据处理器
+     * 鑷畾涔夋暟鎹鐞嗗櫒
      */
     public Class<?> handler() default ExcelHandlerAdapter.class;
 
     /**
-     * 自定义数据处理器参数
+     * 鑷畾涔夋暟鎹鐞嗗櫒鍙傛暟
      */
     public String[] args() default {};
 
     /**
-     * 字段类型（0：导出导入；1：仅导出；2：仅导入）
+     * 瀛楁绫诲瀷锛?锛氬鍑哄鍏ワ紱1锛氫粎瀵煎嚭锛?锛氫粎瀵煎叆锛?
      */
     Type type() default Type.ALL;
 
@@ -185,3 +185,4 @@ public @interface Excel
         }
     }
 }
+

@@ -3,9 +3,9 @@ package com.qkyd.common.event;
 import java.util.Map;
 
 /**
- * 风险评分WebSocket推送事件
+ * 椋庨櫓璇勫垎WebSocket鎺ㄩ€佷簨浠?
  * 
- * 当AI模块完成风险评分计算时，发布此事件
+ * 褰揂I妯″潡瀹屾垚椋庨櫓璇勫垎璁＄畻鏃讹紝鍙戝竷姝や簨浠?
  * 
  * @author qkyd
  * @date 2026-02-02

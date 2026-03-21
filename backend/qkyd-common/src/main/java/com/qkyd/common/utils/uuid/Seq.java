@@ -5,29 +5,29 @@ import com.qkyd.common.utils.DateUtils;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * @author ruoyi 序列生成类
+ * @author qkyd 搴忓垪鐢熸垚绫?
  */
 public class Seq
 {
-    // 通用序列类型
+    // 閫氱敤搴忓垪绫诲瀷
     public static final String commSeqType = "COMMON";
 
-    // 上传序列类型
+    // 涓婁紶搴忓垪绫诲瀷
     public static final String uploadSeqType = "UPLOAD";
 
-    // 通用接口序列数
+    // 閫氱敤鎺ュ彛搴忓垪鏁?
     private static AtomicInteger commSeq = new AtomicInteger(1);
 
-    // 上传接口序列数
+    // 涓婁紶鎺ュ彛搴忓垪鏁?
     private static AtomicInteger uploadSeq = new AtomicInteger(1);
 
-    // 机器标识
+    // 鏈哄櫒鏍囪瘑
     private static final String machineCode = "A";
 
     /**
-     * 获取通用序列号
+     * 鑾峰彇閫氱敤搴忓垪鍙?
      * 
-     * @return 序列值
+     * @return 搴忓垪鍊?
      */
     public static String getId()
     {
@@ -35,9 +35,9 @@ public class Seq
     }
     
     /**
-     * 默认16位序列号 yyMMddHHmmss + 一位机器标识 + 3长度循环递增字符串
+     * 榛樿16浣嶅簭鍒楀彿 yyMMddHHmmss + 涓€浣嶆満鍣ㄦ爣璇?+ 3闀垮害寰幆閫掑瀛楃涓?
      * 
-     * @return 序列值
+     * @return 搴忓垪鍊?
      */
     public static String getId(String type)
     {
@@ -50,11 +50,11 @@ public class Seq
     }
 
     /**
-     * 通用接口序列号 yyMMddHHmmss + 一位机器标识 + length长度循环递增字符串
+     * 閫氱敤鎺ュ彛搴忓垪鍙?yyMMddHHmmss + 涓€浣嶆満鍣ㄦ爣璇?+ length闀垮害寰幆閫掑瀛楃涓?
      * 
-     * @param atomicInt 序列数
-     * @param length 数值长度
-     * @return 序列值
+     * @param atomicInt 搴忓垪鏁?
+     * @param length 鏁板€奸暱搴?
+     * @return 搴忓垪鍊?
      */
     public static String getId(AtomicInteger atomicInt, int length)
     {
@@ -65,23 +65,24 @@ public class Seq
     }
 
     /**
-     * 序列循环递增字符串[1, 10 的 (length)幂次方), 用0左补齐length位数
+     * 搴忓垪寰幆閫掑瀛楃涓瞇1, 10 鐨?(length)骞傛鏂?, 鐢?宸﹁ˉ榻恖ength浣嶆暟
      * 
-     * @return 序列值
+     * @return 搴忓垪鍊?
      */
     private synchronized static String getSeq(AtomicInteger atomicInt, int length)
     {
-        // 先取值再+1
+        // 鍏堝彇鍊煎啀+1
         int value = atomicInt.getAndIncrement();
 
-        // 如果更新后值>=10 的 (length)幂次方则重置为1
+        // 濡傛灉鏇存柊鍚庡€?=10 鐨?(length)骞傛鏂瑰垯閲嶇疆涓?
         int maxSeq = (int) Math.pow(10, length);
         if (atomicInt.get() >= maxSeq)
         {
             atomicInt.set(1);
         }
-        // 转字符串，用0左补齐
+        // 杞瓧绗︿覆锛岀敤0宸﹁ˉ榻?
         return StringUtils.padl(value, length);
     }
 }
+
 

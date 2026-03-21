@@ -8,9 +8,9 @@ import com.qkyd.system.mapper.SysOperLogMapper;
 import com.qkyd.system.service.ISysOperLogService;
 
 /**
- * 操作日志 服务层处理
+ * 鎿嶄綔鏃ュ織 鏈嶅姟灞傚鐞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysOperLogServiceImpl implements ISysOperLogService
@@ -19,9 +19,9 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     private SysOperLogMapper operLogMapper;
 
     /**
-     * 新增操作日志
+     * 鏂板鎿嶄綔鏃ュ織
      * 
-     * @param operLog 操作日志对象
+     * @param operLog 鎿嶄綔鏃ュ織瀵硅薄
      */
     @Override
     public void insertOperlog(SysOperLog operLog)
@@ -30,10 +30,10 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     }
 
     /**
-     * 查询系统操作日志集合
+     * 鏌ヨ绯荤粺鎿嶄綔鏃ュ織闆嗗悎
      * 
-     * @param operLog 操作日志对象
-     * @return 操作日志集合
+     * @param operLog 鎿嶄綔鏃ュ織瀵硅薄
+     * @return 鎿嶄綔鏃ュ織闆嗗悎
      */
     @Override
     public List<SysOperLog> selectOperLogList(SysOperLog operLog)
@@ -42,10 +42,10 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     }
 
     /**
-     * 批量删除系统操作日志
+     * 鎵归噺鍒犻櫎绯荤粺鎿嶄綔鏃ュ織
      * 
-     * @param operIds 需要删除的操作日志ID
-     * @return 结果
+     * @param operIds 闇€瑕佸垹闄ょ殑鎿嶄綔鏃ュ織ID
+     * @return 缁撴灉
      */
     @Override
     public int deleteOperLogByIds(Long[] operIds)
@@ -54,10 +54,10 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     }
 
     /**
-     * 查询操作日志详细
+     * 鏌ヨ鎿嶄綔鏃ュ織璇︾粏
      * 
-     * @param operId 操作ID
-     * @return 操作日志对象
+     * @param operId 鎿嶄綔ID
+     * @return 鎿嶄綔鏃ュ織瀵硅薄
      */
     @Override
     public SysOperLog selectOperLogById(Long operId)
@@ -66,7 +66,7 @@ public class SysOperLogServiceImpl implements ISysOperLogService
     }
 
     /**
-     * 清空操作日志
+     * 娓呯┖鎿嶄綔鏃ュ織
      */
     @Override
     public void cleanOperLog()
@@ -74,4 +74,5 @@ public class SysOperLogServiceImpl implements ISysOperLogService
         operLogMapper.cleanOperLog();
     }
 }
+
 

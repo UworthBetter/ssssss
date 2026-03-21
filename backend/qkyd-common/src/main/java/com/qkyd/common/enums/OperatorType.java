@@ -1,25 +1,26 @@
 package com.qkyd.common.enums;
 
 /**
- * 操作人类别
+ * 鎿嶄綔浜虹被鍒?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public enum OperatorType
 {
     /**
-     * 其它
+     * 鍏跺畠
      */
     OTHER,
 
     /**
-     * 后台用户
+     * 鍚庡彴鐢ㄦ埛
      */
     MANAGE,
 
     /**
-     * 手机端用户
+     * 鎵嬫満绔敤鎴?
      */
     MOBILE
 }
+
 

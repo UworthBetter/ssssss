@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-public class RuoYiApplication {
+public class QkydApplication {
     public static void main(String[] args) {
-        SpringApplication.run(RuoYiApplication.class, args);
+        SpringApplication.run(QkydApplication.class, args);
     }
 }

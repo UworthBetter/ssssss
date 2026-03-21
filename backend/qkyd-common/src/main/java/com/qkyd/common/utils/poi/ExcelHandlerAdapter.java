@@ -4,22 +4,23 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
- * Excel数据格式处理适配器
+ * Excel鏁版嵁鏍煎紡澶勭悊閫傞厤鍣?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ExcelHandlerAdapter
 {
     /**
-     * 格式化
+     * 鏍煎紡鍖?
      * 
-     * @param value 单元格数据值
-     * @param args excel注解args参数组
-     * @param cell 单元格对象
-     * @param wb 工作簿对象
+     * @param value 鍗曞厓鏍兼暟鎹€?
+     * @param args excel娉ㄨВargs鍙傛暟缁?
+     * @param cell 鍗曞厓鏍煎璞?
+     * @param wb 宸ヤ綔绨垮璞?
      *
-     * @return 处理后的值
+     * @return 澶勭悊鍚庣殑鍊?
      */
     Object format(Object value, String[] args, Cell cell, Workbook wb);
 }
+
 

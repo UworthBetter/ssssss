@@ -10,9 +10,9 @@ import com.alibaba.fastjson2.filter.Filter;
 import com.qkyd.common.constant.Constants;
 
 /**
- * Redis使用FastJson序列化
+ * Redis浣跨敤FastJson搴忓垪鍖?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T>
 {
@@ -50,4 +50,5 @@ public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T>
         return JSON.parseObject(str, clazz, AUTO_TYPE_FILTER);
     }
 }
+
 

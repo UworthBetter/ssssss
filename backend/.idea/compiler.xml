@@ -6,7 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="qkyd-generator" />
         <module name="qkyd-health" />
         <module name="qkyd-admin" />
         <module name="qkyd-common" />
@@ -16,6 +15,9 @@
         <module name="qkyd-system" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="qkyd-generator" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -24,7 +26,6 @@
       <module name="qkyd-ai" options="-parameters" />
       <module name="qkyd-common" options="-parameters" />
       <module name="qkyd-framework" options="-parameters" />
-      <module name="qkyd-generator" options="-parameters" />
       <module name="qkyd-health" options="-parameters" />
       <module name="qkyd-quartz" options="-parameters" />
       <module name="qkyd-system" options="-parameters" />

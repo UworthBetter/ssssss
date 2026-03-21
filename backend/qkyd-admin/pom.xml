@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,66 +12,60 @@
     <artifactId>qkyd-admin</artifactId>
 
     <description>
-        Web服务入口
+        Web鏈嶅姟鍏ュ彛
     </description>
 
     <dependencies>
 
-        <!-- 通用工具-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-common</artifactId>
         </dependency>
 
-        <!-- 核心模块-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-framework</artifactId>
         </dependency>
 
-        <!-- 系统模块-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-system</artifactId>
         </dependency>
 
-        <!-- 定时任务-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-quartz</artifactId>
         </dependency>
 
-        <!-- 代码生成-->
-        <dependency>
-            <groupId>com.qkyd</groupId>
-            <artifactId>qkyd-generator</artifactId>
-        </dependency>
-
-        <!-- 健康模块-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-health</artifactId>
         </dependency>
 
-        <!-- AI模块-->
+        
         <dependency>
             <groupId>com.qkyd</groupId>
             <artifactId>qkyd-ai</artifactId>
         </dependency>
 
-        <!-- WebSocket -->
+        
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
-        <!-- SpringDoc OpenAPI -->
+        
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
 
-        <!-- MySQL 连接器 -->
+        
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -100,3 +94,5 @@
     </build>
 
 </project>
+
+

@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.user;
 
 /**
- * 用户不存在异常类
+ * 鐢ㄦ埛涓嶅瓨鍦ㄥ紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UserNotExistsException extends UserException
 {
@@ -14,4 +14,5 @@ public class UserNotExistsException extends UserException
         super("user.not.exists", null);
     }
 }
+
 

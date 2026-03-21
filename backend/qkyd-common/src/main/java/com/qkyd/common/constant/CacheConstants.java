@@ -1,45 +1,46 @@
 package com.qkyd.common.constant;
 
 /**
- * 缓存的key 常量
+ * 缂撳瓨鐨刱ey 甯搁噺
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class CacheConstants
 {
     /**
-     * 登录用户 redis key
+     * 鐧诲綍鐢ㄦ埛 redis key
      */
     public static final String LOGIN_TOKEN_KEY = "login_tokens:";
 
     /**
-     * 验证码 redis key
+     * 楠岃瘉鐮?redis key
      */
     public static final String CAPTCHA_CODE_KEY = "captcha_codes:";
 
     /**
-     * 参数管理 cache key
+     * 鍙傛暟绠＄悊 cache key
      */
     public static final String SYS_CONFIG_KEY = "sys_config:";
 
     /**
-     * 字典管理 cache key
+     * 瀛楀吀绠＄悊 cache key
      */
     public static final String SYS_DICT_KEY = "sys_dict:";
 
     /**
-     * 防重提交 redis key
+     * 闃查噸鎻愪氦 redis key
      */
     public static final String REPEAT_SUBMIT_KEY = "repeat_submit:";
 
     /**
-     * 限流 redis key
+     * 闄愭祦 redis key
      */
     public static final String RATE_LIMIT_KEY = "rate_limit:";
 
     /**
-     * 登录账户密码错误次数 redis key
+     * 鐧诲綍璐︽埛瀵嗙爜閿欒娆℃暟 redis key
      */
     public static final String PWD_ERR_CNT_KEY = "pwd_err_cnt:";
 }
+
 

@@ -15,9 +15,9 @@ import com.qkyd.common.event.RiskScoreUpdateEvent;
 import com.qkyd.web.websocket.service.WebSocketMessageService;
 
 /**
- * WebSocket事件监听器
+ * WebSocket浜嬩欢鐩戝惉鍣?
  * 
- * 监听AI模块发布的事件，并通过WebSocket推送到前端
+ * 鐩戝惉AI妯″潡鍙戝竷鐨勪簨浠讹紝骞堕€氳繃WebSocket鎺ㄩ€佸埌鍓嶇
  * 
  * @author qkyd
  * @date 2026-02-02
@@ -34,7 +34,7 @@ public class WebSocketEventListener {
     }
 
     /**
-     * 监听异常检测事件
+     * 鐩戝惉寮傚父妫€娴嬩簨浠?
      */
     @EventListener
     @Async
@@ -52,14 +52,14 @@ public class WebSocketEventListener {
             
             webSocketMessageService.pushAbnormalAlert(alert);
             
-            log.info("异常检测事件已通过WebSocket推送: {}", event);
+            log.info("寮傚父妫€娴嬩簨浠跺凡閫氳繃WebSocket鎺ㄩ€? {}", event);
         } catch (Exception e) {
-            log.error("处理异常检测事件失败: {}", event, e);
+            log.error("澶勭悊寮傚父妫€娴嬩簨浠跺け璐? {}", event, e);
         }
     }
 
     /**
-     * 监听风险评分更新事件
+     * 鐩戝惉椋庨櫓璇勫垎鏇存柊浜嬩欢
      */
     @EventListener
     @Async
@@ -73,14 +73,14 @@ public class WebSocketEventListener {
             
             webSocketMessageService.pushRiskScore(event.getPatientId(), riskData);
             
-            log.info("风险评分更新事件已通过WebSocket推送: {}", event);
+            log.info("椋庨櫓璇勫垎鏇存柊浜嬩欢宸查€氳繃WebSocket鎺ㄩ€? {}", event);
         } catch (Exception e) {
-            log.error("处理风险评分更新事件失败: {}", event, e);
+            log.error("澶勭悊椋庨櫓璇勫垎鏇存柊浜嬩欢澶辫触: {}", event, e);
         }
     }
 
     /**
-     * 监听健康数据更新事件
+     * 鐩戝惉鍋ュ悍鏁版嵁鏇存柊浜嬩欢
      */
     @EventListener
     @Async
@@ -88,9 +88,9 @@ public class WebSocketEventListener {
         try {
             webSocketMessageService.pushHealthData(event.getPatientId(), event.getHealthData());
             
-            log.debug("健康数据更新事件已通过WebSocket推送: {}", event);
+            log.debug("鍋ュ悍鏁版嵁鏇存柊浜嬩欢宸查€氳繃WebSocket鎺ㄩ€? {}", event);
         } catch (Exception e) {
-            log.error("处理健康数据更新事件失败: {}", event, e);
+            log.error("澶勭悊鍋ュ悍鏁版嵁鏇存柊浜嬩欢澶辫触: {}", event, e);
         }
     }
 }

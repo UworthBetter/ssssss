@@ -3,9 +3,9 @@ package com.qkyd.common.exception.file;
 import com.qkyd.common.exception.base.BaseException;
 
 /**
- * 文件信息异常类
+ * 鏂囦欢淇℃伅寮傚父绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class FileException extends BaseException
 {
@@ -17,4 +17,5 @@ public class FileException extends BaseException
     }
 
 }
+
 

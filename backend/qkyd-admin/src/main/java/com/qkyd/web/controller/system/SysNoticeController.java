@@ -21,9 +21,9 @@ import com.qkyd.system.domain.SysNotice;
 import com.qkyd.system.service.ISysNoticeService;
 
 /**
- * 公告 信息操作处理
+ * 鍏憡 淇℃伅鎿嶄綔澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/notice")
@@ -33,7 +33,7 @@ public class SysNoticeController extends BaseController
     private ISysNoticeService noticeService;
 
     /**
-     * 获取通知公告列表
+     * 鑾峰彇閫氱煡鍏憡鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('system:notice:list')")
     @GetMapping("/list")
@@ -45,7 +45,7 @@ public class SysNoticeController extends BaseController
     }
 
     /**
-     * 根据通知公告编号获取详细信息
+     * 鏍规嵁閫氱煡鍏憡缂栧彿鑾峰彇璇︾粏淇℃伅
      */
     @PreAuthorize("@ss.hasPermi('system:notice:query')")
     @GetMapping(value = "/{noticeId}")
@@ -55,10 +55,10 @@ public class SysNoticeController extends BaseController
     }
 
     /**
-     * 新增通知公告
+     * 鏂板閫氱煡鍏憡
      */
     @PreAuthorize("@ss.hasPermi('system:notice:add')")
-    @Log(title = "通知公告", businessType = BusinessType.INSERT)
+    @Log(title = "閫氱煡鍏憡", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysNotice notice)
     {
@@ -67,10 +67,10 @@ public class SysNoticeController extends BaseController
     }
 
     /**
-     * 修改通知公告
+     * 淇敼閫氱煡鍏憡
      */
     @PreAuthorize("@ss.hasPermi('system:notice:edit')")
-    @Log(title = "通知公告", businessType = BusinessType.UPDATE)
+    @Log(title = "閫氱煡鍏憡", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysNotice notice)
     {
@@ -79,14 +79,15 @@ public class SysNoticeController extends BaseController
     }
 
     /**
-     * 删除通知公告
+     * 鍒犻櫎閫氱煡鍏憡
      */
     @PreAuthorize("@ss.hasPermi('system:notice:remove')")
-    @Log(title = "通知公告", businessType = BusinessType.DELETE)
+    @Log(title = "閫氱煡鍏憡", businessType = BusinessType.DELETE)
     @DeleteMapping("/{noticeIds}")
     public AjaxResult remove(@PathVariable Long[] noticeIds)
     {
         return toAjax(noticeService.deleteNoticeByIds(noticeIds));
     }
 }
+
 

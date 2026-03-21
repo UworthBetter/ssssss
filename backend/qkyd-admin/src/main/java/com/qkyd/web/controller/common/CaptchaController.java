@@ -11,7 +11,7 @@ import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.code.kaptcha.Producer;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.constant.CacheConstants;
 import com.qkyd.common.constant.Constants;
 import com.qkyd.common.core.domain.AjaxResult;
@@ -21,9 +21,9 @@ import com.qkyd.common.utils.uuid.IdUtils;
 import com.qkyd.system.service.ISysConfigService;
 
 /**
- * 验证码操作处理
+ * 楠岃瘉鐮佹搷浣滃鐞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 public class CaptchaController {
@@ -40,7 +40,7 @@ public class CaptchaController {
     private ISysConfigService configService;
 
     /**
-     * 生成验证码
+     * 鐢熸垚楠岃瘉鐮?
      */
     @GetMapping("/captchaImage")
     public AjaxResult getCode(HttpServletResponse response) throws IOException {
@@ -52,15 +52,15 @@ public class CaptchaController {
             return ajax;
         }
 
-        // 保存验证码信息
+        // 淇濆瓨楠岃瘉鐮佷俊鎭?
         String uuid = IdUtils.simpleUUID();
         String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + uuid;
 
         String capStr = null, code = null;
         BufferedImage image = null;
 
-        // 生成验证码
-        String captchaType = RuoYiConfig.getCaptchaType();
+        // 鐢熸垚楠岃瘉鐮?
+        String captchaType = QkydConfig.getCaptchaType();
         if ("math".equals(captchaType)) {
             String capText = captchaProducerMath.createText();
             capStr = capText.substring(0, capText.lastIndexOf("@"));
@@ -72,7 +72,7 @@ public class CaptchaController {
         }
 
         redisCache.setCacheObject(verifyKey, code, Constants.CAPTCHA_EXPIRATION, TimeUnit.MINUTES);
-        // 转换流信息写出
+        // 杞崲娴佷俊鎭啓鍑?
         FastByteArrayOutputStream os = new FastByteArrayOutputStream();
         try {
             ImageIO.write(image, "jpg", os);
@@ -85,3 +85,5 @@ public class CaptchaController {
         return ajax;
     }
 }
+
+

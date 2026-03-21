@@ -23,9 +23,9 @@ import com.qkyd.common.utils.poi.ExcelUtil;
 import com.qkyd.system.service.ISysDictTypeService;
 
 /**
- * 数据字典信息
+ * 鏁版嵁瀛楀吀淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/dict/type")
@@ -43,18 +43,18 @@ public class SysDictTypeController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "字典类型", businessType = BusinessType.EXPORT)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:dict:export')")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysDictType dictType)
     {
         List<SysDictType> list = dictTypeService.selectDictTypeList(dictType);
         ExcelUtil<SysDictType> util = new ExcelUtil<SysDictType>(SysDictType.class);
-        util.exportExcel(response, list, "字典类型");
+        util.exportExcel(response, list, "瀛楀吀绫诲瀷");
     }
 
     /**
-     * 查询字典类型详细
+     * 鏌ヨ瀛楀吀绫诲瀷璇︾粏
      */
     @PreAuthorize("@ss.hasPermi('system:dict:query')")
     @GetMapping(value = "/{dictId}")
@@ -64,42 +64,42 @@ public class SysDictTypeController extends BaseController
     }
 
     /**
-     * 新增字典类型
+     * 鏂板瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
-    @Log(title = "字典类型", businessType = BusinessType.INSERT)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictType dict)
     {
         if (!dictTypeService.checkDictTypeUnique(dict))
         {
-            return error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return error("鏂板瀛楀吀'" + dict.getDictName() + "'澶辫触锛屽瓧鍏哥被鍨嬪凡瀛樺湪");
         }
         dict.setCreateBy(getUsername());
         return toAjax(dictTypeService.insertDictType(dict));
     }
 
     /**
-     * 修改字典类型
+     * 淇敼瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
-    @Log(title = "字典类型", businessType = BusinessType.UPDATE)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictType dict)
     {
         if (!dictTypeService.checkDictTypeUnique(dict))
         {
-            return error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return error("淇敼瀛楀吀'" + dict.getDictName() + "'澶辫触锛屽瓧鍏哥被鍨嬪凡瀛樺湪");
         }
         dict.setUpdateBy(getUsername());
         return toAjax(dictTypeService.updateDictType(dict));
     }
 
     /**
-     * 删除字典类型
+     * 鍒犻櫎瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
-    @Log(title = "字典类型", businessType = BusinessType.DELETE)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictIds}")
     public AjaxResult remove(@PathVariable Long[] dictIds)
     {
@@ -108,10 +108,10 @@ public class SysDictTypeController extends BaseController
     }
 
     /**
-     * 刷新字典缓存
+     * 鍒锋柊瀛楀吀缂撳瓨
      */
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
-    @Log(title = "字典类型", businessType = BusinessType.CLEAN)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public AjaxResult refreshCache()
     {
@@ -120,7 +120,7 @@ public class SysDictTypeController extends BaseController
     }
 
     /**
-     * 获取字典选择框列表
+     * 鑾峰彇瀛楀吀閫夋嫨妗嗗垪琛?
      */
     @GetMapping("/optionselect")
     public AjaxResult optionselect()
@@ -129,4 +129,5 @@ public class SysDictTypeController extends BaseController
         return success(dictTypes);
     }
 }
+
 

@@ -14,9 +14,9 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 /**
- * spring redis 工具类
+ * spring redis 宸ュ叿绫?
  *
- * @author ruoyi
+ * @author qkyd
  **/
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
 @Component
@@ -26,10 +26,10 @@ public class RedisCache
     public RedisTemplate redisTemplate;
 
     /**
-     * 缓存基本的对象，Integer、String、实体类等
+     * 缂撳瓨鍩烘湰鐨勫璞★紝Integer銆丼tring銆佸疄浣撶被绛?
      *
-     * @param key 缓存的键值
-     * @param value 缓存的值
+     * @param key 缂撳瓨鐨勯敭鍊?
+     * @param value 缂撳瓨鐨勫€?
      */
     public <T> void setCacheObject(final String key, final T value)
     {
@@ -37,12 +37,12 @@ public class RedisCache
     }
 
     /**
-     * 缓存基本的对象，Integer、String、实体类等
+     * 缂撳瓨鍩烘湰鐨勫璞★紝Integer銆丼tring銆佸疄浣撶被绛?
      *
-     * @param key 缓存的键值
-     * @param value 缓存的值
-     * @param timeout 时间
-     * @param timeUnit 时间颗粒度
+     * @param key 缂撳瓨鐨勯敭鍊?
+     * @param value 缂撳瓨鐨勫€?
+     * @param timeout 鏃堕棿
+     * @param timeUnit 鏃堕棿棰楃矑搴?
      */
     public <T> void setCacheObject(final String key, final T value, final Integer timeout, final TimeUnit timeUnit)
     {
@@ -50,11 +50,11 @@ public class RedisCache
     }
 
     /**
-     * 设置有效时间
+     * 璁剧疆鏈夋晥鏃堕棿
      *
-     * @param key Redis键
-     * @param timeout 超时时间
-     * @return true=设置成功；false=设置失败
+     * @param key Redis閿?
+     * @param timeout 瓒呮椂鏃堕棿
+     * @return true=璁剧疆鎴愬姛锛沠alse=璁剧疆澶辫触
      */
     public boolean expire(final String key, final long timeout)
     {
@@ -62,12 +62,12 @@ public class RedisCache
     }
 
     /**
-     * 设置有效时间
+     * 璁剧疆鏈夋晥鏃堕棿
      *
-     * @param key Redis键
-     * @param timeout 超时时间
-     * @param unit 时间单位
-     * @return true=设置成功；false=设置失败
+     * @param key Redis閿?
+     * @param timeout 瓒呮椂鏃堕棿
+     * @param unit 鏃堕棿鍗曚綅
+     * @return true=璁剧疆鎴愬姛锛沠alse=璁剧疆澶辫触
      */
     public boolean expire(final String key, final long timeout, final TimeUnit unit)
     {
@@ -75,10 +75,10 @@ public class RedisCache
     }
 
     /**
-     * 获取有效时间
+     * 鑾峰彇鏈夋晥鏃堕棿
      *
-     * @param key Redis键
-     * @return 有效时间
+     * @param key Redis閿?
+     * @return 鏈夋晥鏃堕棿
      */
     public long getExpire(final String key)
     {
@@ -86,10 +86,10 @@ public class RedisCache
     }
 
     /**
-     * 判断 key是否存在
+     * 鍒ゆ柇 key鏄惁瀛樺湪
      *
-     * @param key 键
-     * @return true 存在 false不存在
+     * @param key 閿?
+     * @return true 瀛樺湪 false涓嶅瓨鍦?
      */
     public Boolean hasKey(String key)
     {
@@ -97,10 +97,10 @@ public class RedisCache
     }
 
     /**
-     * 获得缓存的基本对象。
+     * 鑾峰緱缂撳瓨鐨勫熀鏈璞°€?
      *
-     * @param key 缓存键值
-     * @return 缓存键值对应的数据
+     * @param key 缂撳瓨閿€?
+     * @return 缂撳瓨閿€煎搴旂殑鏁版嵁
      */
     public <T> T getCacheObject(final String key)
     {
@@ -109,7 +109,7 @@ public class RedisCache
     }
 
     /**
-     * 删除单个对象
+     * 鍒犻櫎鍗曚釜瀵硅薄
      *
      * @param key
      */
@@ -119,9 +119,9 @@ public class RedisCache
     }
 
     /**
-     * 删除集合对象
+     * 鍒犻櫎闆嗗悎瀵硅薄
      *
-     * @param collection 多个对象
+     * @param collection 澶氫釜瀵硅薄
      * @return
      */
     public boolean deleteObject(final Collection collection)
@@ -130,11 +130,11 @@ public class RedisCache
     }
 
     /**
-     * 缓存List数据
+     * 缂撳瓨List鏁版嵁
      *
-     * @param key 缓存的键值
-     * @param dataList 待缓存的List数据
-     * @return 缓存的对象
+     * @param key 缂撳瓨鐨勯敭鍊?
+     * @param dataList 寰呯紦瀛樼殑List鏁版嵁
+     * @return 缂撳瓨鐨勫璞?
      */
     public <T> long setCacheList(final String key, final List<T> dataList)
     {
@@ -143,10 +143,10 @@ public class RedisCache
     }
 
     /**
-     * 获得缓存的list对象
+     * 鑾峰緱缂撳瓨鐨刲ist瀵硅薄
      *
-     * @param key 缓存的键值
-     * @return 缓存键值对应的数据
+     * @param key 缂撳瓨鐨勯敭鍊?
+     * @return 缂撳瓨閿€煎搴旂殑鏁版嵁
      */
     public <T> List<T> getCacheList(final String key)
     {
@@ -154,11 +154,11 @@ public class RedisCache
     }
 
     /**
-     * 缓存Set
+     * 缂撳瓨Set
      *
-     * @param key 缓存键值
-     * @param dataSet 缓存的数据
-     * @return 缓存数据的对象
+     * @param key 缂撳瓨閿€?
+     * @param dataSet 缂撳瓨鐨勬暟鎹?
+     * @return 缂撳瓨鏁版嵁鐨勫璞?
      */
     public <T> BoundSetOperations<String, T> setCacheSet(final String key, final Set<T> dataSet)
     {
@@ -172,7 +172,7 @@ public class RedisCache
     }
 
     /**
-     * 获得缓存的set
+     * 鑾峰緱缂撳瓨鐨剆et
      *
      * @param key
      * @return
@@ -183,7 +183,7 @@ public class RedisCache
     }
 
     /**
-     * 缓存Map
+     * 缂撳瓨Map
      *
      * @param key
      * @param dataMap
@@ -196,7 +196,7 @@ public class RedisCache
     }
 
     /**
-     * 获得缓存的Map
+     * 鑾峰緱缂撳瓨鐨凪ap
      *
      * @param key
      * @return
@@ -207,11 +207,11 @@ public class RedisCache
     }
 
     /**
-     * 往Hash中存入数据
+     * 寰€Hash涓瓨鍏ユ暟鎹?
      *
-     * @param key Redis键
-     * @param hKey Hash键
-     * @param value 值
+     * @param key Redis閿?
+     * @param hKey Hash閿?
+     * @param value 鍊?
      */
     public <T> void setCacheMapValue(final String key, final String hKey, final T value)
     {
@@ -219,11 +219,11 @@ public class RedisCache
     }
 
     /**
-     * 获取Hash中的数据
+     * 鑾峰彇Hash涓殑鏁版嵁
      *
-     * @param key Redis键
-     * @param hKey Hash键
-     * @return Hash中的对象
+     * @param key Redis閿?
+     * @param hKey Hash閿?
+     * @return Hash涓殑瀵硅薄
      */
     public <T> T getCacheMapValue(final String key, final String hKey)
     {
@@ -232,11 +232,11 @@ public class RedisCache
     }
 
     /**
-     * 获取多个Hash中的数据
+     * 鑾峰彇澶氫釜Hash涓殑鏁版嵁
      *
-     * @param key Redis键
-     * @param hKeys Hash键集合
-     * @return Hash对象集合
+     * @param key Redis閿?
+     * @param hKeys Hash閿泦鍚?
+     * @return Hash瀵硅薄闆嗗悎
      */
     public <T> List<T> getMultiCacheMapValue(final String key, final Collection<Object> hKeys)
     {
@@ -244,11 +244,11 @@ public class RedisCache
     }
 
     /**
-     * 删除Hash中的某条数据
+     * 鍒犻櫎Hash涓殑鏌愭潯鏁版嵁
      *
-     * @param key Redis键
-     * @param hKey Hash键
-     * @return 是否成功
+     * @param key Redis閿?
+     * @param hKey Hash閿?
+     * @return 鏄惁鎴愬姛
      */
     public boolean deleteCacheMapValue(final String key, final String hKey)
     {
@@ -256,14 +256,15 @@ public class RedisCache
     }
 
     /**
-     * 获得缓存的基本对象列表
+     * 鑾峰緱缂撳瓨鐨勫熀鏈璞″垪琛?
      *
-     * @param pattern 字符串前缀
-     * @return 对象列表
+     * @param pattern 瀛楃涓插墠缂€
+     * @return 瀵硅薄鍒楄〃
      */
     public Collection<String> keys(final String pattern)
     {
         return redisTemplate.keys(pattern);
     }
 }
+
 

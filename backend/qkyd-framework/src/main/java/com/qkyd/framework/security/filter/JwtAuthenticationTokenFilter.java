@@ -17,9 +17,9 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.framework.web.service.TokenService;
 
 /**
- * token过滤器 验证token有效性
+ * token杩囨护鍣?楠岃瘉token鏈夋晥鎬?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
@@ -42,4 +42,5 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
         chain.doFilter(request, response);
     }
 }
+
 

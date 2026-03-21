@@ -1,28 +1,28 @@
 package com.qkyd.common.exception;
 
 /**
- * 全局异常
+ * 鍏ㄥ眬寮傚父
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class GlobalException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 错误提示
+     * 閿欒鎻愮ず
      */
     private String message;
 
     /**
-     * 错误明细，内部调试错误
+     * 閿欒鏄庣粏锛屽唴閮ㄨ皟璇曢敊璇?
      *
-     * 和 {@link CommonResult#getDetailMessage()} 一致的设计
+     * 鍜?{@link CommonResult#getDetailMessage()} 涓€鑷寸殑璁捐
      */
     private String detailMessage;
 
     /**
-     * 空构造方法，避免反序列化问题
+     * 绌烘瀯閫犳柟娉曪紝閬垮厤鍙嶅簭鍒楀寲闂
      */
     public GlobalException()
     {
@@ -56,3 +56,4 @@ public class GlobalException extends RuntimeException
         return this;
     }
 }
+

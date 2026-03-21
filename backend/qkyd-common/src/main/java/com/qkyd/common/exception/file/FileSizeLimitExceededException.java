@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.file;
 
 /**
- * 文件名大小限制异常类
+ * 鏂囦欢鍚嶅ぇ灏忛檺鍒跺紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class FileSizeLimitExceededException extends FileException
 {
@@ -14,4 +14,5 @@ public class FileSizeLimitExceededException extends FileException
         super("upload.exceed.maxSize", new Object[] { defaultMaxSize });
     }
 }
+
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * AI服务实现
+ * AI鏈嶅姟瀹炵幇
  *
  * @author ueit
  */
@@ -54,7 +54,7 @@ public class AiServiceImpl implements IAiService {
 
     @Override
     public String chat(String[] messages) {
-        // 将数组转换为多轮对话
+        // 灏嗘暟缁勮浆鎹负澶氳疆瀵硅瘽
         StringBuilder builder = new StringBuilder();
         for (String msg : messages) {
             builder.append(msg).append("\n");
@@ -100,14 +100,14 @@ public class AiServiceImpl implements IAiService {
             }
             return response;
         } catch (Exception e) {
-            throw new RuntimeException("AI对话失败: " + e.getMessage(), e);
+            throw new RuntimeException("AI瀵硅瘽澶辫触: " + e.getMessage(), e);
         }
     }
 
     @Override
     public String detectFall(com.qkyd.ai.domain.FallDetectionRequest request) {
         try {
-            // 调用 Python 算法服务
+            // 璋冪敤 Python 绠楁硶鏈嶅姟
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
             String pythonServiceUrl = "http://localhost:8011/api/algorithms/detect_fall";
 
@@ -121,7 +121,7 @@ public class AiServiceImpl implements IAiService {
             return response;
         } catch (Exception e) {
             e.printStackTrace();
-            return "{\"error\": \"算法服务调用失败: " + e.getMessage() + "\"}";
+            return "{\"error\": \"绠楁硶鏈嶅姟璋冪敤澶辫触: " + e.getMessage() + "\"}";
         }
     }
 }

@@ -1,34 +1,34 @@
 package com.qkyd.system.domain;
 
 /**
- * 当前在线会话
+ * 褰撳墠鍦ㄧ嚎浼氳瘽
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysUserOnline
 {
-    /** 会话编号 */
+    /** 浼氳瘽缂栧彿 */
     private String tokenId;
 
-    /** 部门名称 */
+    /** 閮ㄩ棬鍚嶇О */
     private String deptName;
 
-    /** 用户名称 */
+    /** 鐢ㄦ埛鍚嶇О */
     private String userName;
 
-    /** 登录IP地址 */
+    /** 鐧诲綍IP鍦板潃 */
     private String ipaddr;
 
-    /** 登录地址 */
+    /** 鐧诲綍鍦板潃 */
     private String loginLocation;
 
-    /** 浏览器类型 */
+    /** 娴忚鍣ㄧ被鍨?*/
     private String browser;
 
-    /** 操作系统 */
+    /** 鎿嶄綔绯荤粺 */
     private String os;
 
-    /** 登录时间 */
+    /** 鐧诲綍鏃堕棿 */
     private Long loginTime;
 
     public String getTokenId()
@@ -111,4 +111,5 @@ public class SysUserOnline
         this.loginTime = loginTime;
     }
 }
+
 

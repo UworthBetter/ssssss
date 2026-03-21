@@ -32,9 +32,9 @@ import com.qkyd.framework.manager.factory.AsyncFactory;
 import com.qkyd.system.domain.SysOperLog;
 
 /**
- * 操作日志记录处理
+ * 鎿嶄綔鏃ュ織璁板綍澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Aspect
 @Component
@@ -42,14 +42,14 @@ public class LogAspect
 {
     private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
 
-    /** 排除敏感属性字段 */
+    /** 鎺掗櫎鏁忔劅灞炴€у瓧娈?*/
     public static final String[] EXCLUDE_PROPERTIES = { "password", "oldPassword", "newPassword", "confirmPassword" };
 
-    /** 计算操作消耗时间 */
+    /** 璁＄畻鎿嶄綔娑堣€楁椂闂?*/
     private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Cost Time");
 
     /**
-     * 处理请求前执行
+     * 澶勭悊璇锋眰鍓嶆墽琛?
      */
     @Before(value = "@annotation(controllerLog)")
     public void boBefore(JoinPoint joinPoint, Log controllerLog)
@@ -58,9 +58,9 @@ public class LogAspect
     }
 
     /**
-     * 处理完请求后执行
+     * 澶勭悊瀹岃姹傚悗鎵ц
      *
-     * @param joinPoint 切点
+     * @param joinPoint 鍒囩偣
      */
     @AfterReturning(pointcut = "@annotation(controllerLog)", returning = "jsonResult")
     public void doAfterReturning(JoinPoint joinPoint, Log controllerLog, Object jsonResult)
@@ -69,10 +69,10 @@ public class LogAspect
     }
 
     /**
-     * 拦截异常操作
+     * 鎷︽埅寮傚父鎿嶄綔
      * 
-     * @param joinPoint 切点
-     * @param e 异常
+     * @param joinPoint 鍒囩偣
+     * @param e 寮傚父
      */
     @AfterThrowing(value = "@annotation(controllerLog)", throwing = "e")
     public void doAfterThrowing(JoinPoint joinPoint, Log controllerLog, Exception e)
@@ -84,13 +84,13 @@ public class LogAspect
     {
         try
         {
-            // 获取当前的用户
+            // 鑾峰彇褰撳墠鐨勭敤鎴?
             LoginUser loginUser = SecurityUtils.getLoginUser();
 
-            // *========数据库日志=========*//
+            // *========鏁版嵁搴撴棩蹇?========*//
             SysOperLog operLog = new SysOperLog();
             operLog.setStatus(BusinessStatus.SUCCESS.ordinal());
-            // 请求的地址
+            // 璇锋眰鐨勫湴鍧€
             String ip = IpUtils.getIpAddr();
             operLog.setOperIp(ip);
             operLog.setOperUrl(StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255));
@@ -109,23 +109,23 @@ public class LogAspect
                 operLog.setStatus(BusinessStatus.FAIL.ordinal());
                 operLog.setErrorMsg(StringUtils.substring(e.getMessage(), 0, 2000));
             }
-            // 设置方法名称
+            // 璁剧疆鏂规硶鍚嶇О
             String className = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
             operLog.setMethod(className + "." + methodName + "()");
-            // 设置请求方式
+            // 璁剧疆璇锋眰鏂瑰紡
             operLog.setRequestMethod(ServletUtils.getRequest().getMethod());
-            // 处理设置注解上的参数
+            // 澶勭悊璁剧疆娉ㄨВ涓婄殑鍙傛暟
             getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
-            // 设置消耗时间
+            // 璁剧疆娑堣€楁椂闂?
             operLog.setCostTime(System.currentTimeMillis() - TIME_THREADLOCAL.get());
-            // 保存数据库
+            // 淇濆瓨鏁版嵁搴?
             AsyncManager.me().execute(AsyncFactory.recordOper(operLog));
         }
         catch (Exception exp)
         {
-            // 记录本地异常日志
-            log.error("异常信息:{}", exp.getMessage());
+            // 璁板綍鏈湴寮傚父鏃ュ織
+            log.error("寮傚父淇℃伅:{}", exp.getMessage());
             exp.printStackTrace();
         }
         finally
@@ -135,27 +135,27 @@ public class LogAspect
     }
 
     /**
-     * 获取注解中对方法的描述信息 用于Controller层注解
+     * 鑾峰彇娉ㄨВ涓鏂规硶鐨勬弿杩颁俊鎭?鐢ㄤ簬Controller灞傛敞瑙?
      * 
-     * @param log 日志
-     * @param operLog 操作日志
+     * @param log 鏃ュ織
+     * @param operLog 鎿嶄綔鏃ュ織
      * @throws Exception
      */
     public void getControllerMethodDescription(JoinPoint joinPoint, Log log, SysOperLog operLog, Object jsonResult) throws Exception
     {
-        // 设置action动作
+        // 璁剧疆action鍔ㄤ綔
         operLog.setBusinessType(log.businessType().ordinal());
-        // 设置标题
+        // 璁剧疆鏍囬
         operLog.setTitle(log.title());
-        // 设置操作人类别
+        // 璁剧疆鎿嶄綔浜虹被鍒?
         operLog.setOperatorType(log.operatorType().ordinal());
-        // 是否需要保存request，参数和值
+        // 鏄惁闇€瑕佷繚瀛榬equest锛屽弬鏁板拰鍊?
         if (log.isSaveRequestData())
         {
-            // 获取参数的信息，传入到数据库中。
+            // 鑾峰彇鍙傛暟鐨勪俊鎭紝浼犲叆鍒版暟鎹簱涓€?
             setRequestValue(joinPoint, operLog, log.excludeParamNames());
         }
-        // 是否需要保存response，参数和值
+        // 鏄惁闇€瑕佷繚瀛榬esponse锛屽弬鏁板拰鍊?
         if (log.isSaveResponseData() && StringUtils.isNotNull(jsonResult))
         {
             operLog.setJsonResult(StringUtils.substring(JSON.toJSONString(jsonResult), 0, 2000));
@@ -163,10 +163,10 @@ public class LogAspect
     }
 
     /**
-     * 获取请求的参数，放到log中
+     * 鑾峰彇璇锋眰鐨勫弬鏁帮紝鏀惧埌log涓?
      * 
-     * @param operLog 操作日志
-     * @throws Exception 异常
+     * @param operLog 鎿嶄綔鏃ュ織
+     * @throws Exception 寮傚父
      */
     private void setRequestValue(JoinPoint joinPoint, SysOperLog operLog, String[] excludeParamNames) throws Exception
     {
@@ -185,7 +185,7 @@ public class LogAspect
     }
 
     /**
-     * 参数拼装
+     * 鍙傛暟鎷艰
      */
     private String argsArrayToString(Object[] paramsArray, String[] excludeParamNames)
     {
@@ -211,7 +211,7 @@ public class LogAspect
     }
 
     /**
-     * 忽略敏感属性
+     * 蹇界暐鏁忔劅灞炴€?
      */
     public PropertyPreExcludeFilter excludePropertyPreFilter(String[] excludeParamNames)
     {
@@ -219,10 +219,10 @@ public class LogAspect
     }
 
     /**
-     * 判断是否需要过滤的对象。
+     * 鍒ゆ柇鏄惁闇€瑕佽繃婊ょ殑瀵硅薄銆?
      * 
-     * @param o 对象信息。
-     * @return 如果是需要过滤的对象，则返回true；否则返回false。
+     * @param o 瀵硅薄淇℃伅銆?
+     * @return 濡傛灉鏄渶瑕佽繃婊ょ殑瀵硅薄锛屽垯杩斿洖true锛涘惁鍒欒繑鍥瀎alse銆?
      */
     @SuppressWarnings("rawtypes")
     public boolean isFilterObject(final Object o)
@@ -253,4 +253,5 @@ public class LogAspect
                 || o instanceof BindingResult;
     }
 }
+
 

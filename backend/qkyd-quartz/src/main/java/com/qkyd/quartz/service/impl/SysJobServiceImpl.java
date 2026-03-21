@@ -18,9 +18,9 @@ import com.qkyd.quartz.util.CronUtils;
 import com.qkyd.quartz.util.ScheduleUtils;
 
 /**
- * 定时任务调度信息 服务层
+ * 瀹氭椂浠诲姟璋冨害淇℃伅 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysJobServiceImpl implements ISysJobService
@@ -32,7 +32,7 @@ public class SysJobServiceImpl implements ISysJobService
     private SysJobMapper jobMapper;
 
     /**
-     * 项目启动时，初始化定时器 主要是防止手动修改数据库导致未同步到定时任务处理（注：不能手动修改数据库ID和任务组名，否则会导致脏数据）
+     * 椤圭洰鍚姩鏃讹紝鍒濆鍖栧畾鏃跺櫒 涓昏鏄槻姝㈡墜鍔ㄤ慨鏀规暟鎹簱瀵艰嚧鏈悓姝ュ埌瀹氭椂浠诲姟澶勭悊锛堟敞锛氫笉鑳芥墜鍔ㄤ慨鏀规暟鎹簱ID鍜屼换鍔＄粍鍚嶏紝鍚﹀垯浼氬鑷磋剰鏁版嵁锛?
      */
     @PostConstruct
     public void init() throws SchedulerException, TaskException
@@ -46,9 +46,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 获取quartz调度器的计划任务列表
+     * 鑾峰彇quartz璋冨害鍣ㄧ殑璁″垝浠诲姟鍒楄〃
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      * @return
      */
     @Override
@@ -58,10 +58,10 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 通过调度任务ID查询调度信息
+     * 閫氳繃璋冨害浠诲姟ID鏌ヨ璋冨害淇℃伅
      * 
-     * @param jobId 调度任务ID
-     * @return 调度任务对象信息
+     * @param jobId 璋冨害浠诲姟ID
+     * @return 璋冨害浠诲姟瀵硅薄淇℃伅
      */
     @Override
     public SysJob selectJobById(Long jobId)
@@ -70,9 +70,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 暂停任务
+     * 鏆傚仠浠诲姟
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -90,9 +90,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 恢复任务
+     * 鎭㈠浠诲姟
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -110,9 +110,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 删除任务后，所对应的trigger也将被删除
+     * 鍒犻櫎浠诲姟鍚庯紝鎵€瀵瑰簲鐨則rigger涔熷皢琚垹闄?
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -129,10 +129,10 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 批量删除调度信息
+     * 鎵归噺鍒犻櫎璋冨害淇℃伅
      * 
-     * @param jobIds 需要删除的任务ID
-     * @return 结果
+     * @param jobIds 闇€瑕佸垹闄ょ殑浠诲姟ID
+     * @return 缁撴灉
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -146,9 +146,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 任务调度状态修改
+     * 浠诲姟璋冨害鐘舵€佷慨鏀?
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -168,9 +168,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 立即运行任务
+     * 绔嬪嵆杩愯浠诲姟
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -180,7 +180,7 @@ public class SysJobServiceImpl implements ISysJobService
         Long jobId = job.getJobId();
         String jobGroup = job.getJobGroup();
         SysJob properties = selectJobById(job.getJobId());
-        // 参数
+        // 鍙傛暟
         JobDataMap dataMap = new JobDataMap();
         dataMap.put(ScheduleConstants.TASK_PROPERTIES, properties);
         JobKey jobKey = ScheduleUtils.getJobKey(jobId, jobGroup);
@@ -193,9 +193,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 新增任务
+     * 鏂板浠诲姟
      * 
-     * @param job 调度信息 调度信息
+     * @param job 璋冨害淇℃伅 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -211,9 +211,9 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 更新任务的时间表达式
+     * 鏇存柊浠诲姟鐨勬椂闂磋〃杈惧紡
      * 
-     * @param job 调度信息
+     * @param job 璋冨害淇℃伅
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -229,29 +229,29 @@ public class SysJobServiceImpl implements ISysJobService
     }
 
     /**
-     * 更新任务
+     * 鏇存柊浠诲姟
      * 
-     * @param job 任务对象
-     * @param jobGroup 任务组名
+     * @param job 浠诲姟瀵硅薄
+     * @param jobGroup 浠诲姟缁勫悕
      */
     public void updateSchedulerJob(SysJob job, String jobGroup) throws SchedulerException, TaskException
     {
         Long jobId = job.getJobId();
-        // 判断是否存在
+        // 鍒ゆ柇鏄惁瀛樺湪
         JobKey jobKey = ScheduleUtils.getJobKey(jobId, jobGroup);
         if (scheduler.checkExists(jobKey))
         {
-            // 防止创建时存在数据问题 先移除，然后在执行创建操作
+            // 闃叉鍒涘缓鏃跺瓨鍦ㄦ暟鎹棶棰?鍏堢Щ闄わ紝鐒跺悗鍦ㄦ墽琛屽垱寤烘搷浣?
             scheduler.deleteJob(jobKey);
         }
         ScheduleUtils.createScheduleJob(scheduler, job);
     }
 
     /**
-     * 校验cron表达式是否有效
+     * 鏍￠獙cron琛ㄨ揪寮忔槸鍚︽湁鏁?
      * 
-     * @param cronExpression 表达式
-     * @return 结果
+     * @param cronExpression 琛ㄨ揪寮?
+     * @return 缁撴灉
      */
     @Override
     public boolean checkCronExpressionIsValid(String cronExpression)
@@ -259,4 +259,5 @@ public class SysJobServiceImpl implements ISysJobService
         return CronUtils.isValid(cronExpression);
     }
 }
+
 

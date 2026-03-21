@@ -12,9 +12,9 @@ import org.springframework.http.MediaType;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * Repeatable 过滤器
+ * Repeatable 杩囨护鍣?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class RepeatableFilter implements Filter
 {
@@ -50,4 +50,5 @@ public class RepeatableFilter implements Filter
 
     }
 }
+
 

@@ -3,9 +3,9 @@ package com.qkyd.common.utils.html;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 转义和反转义工具类
+ * 杞箟鍜屽弽杞箟宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class EscapeUtil
 {
@@ -21,18 +21,18 @@ public class EscapeUtil
         }
 
         // special HTML characters
-        TEXT['\''] = "&#039;".toCharArray(); // 单引号
-        TEXT['"'] = "&#34;".toCharArray(); // 双引号
-        TEXT['&'] = "&#38;".toCharArray(); // &符
-        TEXT['<'] = "&#60;".toCharArray(); // 小于号
-        TEXT['>'] = "&#62;".toCharArray(); // 大于号
+        TEXT['\''] = "&#039;".toCharArray(); // 鍗曞紩鍙?
+        TEXT['"'] = "&#34;".toCharArray(); // 鍙屽紩鍙?
+        TEXT['&'] = "&#38;".toCharArray(); // &绗?
+        TEXT['<'] = "&#60;".toCharArray(); // 灏忎簬鍙?
+        TEXT['>'] = "&#62;".toCharArray(); // 澶т簬鍙?
     }
 
     /**
-     * 转义文本中的HTML字符为安全的字符
+     * 杞箟鏂囨湰涓殑HTML瀛楃涓哄畨鍏ㄧ殑瀛楃
      * 
-     * @param text 被转义的文本
-     * @return 转义后的文本
+     * @param text 琚浆涔夌殑鏂囨湰
+     * @return 杞箟鍚庣殑鏂囨湰
      */
     public static String escape(String text)
     {
@@ -40,10 +40,10 @@ public class EscapeUtil
     }
 
     /**
-     * 还原被转义的HTML特殊字符
+     * 杩樺師琚浆涔夌殑HTML鐗规畩瀛楃
      * 
-     * @param content 包含转义符的HTML内容
-     * @return 转换后的字符串
+     * @param content 鍖呭惈杞箟绗︾殑HTML鍐呭
+     * @return 杞崲鍚庣殑瀛楃涓?
      */
     public static String unescape(String content)
     {
@@ -51,10 +51,10 @@ public class EscapeUtil
     }
 
     /**
-     * 清除所有HTML标签，但是不删除标签内的内容
+     * 娓呴櫎鎵€鏈塇TML鏍囩锛屼絾鏄笉鍒犻櫎鏍囩鍐呯殑鍐呭
      * 
-     * @param content 文本
-     * @return 清除标签后的文本
+     * @param content 鏂囨湰
+     * @return 娓呴櫎鏍囩鍚庣殑鏂囨湰
      */
     public static String clean(String content)
     {
@@ -62,10 +62,10 @@ public class EscapeUtil
     }
 
     /**
-     * Escape编码
+     * Escape缂栫爜
      * 
-     * @param text 被编码的文本
-     * @return 编码后的字符
+     * @param text 琚紪鐮佺殑鏂囨湰
+     * @return 缂栫爜鍚庣殑瀛楃
      */
     private static String encode(String text)
     {
@@ -103,10 +103,10 @@ public class EscapeUtil
     }
 
     /**
-     * Escape解码
+     * Escape瑙ｇ爜
      * 
-     * @param content 被转义的内容
-     * @return 解码后的字符串
+     * @param content 琚浆涔夌殑鍐呭
+     * @return 瑙ｇ爜鍚庣殑瀛楃涓?
      */
     public static String decode(String content)
     {
@@ -165,4 +165,5 @@ public class EscapeUtil
         System.out.println("unescape: " + EscapeUtil.unescape(escape));
     }
 }
+
 

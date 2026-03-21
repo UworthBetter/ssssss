@@ -1,16 +1,16 @@
 package com.qkyd.common.utils.uuid;
 
 /**
- * ID生成器工具类
+ * ID鐢熸垚鍣ㄥ伐鍏风被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class IdUtils
 {
     /**
-     * 获取随机UUID
+     * 鑾峰彇闅忔満UUID
      * 
-     * @return 随机UUID
+     * @return 闅忔満UUID
      */
     public static String randomUUID()
     {
@@ -18,9 +18,9 @@ public class IdUtils
     }
 
     /**
-     * 简化的UUID，去掉了横线
+     * 绠€鍖栫殑UUID锛屽幓鎺変簡妯嚎
      * 
-     * @return 简化的UUID，去掉了横线
+     * @return 绠€鍖栫殑UUID锛屽幓鎺変簡妯嚎
      */
     public static String simpleUUID()
     {
@@ -28,9 +28,9 @@ public class IdUtils
     }
 
     /**
-     * 获取随机UUID，使用性能更好的ThreadLocalRandom生成UUID
+     * 鑾峰彇闅忔満UUID锛屼娇鐢ㄦ€ц兘鏇村ソ鐨凾hreadLocalRandom鐢熸垚UUID
      * 
-     * @return 随机UUID
+     * @return 闅忔満UUID
      */
     public static String fastUUID()
     {
@@ -38,13 +38,14 @@ public class IdUtils
     }
 
     /**
-     * 简化的UUID，去掉了横线，使用性能更好的ThreadLocalRandom生成UUID
+     * 绠€鍖栫殑UUID锛屽幓鎺変簡妯嚎锛屼娇鐢ㄦ€ц兘鏇村ソ鐨凾hreadLocalRandom鐢熸垚UUID
      * 
-     * @return 简化的UUID，去掉了横线
+     * @return 绠€鍖栫殑UUID锛屽幓鎺変簡妯嚎
      */
     public static String fastSimpleUUID()
     {
         return UUID.fastUUID().toString(true);
     }
 }
+
 

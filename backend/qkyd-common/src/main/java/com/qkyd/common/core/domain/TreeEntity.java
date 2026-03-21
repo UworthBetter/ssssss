@@ -4,27 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tree基类
+ * Tree鍩虹被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class TreeEntity extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 父菜单名称 */
+    /** 鐖惰彍鍗曞悕绉?*/
     private String parentName;
 
-    /** 父菜单ID */
+    /** 鐖惰彍鍗旾D */
     private Long parentId;
 
-    /** 显示顺序 */
+    /** 鏄剧ず椤哄簭 */
     private Integer orderNum;
 
-    /** 祖级列表 */
+    /** 绁栫骇鍒楄〃 */
     private String ancestors;
 
-    /** 子部门 */
+    /** 瀛愰儴闂?*/
     private List<?> children = new ArrayList<>();
 
     public String getParentName()
@@ -77,4 +77,5 @@ public class TreeEntity extends BaseEntity
         this.children = children;
     }
 }
+
 

@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "qkyd-vue3-new",
   "version": "1.0.0",
-  "description": "耆康云盾 - 新版Vue3前端",
+  "description": "耆康云盾健康监测平台前端应用",
   "author": "qkyd",
   "type": "module",
   "scripts": {
@@ -34,3 +34,4 @@
     "eslint-plugin-vue": "^9.32.0"
   }
 }
+

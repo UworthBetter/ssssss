@@ -4,31 +4,31 @@ import com.qkyd.common.utils.MessageUtils;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 基础异常
+ * 鍩虹寮傚父
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class BaseException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 所属模块
+     * 鎵€灞炴ā鍧?
      */
     private String module;
 
     /**
-     * 错误码
+     * 閿欒鐮?
      */
     private String code;
 
     /**
-     * 错误码对应的参数
+     * 閿欒鐮佸搴旂殑鍙傛暟
      */
     private Object[] args;
 
     /**
-     * 错误消息
+     * 閿欒娑堟伅
      */
     private String defaultMessage;
 
@@ -95,4 +95,5 @@ public class BaseException extends RuntimeException
         return defaultMessage;
     }
 }
+
 

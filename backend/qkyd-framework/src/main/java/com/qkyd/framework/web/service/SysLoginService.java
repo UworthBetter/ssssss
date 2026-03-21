@@ -30,9 +30,9 @@ import com.qkyd.system.service.ISysConfigService;
 import com.qkyd.system.service.ISysUserService;
 
 /**
- * 登录校验方法
+ * 鐧诲綍鏍￠獙鏂规硶
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class SysLoginService
@@ -53,27 +53,27 @@ public class SysLoginService
     private ISysConfigService configService;
 
     /**
-     * 登录验证
+     * 鐧诲綍楠岃瘉
      * 
-     * @param username 用户名
-     * @param password 密码
-     * @param code 验证码
-     * @param uuid 唯一标识
-     * @return 结果
+     * @param username 鐢ㄦ埛鍚?
+     * @param password 瀵嗙爜
+     * @param code 楠岃瘉鐮?
+     * @param uuid 鍞竴鏍囪瘑
+     * @return 缁撴灉
      */
     public String login(String username, String password, String code, String uuid)
     {
-        // 验证码校验
+        // 楠岃瘉鐮佹牎楠?
         validateCaptcha(username, code, uuid);
-        // 登录前置校验
+        // 鐧诲綍鍓嶇疆鏍￠獙
         loginPreCheck(username, password);
-        // 用户验证
+        // 鐢ㄦ埛楠岃瘉
         Authentication authentication = null;
         try
         {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
             AuthenticationContextHolder.setContext(authenticationToken);
-            // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
+            // 璇ユ柟娉曚細鍘昏皟鐢║serDetailsServiceImpl.loadUserByUsername
             authentication = authenticationManager.authenticate(authenticationToken);
         }
         catch (Exception e)
@@ -96,17 +96,17 @@ public class SysLoginService
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         recordLoginInfo(loginUser.getUserId());
-        // 生成token
+        // 鐢熸垚token
         return tokenService.createToken(loginUser);
     }
 
     /**
-     * 校验验证码
+     * 鏍￠獙楠岃瘉鐮?
      * 
-     * @param username 用户名
-     * @param code 验证码
-     * @param uuid 唯一标识
-     * @return 结果
+     * @param username 鐢ㄦ埛鍚?
+     * @param code 楠岃瘉鐮?
+     * @param uuid 鍞竴鏍囪瘑
+     * @return 缁撴灉
      */
     public void validateCaptcha(String username, String code, String uuid)
     {
@@ -130,33 +130,33 @@ public class SysLoginService
     }
 
     /**
-     * 登录前置校验
-     * @param username 用户名
-     * @param password 用户密码
+     * 鐧诲綍鍓嶇疆鏍￠獙
+     * @param username 鐢ㄦ埛鍚?
+     * @param password 鐢ㄦ埛瀵嗙爜
      */
     public void loginPreCheck(String username, String password)
     {
-        // 用户名或密码为空 错误
+        // 鐢ㄦ埛鍚嶆垨瀵嗙爜涓虹┖ 閿欒
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
         {
             AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("not.null")));
             throw new UserNotExistsException();
         }
-        // 密码如果不在指定范围内 错误
+        // 瀵嗙爜濡傛灉涓嶅湪鎸囧畾鑼冨洿鍐?閿欒
         if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
                 || password.length() > UserConstants.PASSWORD_MAX_LENGTH)
         {
             AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
             throw new UserPasswordNotMatchException();
         }
-        // 用户名不在指定范围内 错误
+        // 鐢ㄦ埛鍚嶄笉鍦ㄦ寚瀹氳寖鍥村唴 閿欒
         if (username.length() < UserConstants.USERNAME_MIN_LENGTH
                 || username.length() > UserConstants.USERNAME_MAX_LENGTH)
         {
             AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
             throw new UserPasswordNotMatchException();
         }
-        // IP黑名单校验
+        // IP榛戝悕鍗曟牎楠?
         String blackStr = configService.selectConfigByKey("sys.login.blackIPList");
         if (IpUtils.isMatchedIp(blackStr, IpUtils.getIpAddr()))
         {
@@ -166,9 +166,9 @@ public class SysLoginService
     }
 
     /**
-     * 记录登录信息
+     * 璁板綍鐧诲綍淇℃伅
      *
-     * @param userId 用户ID
+     * @param userId 鐢ㄦ埛ID
      */
     public void recordLoginInfo(Long userId)
     {
@@ -179,4 +179,5 @@ public class SysLoginService
         userService.updateUserProfile(sysUser);
     }
 }
+
 

@@ -18,9 +18,9 @@ import com.qkyd.framework.web.service.SysPermissionService;
 import com.qkyd.system.service.ISysMenuService;
 
 /**
- * 登录验证
+ * 鐧诲綍楠岃瘉
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 public class SysLoginController
@@ -35,16 +35,16 @@ public class SysLoginController
     private SysPermissionService permissionService;
 
     /**
-     * 登录方法
+     * 鐧诲綍鏂规硶
      * 
-     * @param loginBody 登录信息
-     * @return 结果
+     * @param loginBody 鐧诲綍淇℃伅
+     * @return 缁撴灉
      */
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
         AjaxResult ajax = AjaxResult.success();
-        // 生成令牌
+        // 鐢熸垚浠ょ墝
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());
         ajax.put(Constants.TOKEN, token);
@@ -52,17 +52,17 @@ public class SysLoginController
     }
 
     /**
-     * 获取用户信息
+     * 鑾峰彇鐢ㄦ埛淇℃伅
      * 
-     * @return 用户信息
+     * @return 鐢ㄦ埛淇℃伅
      */
     @GetMapping("getInfo")
     public AjaxResult getInfo()
     {
         SysUser user = SecurityUtils.getLoginUser().getUser();
-        // 角色集合
+        // 瑙掕壊闆嗗悎
         Set<String> roles = permissionService.getRolePermission(user);
-        // 权限集合
+        // 鏉冮檺闆嗗悎
         Set<String> permissions = permissionService.getMenuPermission(user);
         AjaxResult ajax = AjaxResult.success();
         ajax.put("user", user);
@@ -72,9 +72,9 @@ public class SysLoginController
     }
 
     /**
-     * 获取路由信息
+     * 鑾峰彇璺敱淇℃伅
      * 
-     * @return 路由信息
+     * @return 璺敱淇℃伅
      */
     @GetMapping("getRouters")
     public AjaxResult getRouters()
@@ -84,4 +84,5 @@ public class SysLoginController
         return AjaxResult.success(menuService.buildMenus(menus));
     }
 }
+
 

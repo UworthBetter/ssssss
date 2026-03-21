@@ -25,24 +25,24 @@ import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 
 /**
- * token验证处理
+ * token楠岃瘉澶勭悊
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class TokenService
 {
     private static final Logger log = LoggerFactory.getLogger(TokenService.class);
 
-    // 令牌自定义标识
+    // 浠ょ墝鑷畾涔夋爣璇?
     @Value("${token.header}")
     private String header;
 
-    // 令牌秘钥
+    // 浠ょ墝绉橀挜
     @Value("${token.secret}")
     private String secret;
 
-    // 令牌有效期（默认30分钟）
+    // 浠ょ墝鏈夋晥鏈燂紙榛樿30鍒嗛挓锛?
     @Value("${token.expireTime}")
     private int expireTime;
 
@@ -56,20 +56,20 @@ public class TokenService
     private RedisCache redisCache;
 
     /**
-     * 获取用户身份信息
+     * 鑾峰彇鐢ㄦ埛韬唤淇℃伅
      *
-     * @return 用户信息
+     * @return 鐢ㄦ埛淇℃伅
      */
     public LoginUser getLoginUser(HttpServletRequest request)
     {
-        // 获取请求携带的令牌
+        // 鑾峰彇璇锋眰鎼哄甫鐨勪护鐗?
         String token = getToken(request);
         if (StringUtils.isNotEmpty(token))
         {
             try
             {
                 Claims claims = parseToken(token);
-                // 解析对应的权限以及用户信息
+                // 瑙ｆ瀽瀵瑰簲鐨勬潈闄愪互鍙婄敤鎴蜂俊鎭?
                 String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 LoginUser user = redisCache.getCacheObject(userKey);
@@ -77,14 +77,14 @@ public class TokenService
             }
             catch (Exception e)
             {
-                log.error("获取用户信息异常'{}'", e.getMessage());
+                log.error("鑾峰彇鐢ㄦ埛淇℃伅寮傚父'{}'", e.getMessage());
             }
         }
         return null;
     }
 
     /**
-     * 设置用户身份信息
+     * 璁剧疆鐢ㄦ埛韬唤淇℃伅
      */
     public void setLoginUser(LoginUser loginUser)
     {
@@ -95,7 +95,7 @@ public class TokenService
     }
 
     /**
-     * 删除用户身份信息
+     * 鍒犻櫎鐢ㄦ埛韬唤淇℃伅
      */
     public void delLoginUser(String token)
     {
@@ -107,10 +107,10 @@ public class TokenService
     }
 
     /**
-     * 创建令牌
+     * 鍒涘缓浠ょ墝
      *
-     * @param loginUser 用户信息
-     * @return 令牌
+     * @param loginUser 鐢ㄦ埛淇℃伅
+     * @return 浠ょ墝
      */
     public String createToken(LoginUser loginUser)
     {
@@ -125,10 +125,10 @@ public class TokenService
     }
 
     /**
-     * 验证令牌有效期，相差不足20分钟，自动刷新缓存
+     * 楠岃瘉浠ょ墝鏈夋晥鏈燂紝鐩稿樊涓嶈冻20鍒嗛挓锛岃嚜鍔ㄥ埛鏂扮紦瀛?
      *
      * @param loginUser
-     * @return 令牌
+     * @return 浠ょ墝
      */
     public void verifyToken(LoginUser loginUser)
     {
@@ -141,23 +141,23 @@ public class TokenService
     }
 
     /**
-     * 刷新令牌有效期
+     * 鍒锋柊浠ょ墝鏈夋晥鏈?
      *
-     * @param loginUser 登录信息
+     * @param loginUser 鐧诲綍淇℃伅
      */
     public void refreshToken(LoginUser loginUser)
     {
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
-        // 根据uuid将loginUser缓存
+        // 鏍规嵁uuid灏唋oginUser缂撳瓨
         String userKey = getTokenKey(loginUser.getToken());
         redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
     }
 
     /**
-     * 设置用户代理信息
+     * 璁剧疆鐢ㄦ埛浠ｇ悊淇℃伅
      *
-     * @param loginUser 登录信息
+     * @param loginUser 鐧诲綍淇℃伅
      */
     public void setUserAgent(LoginUser loginUser)
     {
@@ -170,10 +170,10 @@ public class TokenService
     }
 
     /**
-     * 从数据声明生成令牌
+     * 浠庢暟鎹０鏄庣敓鎴愪护鐗?
      *
-     * @param claims 数据声明
-     * @return 令牌
+     * @param claims 鏁版嵁澹版槑
+     * @return 浠ょ墝
      */
     private String createToken(Map<String, Object> claims)
     {
@@ -186,10 +186,10 @@ public class TokenService
     }
 
     /**
-     * 从令牌中获取数据声明
+     * 浠庝护鐗屼腑鑾峰彇鏁版嵁澹版槑
      *
-     * @param token 令牌
-     * @return 数据声明
+     * @param token 浠ょ墝
+     * @return 鏁版嵁澹版槑
      */
     private Claims parseToken(String token)
     {
@@ -202,10 +202,10 @@ public class TokenService
     }
 
     /**
-     * 从令牌中获取用户名
+     * 浠庝护鐗屼腑鑾峰彇鐢ㄦ埛鍚?
      *
-     * @param token 令牌
-     * @return 用户名
+     * @param token 浠ょ墝
+     * @return 鐢ㄦ埛鍚?
      */
     public String getUsernameFromToken(String token)
     {
@@ -214,7 +214,7 @@ public class TokenService
     }
 
     /**
-     * 获取请求token
+     * 鑾峰彇璇锋眰token
      *
      * @param request
      * @return token
@@ -234,4 +234,5 @@ public class TokenService
         return CacheConstants.LOGIN_TOKEN_KEY + uuid;
     }
 }
+
 

@@ -1,9 +1,9 @@
 package com.qkyd.common.utils;
 
 /**
- * 处理并记录日志文件
+ * 澶勭悊骞惰褰曟棩蹇楁枃浠?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class LogUtils
 {
@@ -16,4 +16,5 @@ public class LogUtils
         return "[" + msg.toString() + "]";
     }
 }
+
 

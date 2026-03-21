@@ -1,13 +1,13 @@
 package com.qkyd.common.enums;
 
 /**
- * 用户状态
+ * 鐢ㄦ埛鐘舵€?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public enum UserStatus
 {
-    OK("0", "正常"), DISABLE("1", "停用"), DELETED("2", "删除");
+    OK("0", "姝ｅ父"), DISABLE("1", "鍋滅敤"), DELETED("2", "鍒犻櫎");
 
     private final String code;
     private final String info;
@@ -28,4 +28,5 @@ public enum UserStatus
         return info;
     }
 }
+
 

@@ -26,9 +26,9 @@ import com.qkyd.system.mapper.SysUserRoleMapper;
 import com.qkyd.system.service.ISysRoleService;
 
 /**
- * 角色 业务层处理
+ * 閻熸瑦甯熸竟?濞戞挻鑹炬慨鐔轰沪閸屾凹妲遍柣?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysRoleServiceImpl implements ISysRoleService
@@ -46,10 +46,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     private SysRoleDeptMapper roleDeptMapper;
 
     /**
-     * 根据条件分页查询角色数据
+     * 闁哄秷顫夊畵渚€寮堕垾鍙夘偨闁告帒妫濋妴澶愬蓟閵夘煈鍤勯悷娆愬笩婢瑰﹪寮悧鍫濈ウ
      * 
-     * @param role 角色信息
-     * @return 角色数据集合信息
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 閻熸瑦甯熸竟濠囧极閻楀牆绁﹂梻鍡楁閹孩绌遍埄鍐х礀
      */
     @Override
     @DataScope(deptAlias = "d")
@@ -59,10 +59,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 根据用户ID查询角色
+     * 闁哄秷顫夊畵渚€鎮介妸锕€鐓旾D闁哄被鍎撮妤冩喆閹烘洖顥?
      * 
-     * @param userId 用户ID
-     * @return 角色列表
+     * @param userId 闁活潿鍔嶉崺姹璂
+     * @return 閻熸瑦甯熸竟濠囧礆濡ゅ嫨鈧?
      */
     @Override
     public List<SysRole> selectRolesByUserId(Long userId)
@@ -84,10 +84,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 根据用户ID查询权限
+     * 闁哄秷顫夊畵渚€鎮介妸锕€鐓旾D闁哄被鍎撮妤呭级閸愵喗顎?
      * 
-     * @param userId 用户ID
-     * @return 权限列表
+     * @param userId 闁活潿鍔嶉崺姹璂
+     * @return 闁哄鍟村娲礆濡ゅ嫨鈧?
      */
     @Override
     public Set<String> selectRolePermissionByUserId(Long userId)
@@ -105,9 +105,9 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 查询所有角色
+     * 闁哄被鍎撮妤呭箥閳ь剟寮垫径搴健闁?
      * 
-     * @return 角色列表
+     * @return 閻熸瑦甯熸竟濠囧礆濡ゅ嫨鈧?
      */
     @Override
     public List<SysRole> selectRoleAll()
@@ -116,10 +116,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 根据用户ID获取角色选择框列表
+     * 闁哄秷顫夊畵渚€鎮介妸锕€鐓旾D闁兼儳鍢茶ぐ鍥╂喆閹烘洖顥忛梺顐㈩槹鐎氥劌顩奸崱妤€鐏欓悶?
      * 
-     * @param userId 用户ID
-     * @return 选中角色ID列表
+     * @param userId 闁活潿鍔嶉崺姹璂
+     * @return 闂侇偄顦懙鎴犳喆閹烘洖顥廔D闁告帗顨夐妴?
      */
     @Override
     public List<Long> selectRoleListByUserId(Long userId)
@@ -128,10 +128,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 通过角色ID查询角色
+     * 闂侇偅淇虹换鍐喆閹烘洖顥廔D闁哄被鍎撮妤冩喆閹烘洖顥?
      * 
-     * @param roleId 角色ID
-     * @return 角色对象信息
+     * @param roleId 閻熸瑦甯熸竟濂岲
+     * @return 閻熸瑦甯熸竟濠勨偓鐢殿攰閽栧嫭绌遍埄鍐х礀
      */
     @Override
     public SysRole selectRoleById(Long roleId)
@@ -140,10 +140,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 校验角色名称是否唯一
+     * 闁哄稄绻濋悰娆戞喆閹烘洖顥忛柛姘Ф琚ㄩ柡鍕靛灠閹線宕娆戭伇
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public boolean checkRoleNameUnique(SysRole role)
@@ -158,10 +158,10 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 校验角色权限是否唯一
+     * 闁哄稄绻濋悰娆戞喆閹烘洖顥忛柡澶婂暣濡炬椽寮伴姘剨闁哥儐鍨粩?
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public boolean checkRoleKeyUnique(SysRole role)
@@ -176,23 +176,23 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 校验角色是否允许操作
+     * 闁哄稄绻濋悰娆戞喆閹烘洖顥忛柡鍕靛灠閹線宕楁担绛嬪晠闁瑰灝绉崇紞?
      * 
-     * @param role 角色信息
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
      */
     @Override
     public void checkRoleAllowed(SysRole role)
     {
         if (StringUtils.isNotNull(role.getRoleId()) && role.isAdmin())
         {
-            throw new ServiceException("不允许操作超级管理员角色");
+            throw new ServiceException("涓嶅厑璁告搷浣滆秴绾х鐞嗗憳瑙掕壊");
         }
     }
 
     /**
-     * 校验角色是否有数据权限
+     * 闁哄稄绻濋悰娆戞喆閹烘洖顥忛柡鍕靛灠閹線寮垫径瀣闁硅鍠楀鍫ユ⒔?
      * 
-     * @param roleId 角色id
+     * @param roleId 閻熸瑦甯熸竟濂縟
      */
     @Override
     public void checkRoleDataScope(Long roleId)
@@ -204,16 +204,16 @@ public class SysRoleServiceImpl implements ISysRoleService
             List<SysRole> roles = SpringUtils.getAopProxy(this).selectRoleList(role);
             if (StringUtils.isEmpty(roles))
             {
-                throw new ServiceException("没有权限访问角色数据！");
+                throw new ServiceException("没有权限访问角色数据");
             }
         }
     }
 
     /**
-     * 通过角色ID查询角色使用数量
+     * 闂侇偅淇虹换鍐喆閹烘洖顥廔D闁哄被鍎撮妤冩喆閹烘洖顥忓ù锝堟硶閺併倝寮导鏉戞
      * 
-     * @param roleId 角色ID
-     * @return 结果
+     * @param roleId 閻熸瑦甯熸竟濂岲
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public int countUserRoleByRoleId(Long roleId)
@@ -222,42 +222,42 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 新增保存角色信息
+     * 闁哄倹婢橀·鍐╃┍濠靛棛鎽犻悷娆愬笩婢瑰﹥绌遍埄鍐х礀
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     @Transactional
     public int insertRole(SysRole role)
     {
-        // 新增角色信息
+        // 闁哄倹婢橀·鍐喆閹烘洖顥忓ǎ鍥ｅ墲娴?
         roleMapper.insertRole(role);
         return insertRoleMenu(role);
     }
 
     /**
-     * 修改保存角色信息
+     * 濞ｅ浂鍠楅弫鍏肩┍濠靛棛鎽犻悷娆愬笩婢瑰﹥绌遍埄鍐х礀
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     @Transactional
     public int updateRole(SysRole role)
     {
-        // 修改角色信息
+        // 濞ｅ浂鍠楅弫鑲╂喆閹烘洖顥忓ǎ鍥ｅ墲娴?
         roleMapper.updateRole(role);
-        // 删除角色与菜单关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸姘﹁ぐ宥夊础閺囩偛褰犻柤?
         roleMenuMapper.deleteRoleMenuByRoleId(role.getRoleId());
         return insertRoleMenu(role);
     }
 
     /**
-     * 修改角色状态
+     * 濞ｅ浂鍠楅弫鑲╂喆閹烘洖顥忛柣妯垮煐閳?
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public int updateRoleStatus(SysRole role)
@@ -266,32 +266,32 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 修改数据权限信息
+     * 濞ｅ浂鍠楅弫濂稿极閻楀牆绁﹂柡澶婂暣濡剧儤绌遍埄鍐х礀
      * 
-     * @param role 角色信息
-     * @return 结果
+     * @param role 閻熸瑦甯熸竟濠冪┍閳╁啩绱?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     @Transactional
     public int authDataScope(SysRole role)
     {
-        // 修改角色信息
+        // 濞ｅ浂鍠楅弫鑲╂喆閹烘洖顥忓ǎ鍥ｅ墲娴?
         roleMapper.updateRole(role);
-        // 删除角色与部门关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸閰ｉ崕鎾⒒閵娿儱褰犻柤?
         roleDeptMapper.deleteRoleDeptByRoleId(role.getRoleId());
-        // 新增角色和部门信息（数据权限）
+        // 闁哄倹婢橀·鍐喆閹烘洖顥忛柛婊冪焸閸庢挳姊婚妸銈勭箚闁诡収鍨界槐娆撳极閻楀牆绁﹂柡澶婂暣濡炬椽鏁?
         return insertRoleDept(role);
     }
 
     /**
-     * 新增角色菜单信息
+     * 闁哄倹婢橀·鍐喆閹烘洖顥忛柤鎸庣矊瀹曠喐绌遍埄鍐х礀
      * 
-     * @param role 角色对象
+     * @param role 閻熸瑦甯熸竟濠勨偓鐢殿攰閽?
      */
     public int insertRoleMenu(SysRole role)
     {
         int rows = 1;
-        // 新增用户与角色管理
+        // 闁哄倹婢橀·鍐偨閵婏箑鐓曞☉鎾虫唉椤鎳濋懠顒夊悁闁?
         List<SysRoleMenu> list = new ArrayList<SysRoleMenu>();
         for (Long menuId : role.getMenuIds())
         {
@@ -308,14 +308,14 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 新增角色部门信息(数据权限)
+     * 闁哄倹婢橀·鍐喆閹烘洖顥忛梺顔哄姂濡剚绌遍埄鍐х礀(闁轰胶澧楀畵渚€寮堕崘顔筋€?
      *
-     * @param role 角色对象
+     * @param role 閻熸瑦甯熸竟濠勨偓鐢殿攰閽?
      */
     public int insertRoleDept(SysRole role)
     {
         int rows = 1;
-        // 新增角色与部门（数据权限）管理
+        // 闁哄倹婢橀·鍐喆閹烘洖顥忓☉鎾抽叄閸庢挳姊婚…鎺旂闁轰胶澧楀畵渚€寮堕崘顔筋€欓柨娑橆槺椤撴悂鎮?
         List<SysRoleDept> list = new ArrayList<SysRoleDept>();
         for (Long deptId : role.getDeptIds())
         {
@@ -332,27 +332,27 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 通过角色ID删除角色
+     * 闂侇偅淇虹换鍐喆閹烘洖顥廔D闁告帞濞€濞呭海鎲撮幒鏇烆棌
      * 
-     * @param roleId 角色ID
-     * @return 结果
+     * @param roleId 閻熸瑦甯熸竟濂岲
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     @Transactional
     public int deleteRoleById(Long roleId)
     {
-        // 删除角色与菜单关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸姘﹁ぐ宥夊础閺囩偛褰犻柤?
         roleMenuMapper.deleteRoleMenuByRoleId(roleId);
-        // 删除角色与部门关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸閰ｉ崕鎾⒒閵娿儱褰犻柤?
         roleDeptMapper.deleteRoleDeptByRoleId(roleId);
         return roleMapper.deleteRoleById(roleId);
     }
 
     /**
-     * 批量删除角色信息
+     * 闁归潧缍婇崳娲礆閻樼粯鐝熼悷娆愬笩婢瑰﹥绌遍埄鍐х礀
      * 
-     * @param roleIds 需要删除的角色ID
-     * @return 结果
+     * @param roleIds 闂傚洠鍋撻悷鏇氱閸ㄥ綊姊介妶鍥ㄧ暠閻熸瑦甯熸竟濂岲
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     @Transactional
@@ -365,21 +365,21 @@ public class SysRoleServiceImpl implements ISysRoleService
             SysRole role = selectRoleById(roleId);
             if (countUserRoleByRoleId(roleId) > 0)
             {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", role.getRoleName()));
+                throw new ServiceException(String.format("%1$s鐎瑰憡褰冮崹搴ㄦ煀?濞戞挸绉烽崗姗€宕氶悩缁樼彑", role.getRoleName()));
             }
         }
-        // 删除角色与菜单关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸姘﹁ぐ宥夊础閺囩偛褰犻柤?
         roleMenuMapper.deleteRoleMenu(roleIds);
-        // 删除角色与部门关联
+        // 闁告帞濞€濞呭海鎲撮幒鏇烆棌濞戞挸閰ｉ崕鎾⒒閵娿儱褰犻柤?
         roleDeptMapper.deleteRoleDept(roleIds);
         return roleMapper.deleteRoleByIds(roleIds);
     }
 
     /**
-     * 取消授权用户角色
+     * 闁告瑦鐗楃粔鐑藉箳閸喐缍€闁活潿鍔嶉崺娑氭喆閹烘洖顥?
      * 
-     * @param userRole 用户和角色关联信息
-     * @return 结果
+     * @param userRole 闁活潿鍔嶉崺娑㈠椽瀹€鍐炬健闁艰褰冮崣褔鎳曢弬鍙ョ箚闁?
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public int deleteAuthUser(SysUserRole userRole)
@@ -388,11 +388,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 批量取消授权用户角色
+     * 闁归潧缍婇崳娲矗閺嶃劎啸闁瑰搫鐗婂鍫ユ偨閵婏箑鐓曢悷娆愬笩婢?
      * 
-     * @param roleId 角色ID
-     * @param userIds 需要取消授权的用户数据ID
-     * @return 结果
+     * @param roleId 閻熸瑦甯熸竟濂岲
+     * @param userIds 闂傚洠鍋撻悷鏇氱瑜板洤鈽夐崼鐔锋埧闁哄鍟板▓鎴︽偨閵婏箑鐓曢柡浣哄瀹撲浮D
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public int deleteAuthUsers(Long roleId, Long[] userIds)
@@ -401,16 +401,16 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
-     * 批量选择授权用户角色
+     * 闁归潧缍婇崳娲焻婢跺顏ラ柟鍝勭墛濞煎牓鎮介妸锕€鐓曢悷娆愬笩婢?
      * 
-     * @param roleId 角色ID
-     * @param userIds 需要授权的用户数据ID
-     * @return 结果
+     * @param roleId 閻熸瑦甯熸竟濂岲
+     * @param userIds 闂傚洠鍋撻悷鏇氱劍瀹稿潡寮堕崘顏呯暠闁活潿鍔嶉崺娑㈠极閻楀牆绁D
+     * @return 缂備焦鎸婚悘?
      */
     @Override
     public int insertAuthUsers(Long roleId, Long[] userIds)
     {
-        // 新增用户与角色管理
+        // 闁哄倹婢橀·鍐偨閵婏箑鐓曞☉鎾虫唉椤鎳濋懠顒夊悁闁?
         List<SysUserRole> list = new ArrayList<SysUserRole>();
         for (Long userId : userIds)
         {
@@ -422,4 +422,5 @@ public class SysRoleServiceImpl implements ISysRoleService
         return userRoleMapper.batchUserRole(list);
     }
 }
+
 

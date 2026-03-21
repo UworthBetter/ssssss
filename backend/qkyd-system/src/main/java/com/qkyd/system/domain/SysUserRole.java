@@ -4,16 +4,16 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 用户和角色关联 sys_user_role
+ * 鐢ㄦ埛鍜岃鑹插叧鑱?sys_user_role
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysUserRole
 {
-    /** 用户ID */
+    /** 鐢ㄦ埛ID */
     private Long userId;
     
-    /** 角色ID */
+    /** 瑙掕壊ID */
     private Long roleId;
 
     public Long getUserId()
@@ -44,4 +44,5 @@ public class SysUserRole
             .toString();
     }
 }
+
 

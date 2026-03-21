@@ -4,46 +4,47 @@ import com.qkyd.common.core.domain.model.LoginUser;
 import com.qkyd.system.domain.SysUserOnline;
 
 /**
- * 在线用户 服务层
+ * 鍦ㄧ嚎鐢ㄦ埛 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysUserOnlineService
 {
     /**
-     * 通过登录地址查询信息
+     * 閫氳繃鐧诲綍鍦板潃鏌ヨ淇℃伅
      * 
-     * @param ipaddr 登录地址
-     * @param user 用户信息
-     * @return 在线用户信息
+     * @param ipaddr 鐧诲綍鍦板潃
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鍦ㄧ嚎鐢ㄦ埛淇℃伅
      */
     public SysUserOnline selectOnlineByIpaddr(String ipaddr, LoginUser user);
 
     /**
-     * 通过用户名称查询信息
+     * 閫氳繃鐢ㄦ埛鍚嶇О鏌ヨ淇℃伅
      * 
-     * @param userName 用户名称
-     * @param user 用户信息
-     * @return 在线用户信息
+     * @param userName 鐢ㄦ埛鍚嶇О
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鍦ㄧ嚎鐢ㄦ埛淇℃伅
      */
     public SysUserOnline selectOnlineByUserName(String userName, LoginUser user);
 
     /**
-     * 通过登录地址/用户名称查询信息
+     * 閫氳繃鐧诲綍鍦板潃/鐢ㄦ埛鍚嶇О鏌ヨ淇℃伅
      * 
-     * @param ipaddr 登录地址
-     * @param userName 用户名称
-     * @param user 用户信息
-     * @return 在线用户信息
+     * @param ipaddr 鐧诲綍鍦板潃
+     * @param userName 鐢ㄦ埛鍚嶇О
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鍦ㄧ嚎鐢ㄦ埛淇℃伅
      */
     public SysUserOnline selectOnlineByInfo(String ipaddr, String userName, LoginUser user);
 
     /**
-     * 设置在线用户信息
+     * 璁剧疆鍦ㄧ嚎鐢ㄦ埛淇℃伅
      * 
-     * @param user 用户信息
-     * @return 在线用户
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鍦ㄧ嚎鐢ㄦ埛
      */
     public SysUserOnline loginUserToUserOnline(LoginUser user);
 }
+
 

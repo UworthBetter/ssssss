@@ -3,9 +3,9 @@ package com.qkyd.common.event;
 import java.util.Map;
 
 /**
- * 异常检测WebSocket推送事件
+ * 寮傚父妫€娴媁ebSocket鎺ㄩ€佷簨浠?
  * 
- * 当AI模块检测到健康数据异常时，发布此事件
+ * 褰揂I妯″潡妫€娴嬪埌鍋ュ悍鏁版嵁寮傚父鏃讹紝鍙戝竷姝や簨浠?
  * 
  * @author qkyd
  * @date 2026-02-02

@@ -3,9 +3,9 @@ package com.qkyd.common.exception.file;
 import java.util.Arrays;
 
 /**
- * 文件上传 误异常类
+ * 鏂囦欢涓婁紶 璇紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class InvalidExtensionException extends FileUploadException
 {
@@ -78,4 +78,5 @@ public class InvalidExtensionException extends FileUploadException
         }
     }
 }
+
 

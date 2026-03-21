@@ -13,9 +13,9 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.common.utils.html.EscapeUtil;
 
 /**
- * XSS过滤处理
+ * XSS杩囨护澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
 {
@@ -37,7 +37,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
             String[] escapesValues = new String[length];
             for (int i = 0; i < length; i++)
             {
-                // 防xss攻击和过滤前后空格
+                // 闃瞲ss鏀诲嚮鍜岃繃婊ゅ墠鍚庣┖鏍?
                 escapesValues[i] = EscapeUtil.clean(values[i]).trim();
             }
             return escapesValues;
@@ -48,20 +48,20 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
     @Override
     public ServletInputStream getInputStream() throws IOException
     {
-        // 非json类型，直接返回
+        // 闈瀓son绫诲瀷锛岀洿鎺ヨ繑鍥?
         if (!isJsonRequest())
         {
             return super.getInputStream();
         }
 
-        // 为空，直接返回
+        // 涓虹┖锛岀洿鎺ヨ繑鍥?
         String json = IOUtils.toString(super.getInputStream(), "utf-8");
         if (StringUtils.isEmpty(json))
         {
             return super.getInputStream();
         }
 
-        // xss过滤
+        // xss杩囨护
         json = EscapeUtil.clean(json).trim();
         byte[] jsonBytes = json.getBytes("utf-8");
         final ByteArrayInputStream bis = new ByteArrayInputStream(jsonBytes);
@@ -99,7 +99,7 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
     }
 
     /**
-     * 是否是Json请求
+     * 鏄惁鏄疛son璇锋眰
      * 
      * @param request
      */
@@ -109,3 +109,4 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
         return StringUtils.startsWithIgnoreCase(header, MediaType.APPLICATION_JSON_VALUE);
     }
 }
+

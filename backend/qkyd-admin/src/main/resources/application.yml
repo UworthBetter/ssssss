@@ -1,66 +1,66 @@
-# 项目相关配置
-ruoyi:
-  # 名称
-  name: RuoYi
-  # 版本
+﻿# 椤圭洰鐩稿叧閰嶇疆
+qkyd:
+  # 鍚嶇О
+  name: 耆康云盾健康监测平台
+  # 鐗堟湰
   version: 3.8.7
-  # 版权年份
+  # 鐗堟潈骞翠唤
   copyrightYear: 2023
-  # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  profile: D:/ruoyi/uploadPath
-  # 获取ip地址开关
+  # 鏂囦欢璺緞 绀轰緥锛?Windows閰嶇疆D:/qkyd/uploadPath锛孡inux閰嶇疆 /home/qkyd/uploadPath锛?
+  profile: D:/qkyd/uploadPath
+  # 鑾峰彇ip鍦板潃寮€鍏?
   addressEnabled: false
-  # 验证码类型 math 数字计算 char 字符验证
+  # 楠岃瘉鐮佺被鍨?math 鏁板瓧璁＄畻 char 瀛楃楠岃瘉
   captchaType: math
 
-# 开发环境配置
+# 寮€鍙戠幆澧冮厤缃?
 server:
-  # 服务器的HTTP端口，默认为8080
+  # 鏈嶅姟鍣ㄧ殑HTTP绔彛锛岄粯璁や负8080
   port: 8098
   servlet:
-    # 应用的访问路径
+    # 搴旂敤鐨勮闂矾寰?
     context-path: /
   tomcat:
-    # tomcat的URI编码
+    # tomcat鐨刄RI缂栫爜
     uri-encoding: UTF-8
-    # 连接数满后的排队数，默认为100
+    # 杩炴帴鏁版弧鍚庣殑鎺掗槦鏁帮紝榛樿涓?00
     accept-count: 1000
     threads:
-      # tomcat最大线程数，默认为200
+      # tomcat鏈€澶х嚎绋嬫暟锛岄粯璁や负200
       max: 800
-      # Tomcat启动初始化的线程数，默认值10
+      # Tomcat鍚姩鍒濆鍖栫殑绾跨▼鏁帮紝榛樿鍊?0
       min-spare: 100
 
-# 日志配置
+# 鏃ュ織閰嶇疆
 logging:
   level:
     com.qkyd: debug
     org.springframework: warn
 
-# 用户配置
+# 鐢ㄦ埛閰嶇疆
 user:
   password:
-    # 密码最大错误次数
+    # 瀵嗙爜鏈€澶ч敊璇鏁?
     maxRetryCount: 5
-    # 密码锁定时间（默认10分钟）
+    # 瀵嗙爜閿佸畾鏃堕棿锛堥粯璁?0鍒嗛挓锛?
     lockTime: 10
 
-# Spring配置
+# Spring閰嶇疆
 spring:
-  # 资源信息
+  # 璧勬簮淇℃伅
   messages:
-    # 国际化资源文件路径
+    # 鍥介檯鍖栬祫婧愭枃浠惰矾寰?
     basename: i18n/messages
   profiles:
     active: druid
-  # 文件上传
+  # 鏂囦欢涓婁紶
   servlet:
     multipart:
-      # 单个文件大小
+      # 鍗曚釜鏂囦欢澶у皬
       max-file-size: 10MB
-      # 设置总上传的文件大小
+      # 璁剧疆鎬讳笂浼犵殑鏂囦欢澶у皬
       max-request-size: 20MB
-  # 服务模块
+  # 鏈嶅姟妯″潡
   input:
     file:
   mvc:
@@ -68,71 +68,73 @@ spring:
       matching-strategy: ant_path_matcher
   devtools:
     restart:
-      # 热部署开关
+      # 鐑儴缃插紑鍏?
       enabled: true
-  # Spring AI配置
+  # Spring AI閰嶇疆
   ai:
     openai:
-      # API Key (请替换为实际的API Key，支持OpenAI、Azure OpenAI或兼容的API)
+      # API Key (璇锋浛鎹负瀹為檯鐨凙PI Key锛屾敮鎸丱penAI銆丄zure OpenAI鎴栧吋瀹圭殑API)
       api-key: ${AI_API_KEY:your-api-key-here}
-      # 基础URL，可以修改为国内API服务商（如通义千问、智谱AI等）
+      # 鍩虹URL锛屽彲浠ヤ慨鏀逛负鍥藉唴API鏈嶅姟鍟嗭紙濡傞€氫箟鍗冮棶銆佹櫤璋盇I绛夛級
       base-url: ${AI_BASE_URL:https://api.openai.com}
       chat:
         options:
-          # 模型名称
+          # 妯″瀷鍚嶇О
           model: ${AI_MODEL:gpt-3.5-turbo}
-          # 温度参数 (0-2)
+          # 娓╁害鍙傛暟 (0-2)
           temperature: ${AI_TEMPERATURE:0.7}
 
-# token配置
+# token閰嶇疆
 token:
-  # 令牌自定义标识
+  # 浠ょ墝鑷畾涔夋爣璇?
   header: Authorization
-  # 令牌密钥
+  # 浠ょ墝瀵嗛挜
   secret: abcdefghijklmnopqrstuvwxyz1234567890ABCDEF
-  # 令牌有效期（默认30分钟）
+  # 浠ょ墝鏈夋晥鏈燂紙榛樿30鍒嗛挓锛?
   expireTime: 30
 
-# MyBatis配置
+# MyBatis閰嶇疆
 mybatis:
-  # 搜索指定包别名
+  # 鎼滅储鎸囧畾鍖呭埆鍚?
   typeAliasesPackage: com.qkyd.**.domain
-  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  # 閰嶇疆mapper鐨勬壂鎻忥紝鎵惧埌鎵€鏈夌殑mapper.xml鏄犲皠鏂囦欢
   mapperLocations: classpath*:mapper/**/*Mapper.xml
-  # 加载全局的配置文件
+  # 鍔犺浇鍏ㄥ眬鐨勯厤缃枃浠?
   configLocation: classpath:mybatis/mybatis-config.xml
 
-# PageHelper分页插件
+# PageHelper鍒嗛〉鎻掍欢
 pagehelper:
   helperDialect: mysql
   supportMethodsArguments: true
   params: count=countSql
 
-# Swagger配置
+# Swagger閰嶇疆
 swagger:
-  # 是否开启swagger
+  # 鏄惁寮€鍚痵wagger
   enabled: true
-  # 请求前缀
+  # 璇锋眰鍓嶇紑
   pathMapping: /dev-api
 
-# 防止XSS攻击
+# 闃叉XSS鏀诲嚮
 xss:
-  # 过滤开关
+  # 杩囨护寮€鍏?
   enabled: true
-  # 排除链接（多个用逗号分隔）
+  # 鎺掗櫎閾炬帴锛堝涓敤閫楀彿鍒嗛殧锛?
   excludes: /system/notice
-  # 匹配链接
+  # 鍖归厤閾炬帴
   urlPatterns: /system/*,/monitor/*,/tool/*
 
-# AI 算法服务配置
+# AI 绠楁硶鏈嶅姟閰嶇疆
 ueit:
   ai:
-    # Python算法服务地址
+    # Python绠楁硶鏈嶅姟鍦板潃
     service-url: ${AI_SERVICE_URL:http://localhost:8011}
-    # 连接超时时间 (毫秒)
+    # 杩炴帴瓒呮椂鏃堕棿 (姣)
     connect-timeout: 5000
-    # 读取超时时间 (毫秒)
+    # 璇诲彇瓒呮椂鏃堕棿 (姣)
     read-timeout: 30000
-    # 是否启用异步处理
+    # 鏄惁鍚敤寮傛澶勭悊
     async-enabled: true
+
+
 

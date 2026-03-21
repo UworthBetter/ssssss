@@ -1,95 +1,96 @@
 package com.qkyd.common.constant;
 
 /**
- * 返回状态码
+ * 杩斿洖鐘舵€佺爜
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class HttpStatus
 {
     /**
-     * 操作成功
+     * 鎿嶄綔鎴愬姛
      */
     public static final int SUCCESS = 200;
 
     /**
-     * 对象创建成功
+     * 瀵硅薄鍒涘缓鎴愬姛
      */
     public static final int CREATED = 201;
 
     /**
-     * 请求已经被接受
+     * 璇锋眰宸茬粡琚帴鍙?
      */
     public static final int ACCEPTED = 202;
 
     /**
-     * 操作已经执行成功，但是没有返回数据
+     * 鎿嶄綔宸茬粡鎵ц鎴愬姛锛屼絾鏄病鏈夎繑鍥炴暟鎹?
      */
     public static final int NO_CONTENT = 204;
 
     /**
-     * 资源已被移除
+     * 璧勬簮宸茶绉婚櫎
      */
     public static final int MOVED_PERM = 301;
 
     /**
-     * 重定向
+     * 閲嶅畾鍚?
      */
     public static final int SEE_OTHER = 303;
 
     /**
-     * 资源没有被修改
+     * 璧勬簮娌℃湁琚慨鏀?
      */
     public static final int NOT_MODIFIED = 304;
 
     /**
-     * 参数列表错误（缺少，格式不匹配）
+     * 鍙傛暟鍒楄〃閿欒锛堢己灏戯紝鏍煎紡涓嶅尮閰嶏級
      */
     public static final int BAD_REQUEST = 400;
 
     /**
-     * 未授权
+     * 鏈巿鏉?
      */
     public static final int UNAUTHORIZED = 401;
 
     /**
-     * 访问受限，授权过期
+     * 璁块棶鍙楅檺锛屾巿鏉冭繃鏈?
      */
     public static final int FORBIDDEN = 403;
 
     /**
-     * 资源，服务未找到
+     * 璧勬簮锛屾湇鍔℃湭鎵惧埌
      */
     public static final int NOT_FOUND = 404;
 
     /**
-     * 不允许的http方法
+     * 涓嶅厑璁哥殑http鏂规硶
      */
     public static final int BAD_METHOD = 405;
 
     /**
-     * 资源冲突，或者资源被锁
+     * 璧勬簮鍐茬獊锛屾垨鑰呰祫婧愯閿?
      */
     public static final int CONFLICT = 409;
 
     /**
-     * 不支持的数据，媒体类型
+     * 涓嶆敮鎸佺殑鏁版嵁锛屽獟浣撶被鍨?
      */
     public static final int UNSUPPORTED_TYPE = 415;
 
     /**
-     * 系统内部错误
+     * 绯荤粺鍐呴儴閿欒
      */
     public static final int ERROR = 500;
 
     /**
-     * 接口未实现
+     * 鎺ュ彛鏈疄鐜?
      */
     public static final int NOT_IMPLEMENTED = 501;
 
     /**
-     * 系统警告消息
+     * 绯荤粺璀﹀憡娑堟伅
      */
     public static final int WARN = 601;
 }
+
 

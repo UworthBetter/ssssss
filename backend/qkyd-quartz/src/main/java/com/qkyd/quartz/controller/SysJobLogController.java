@@ -20,9 +20,9 @@ import com.qkyd.quartz.domain.SysJobLog;
 import com.qkyd.quartz.service.ISysJobLogService;
 
 /**
- * 调度日志操作处理
+ * 璋冨害鏃ュ織鎿嶄綔澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/monitor/jobLog")
@@ -32,7 +32,7 @@ public class SysJobLogController extends BaseController
     private ISysJobLogService jobLogService;
 
     /**
-     * 查询定时任务调度日志列表
+     * 鏌ヨ瀹氭椂浠诲姟璋冨害鏃ュ織鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:list')")
     @GetMapping("/list")
@@ -44,20 +44,20 @@ public class SysJobLogController extends BaseController
     }
 
     /**
-     * 导出定时任务调度日志列表
+     * 瀵煎嚭瀹氭椂浠诲姟璋冨害鏃ュ織鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:export')")
-    @Log(title = "任务调度日志", businessType = BusinessType.EXPORT)
+    @Log(title = "浠诲姟璋冨害鏃ュ織", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysJobLog sysJobLog)
     {
         List<SysJobLog> list = jobLogService.selectJobLogList(sysJobLog);
         ExcelUtil<SysJobLog> util = new ExcelUtil<SysJobLog>(SysJobLog.class);
-        util.exportExcel(response, list, "调度日志");
+        util.exportExcel(response, list, "璋冨害鏃ュ織");
     }
     
     /**
-     * 根据调度编号获取详细信息
+     * 鏍规嵁璋冨害缂栧彿鑾峰彇璇︾粏淇℃伅
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:query')")
     @GetMapping(value = "/{jobLogId}")
@@ -68,10 +68,10 @@ public class SysJobLogController extends BaseController
 
 
     /**
-     * 删除定时任务调度日志
+     * 鍒犻櫎瀹氭椂浠诲姟璋冨害鏃ュ織
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:remove')")
-    @Log(title = "定时任务调度日志", businessType = BusinessType.DELETE)
+    @Log(title = "瀹氭椂浠诲姟璋冨害鏃ュ織", businessType = BusinessType.DELETE)
     @DeleteMapping("/{jobLogIds}")
     public AjaxResult remove(@PathVariable Long[] jobLogIds)
     {
@@ -79,10 +79,10 @@ public class SysJobLogController extends BaseController
     }
 
     /**
-     * 清空定时任务调度日志
+     * 娓呯┖瀹氭椂浠诲姟璋冨害鏃ュ織
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:remove')")
-    @Log(title = "调度日志", businessType = BusinessType.CLEAN)
+    @Log(title = "璋冨害鏃ュ織", businessType = BusinessType.CLEAN)
     @DeleteMapping("/clean")
     public AjaxResult clean()
     {
@@ -90,4 +90,5 @@ public class SysJobLogController extends BaseController
         return success();
     }
 }
+
 

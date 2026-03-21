@@ -3,25 +3,25 @@ package com.qkyd.common.core.page;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 分页数据
+ * 鍒嗛〉鏁版嵁
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class PageDomain
 {
-    /** 当前记录起始索引 */
+    /** 褰撳墠璁板綍璧峰绱㈠紩 */
     private Integer pageNum;
 
-    /** 每页显示记录数 */
+    /** 姣忛〉鏄剧ず璁板綍鏁?*/
     private Integer pageSize;
 
-    /** 排序列 */
+    /** 鎺掑簭鍒?*/
     private String orderByColumn;
 
-    /** 排序的方向desc或者asc */
+    /** 鎺掑簭鐨勬柟鍚慸esc鎴栬€卆sc */
     private String isAsc = "asc";
 
-    /** 分页参数合理化 */
+    /** 鍒嗛〉鍙傛暟鍚堢悊鍖?*/
     private Boolean reasonable = true;
 
     public String getOrderBy()
@@ -72,7 +72,7 @@ public class PageDomain
     {
         if (StringUtils.isNotEmpty(isAsc))
         {
-            // 兼容前端排序类型
+            // 鍏煎鍓嶇鎺掑簭绫诲瀷
             if ("ascending".equals(isAsc))
             {
                 isAsc = "asc";
@@ -99,4 +99,5 @@ public class PageDomain
         this.reasonable = reasonable;
     }
 }
+
 

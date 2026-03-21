@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.job;
 
 /**
- * 计划策略异常
+ * 璁″垝绛栫暐寮傚父
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class TaskException extends Exception
 {
@@ -32,3 +32,4 @@ public class TaskException extends Exception
         TASK_EXISTS, NO_TASK_EXISTS, TASK_ALREADY_STARTED, UNKNOWN, CONFIG_ERROR, TASK_NODE_NOT_AVAILABLE
     }
 }
+

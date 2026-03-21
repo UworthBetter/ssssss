@@ -23,9 +23,9 @@ import com.qkyd.system.domain.SysPost;
 import com.qkyd.system.service.ISysPostService;
 
 /**
- * 岗位信息操作处理
+ * 宀椾綅淇℃伅鎿嶄綔澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/post")
@@ -35,7 +35,7 @@ public class SysPostController extends BaseController
     private ISysPostService postService;
 
     /**
-     * 获取岗位列表
+     * 鑾峰彇宀椾綅鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('system:post:list')")
     @GetMapping("/list")
@@ -46,18 +46,18 @@ public class SysPostController extends BaseController
         return getDataTable(list);
     }
     
-    @Log(title = "岗位管理", businessType = BusinessType.EXPORT)
+    @Log(title = "宀椾綅绠＄悊", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:post:export')")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysPost post)
     {
         List<SysPost> list = postService.selectPostList(post);
         ExcelUtil<SysPost> util = new ExcelUtil<SysPost>(SysPost.class);
-        util.exportExcel(response, list, "岗位数据");
+        util.exportExcel(response, list, "宀椾綅鏁版嵁");
     }
 
     /**
-     * 根据岗位编号获取详细信息
+     * 鏍规嵁宀椾綅缂栧彿鑾峰彇璇︾粏淇℃伅
      */
     @PreAuthorize("@ss.hasPermi('system:post:query')")
     @GetMapping(value = "/{postId}")
@@ -67,50 +67,50 @@ public class SysPostController extends BaseController
     }
 
     /**
-     * 新增岗位
+     * 鏂板宀椾綅
      */
     @PreAuthorize("@ss.hasPermi('system:post:add')")
-    @Log(title = "岗位管理", businessType = BusinessType.INSERT)
+    @Log(title = "宀椾綅绠＄悊", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysPost post)
     {
         if (!postService.checkPostNameUnique(post))
         {
-            return error("新增岗位'" + post.getPostName() + "'失败，岗位名称已存在");
+            return error("鏂板宀椾綅'" + post.getPostName() + "'澶辫触锛屽矖浣嶅悕绉板凡瀛樺湪");
         }
         else if (!postService.checkPostCodeUnique(post))
         {
-            return error("新增岗位'" + post.getPostName() + "'失败，岗位编码已存在");
+            return error("鏂板宀椾綅'" + post.getPostName() + "'澶辫触锛屽矖浣嶇紪鐮佸凡瀛樺湪");
         }
         post.setCreateBy(getUsername());
         return toAjax(postService.insertPost(post));
     }
 
     /**
-     * 修改岗位
+     * 淇敼宀椾綅
      */
     @PreAuthorize("@ss.hasPermi('system:post:edit')")
-    @Log(title = "岗位管理", businessType = BusinessType.UPDATE)
+    @Log(title = "宀椾綅绠＄悊", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysPost post)
     {
         if (!postService.checkPostNameUnique(post))
         {
-            return error("修改岗位'" + post.getPostName() + "'失败，岗位名称已存在");
+            return error("淇敼宀椾綅'" + post.getPostName() + "'澶辫触锛屽矖浣嶅悕绉板凡瀛樺湪");
         }
         else if (!postService.checkPostCodeUnique(post))
         {
-            return error("修改岗位'" + post.getPostName() + "'失败，岗位编码已存在");
+            return error("淇敼宀椾綅'" + post.getPostName() + "'澶辫触锛屽矖浣嶇紪鐮佸凡瀛樺湪");
         }
         post.setUpdateBy(getUsername());
         return toAjax(postService.updatePost(post));
     }
 
     /**
-     * 删除岗位
+     * 鍒犻櫎宀椾綅
      */
     @PreAuthorize("@ss.hasPermi('system:post:remove')")
-    @Log(title = "岗位管理", businessType = BusinessType.DELETE)
+    @Log(title = "宀椾綅绠＄悊", businessType = BusinessType.DELETE)
     @DeleteMapping("/{postIds}")
     public AjaxResult remove(@PathVariable Long[] postIds)
     {
@@ -118,7 +118,7 @@ public class SysPostController extends BaseController
     }
 
     /**
-     * 获取岗位选择框列表
+     * 鑾峰彇宀椾綅閫夋嫨妗嗗垪琛?
      */
     @GetMapping("/optionselect")
     public AjaxResult optionselect()
@@ -127,4 +127,5 @@ public class SysPostController extends BaseController
         return success(posts);
     }
 }
+
 

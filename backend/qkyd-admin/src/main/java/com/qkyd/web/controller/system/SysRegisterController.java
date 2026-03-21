@@ -12,9 +12,9 @@ import com.qkyd.framework.web.service.SysRegisterService;
 import com.qkyd.system.service.ISysConfigService;
 
 /**
- * 注册验证
+ * 娉ㄥ唽楠岃瘉
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 public class SysRegisterController extends BaseController
@@ -30,10 +30,11 @@ public class SysRegisterController extends BaseController
     {
         if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
         {
-            return error("当前系统没有开启注册功能！");
+            return error("褰撳墠绯荤粺娌℃湁寮€鍚敞鍐屽姛鑳斤紒");
         }
         String msg = registerService.register(user);
         return StringUtils.isEmpty(msg) ? success() : error(msg);
     }
 }
+
 

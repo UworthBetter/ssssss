@@ -8,21 +8,21 @@ import com.qkyd.common.core.domain.entity.SysDept;
 import com.qkyd.common.core.domain.entity.SysMenu;
 
 /**
- * Treeselect树结构实体类
+ * Treeselect鏍戠粨鏋勫疄浣撶被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class TreeSelect implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    /** 节点ID */
+    /** 鑺傜偣ID */
     private Long id;
 
-    /** 节点名称 */
+    /** 鑺傜偣鍚嶇О */
     private String label;
 
-    /** 子节点 */
+    /** 瀛愯妭鐐?*/
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<TreeSelect> children;
 
@@ -75,4 +75,5 @@ public class TreeSelect implements Serializable
         this.children = children;
     }
 }
+
 

@@ -1,9 +1,9 @@
 package com.qkyd.common.exception;
 
 /**
- * 工具类异常
+ * 宸ュ叿绫诲紓甯?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UtilException extends RuntimeException
 {
@@ -24,4 +24,5 @@ public class UtilException extends RuntimeException
         super(message, throwable);
     }
 }
+
 

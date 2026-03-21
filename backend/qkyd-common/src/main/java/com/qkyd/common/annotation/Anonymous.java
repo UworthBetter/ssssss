@@ -7,9 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 匿名访问不鉴权注解
+ * 鍖垮悕璁块棶涓嶉壌鏉冩敞瑙?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,4 +17,5 @@ import java.lang.annotation.Target;
 public @interface Anonymous
 {
 }
+
 

@@ -3,9 +3,9 @@ package com.qkyd.common.event;
 import java.util.Map;
 
 /**
- * 健康数据更新WebSocket推送事件
+ * 鍋ュ悍鏁版嵁鏇存柊WebSocket鎺ㄩ€佷簨浠?
  * 
- * 当服务对象的健康数据更新时，发布此事件
+ * 褰撴湇鍔″璞＄殑鍋ュ悍鏁版嵁鏇存柊鏃讹紝鍙戝竷姝や簨浠?
  * 
  * @author qkyd
  * @date 2026-02-02

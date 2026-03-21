@@ -5,14 +5,14 @@ import java.io.StringWriter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
- * 错误信息处理类。
+ * 閿欒淇℃伅澶勭悊绫汇€?
  *
- * @author ruoyi
+ * @author qkyd
  */
 public class ExceptionUtil
 {
     /**
-     * 获取exception的详细错误信息。
+     * 鑾峰彇exception鐨勮缁嗛敊璇俊鎭€?
      */
     public static String getExceptionMessage(Throwable e)
     {
@@ -37,4 +37,5 @@ public class ExceptionUtil
         return StringUtils.defaultString(msg);
     }
 }
+
 

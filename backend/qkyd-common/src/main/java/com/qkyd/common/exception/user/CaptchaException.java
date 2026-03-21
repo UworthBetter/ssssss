@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.user;
 
 /**
- * 验证码错误异常类
+ * 楠岃瘉鐮侀敊璇紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class CaptchaException extends UserException
 {
@@ -14,4 +14,5 @@ public class CaptchaException extends UserException
         super("user.jcaptcha.error", null);
     }
 }
+
 

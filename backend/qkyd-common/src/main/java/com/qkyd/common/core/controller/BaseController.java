@@ -22,21 +22,21 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.common.utils.sql.SqlUtil;
 
 /**
- * web层通用数据处理
+ * web灞傞€氱敤鏁版嵁澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class BaseController
 {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * 将前台传递过来的日期格式的字符串，自动转化为Date类型
+     * 灏嗗墠鍙颁紶閫掕繃鏉ョ殑鏃ユ湡鏍煎紡鐨勫瓧绗︿覆锛岃嚜鍔ㄨ浆鍖栦负Date绫诲瀷
      */
     @InitBinder
     public void initBinder(WebDataBinder binder)
     {
-        // Date 类型转换
+        // Date 绫诲瀷杞崲
         binder.registerCustomEditor(Date.class, new PropertyEditorSupport()
         {
             @Override
@@ -48,7 +48,7 @@ public class BaseController
     }
 
     /**
-     * 设置请求分页数据
+     * 璁剧疆璇锋眰鍒嗛〉鏁版嵁
      */
     protected void startPage()
     {
@@ -56,7 +56,7 @@ public class BaseController
     }
 
     /**
-     * 设置请求排序数据
+     * 璁剧疆璇锋眰鎺掑簭鏁版嵁
      */
     protected void startOrderBy()
     {
@@ -69,7 +69,7 @@ public class BaseController
     }
 
     /**
-     * 清理分页的线程变量
+     * 娓呯悊鍒嗛〉鐨勭嚎绋嬪彉閲?
      */
     protected void clearPage()
     {
@@ -77,21 +77,21 @@ public class BaseController
     }
 
     /**
-     * 响应请求分页数据
+     * 鍝嶅簲璇锋眰鍒嗛〉鏁版嵁
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected TableDataInfo getDataTable(List<?> list)
     {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
-        rspData.setMsg("查询成功");
+        rspData.setMsg("鏌ヨ鎴愬姛");
         rspData.setRows(list);
         rspData.setTotal(new PageInfo(list).getTotal());
         return rspData;
     }
 
     /**
-     * 返回成功
+     * 杩斿洖鎴愬姛
      */
     public AjaxResult success()
     {
@@ -99,7 +99,7 @@ public class BaseController
     }
 
     /**
-     * 返回失败消息
+     * 杩斿洖澶辫触娑堟伅
      */
     public AjaxResult error()
     {
@@ -107,7 +107,7 @@ public class BaseController
     }
 
     /**
-     * 返回成功消息
+     * 杩斿洖鎴愬姛娑堟伅
      */
     public AjaxResult success(String message)
     {
@@ -115,7 +115,7 @@ public class BaseController
     }
     
     /**
-     * 返回成功消息
+     * 杩斿洖鎴愬姛娑堟伅
      */
     public AjaxResult success(Object data)
     {
@@ -123,7 +123,7 @@ public class BaseController
     }
 
     /**
-     * 返回失败消息
+     * 杩斿洖澶辫触娑堟伅
      */
     public AjaxResult error(String message)
     {
@@ -131,7 +131,7 @@ public class BaseController
     }
 
     /**
-     * 返回警告消息
+     * 杩斿洖璀﹀憡娑堟伅
      */
     public AjaxResult warn(String message)
     {
@@ -139,10 +139,10 @@ public class BaseController
     }
 
     /**
-     * 响应返回结果
+     * 鍝嶅簲杩斿洖缁撴灉
      * 
-     * @param rows 影响行数
-     * @return 操作结果
+     * @param rows 褰卞搷琛屾暟
+     * @return 鎿嶄綔缁撴灉
      */
     protected AjaxResult toAjax(int rows)
     {
@@ -150,10 +150,10 @@ public class BaseController
     }
 
     /**
-     * 响应返回结果
+     * 鍝嶅簲杩斿洖缁撴灉
      * 
-     * @param result 结果
-     * @return 操作结果
+     * @param result 缁撴灉
+     * @return 鎿嶄綔缁撴灉
      */
     protected AjaxResult toAjax(boolean result)
     {
@@ -161,7 +161,7 @@ public class BaseController
     }
 
     /**
-     * 页面跳转
+     * 椤甸潰璺宠浆
      */
     public String redirect(String url)
     {
@@ -169,7 +169,7 @@ public class BaseController
     }
 
     /**
-     * 获取用户缓存信息
+     * 鑾峰彇鐢ㄦ埛缂撳瓨淇℃伅
      */
     public LoginUser getLoginUser()
     {
@@ -177,7 +177,7 @@ public class BaseController
     }
 
     /**
-     * 获取登录用户id
+     * 鑾峰彇鐧诲綍鐢ㄦ埛id
      */
     public Long getUserId()
     {
@@ -185,7 +185,7 @@ public class BaseController
     }
 
     /**
-     * 获取登录部门id
+     * 鑾峰彇鐧诲綍閮ㄩ棬id
      */
     public Long getDeptId()
     {
@@ -193,11 +193,12 @@ public class BaseController
     }
 
     /**
-     * 获取登录用户名
+     * 鑾峰彇鐧诲綍鐢ㄦ埛鍚?
      */
     public String getUsername()
     {
         return getLoginUser().getUsername();
     }
 }
+
 

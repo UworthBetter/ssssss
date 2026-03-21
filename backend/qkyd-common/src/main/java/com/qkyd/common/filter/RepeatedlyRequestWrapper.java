@@ -13,9 +13,9 @@ import com.qkyd.common.utils.http.HttpHelper;
 import com.qkyd.common.constant.Constants;
 
 /**
- * 构建可重复读取inputStream的request
+ * 鏋勫缓鍙噸澶嶈鍙杋nputStream鐨剅equest
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper
 {
@@ -74,4 +74,5 @@ public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper
         };
     }
 }
+
 

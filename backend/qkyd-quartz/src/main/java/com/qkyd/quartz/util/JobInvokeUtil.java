@@ -9,16 +9,16 @@ import com.qkyd.common.utils.spring.SpringUtils;
 import com.qkyd.quartz.domain.SysJob;
 
 /**
- * 任务执行工具
+ * 浠诲姟鎵ц宸ュ叿
  *
- * @author ruoyi
+ * @author qkyd
  */
 public class JobInvokeUtil
 {
     /**
-     * 执行方法
+     * 鎵ц鏂规硶
      *
-     * @param sysJob 系统任务
+     * @param sysJob 绯荤粺浠诲姟
      */
     public static void invokeMethod(SysJob sysJob) throws Exception
     {
@@ -40,11 +40,11 @@ public class JobInvokeUtil
     }
 
     /**
-     * 调用任务方法
+     * 璋冪敤浠诲姟鏂规硶
      *
-     * @param bean 目标对象
-     * @param methodName 方法名称
-     * @param methodParams 方法参数
+     * @param bean 鐩爣瀵硅薄
+     * @param methodName 鏂规硶鍚嶇О
+     * @param methodParams 鏂规硶鍙傛暟
      */
     private static void invokeMethod(Object bean, String methodName, List<Object[]> methodParams)
             throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
@@ -63,10 +63,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 校验是否为为class包名
+     * 鏍￠獙鏄惁涓轰负class鍖呭悕
      * 
-     * @param invokeTarget 名称
-     * @return true是 false否
+     * @param invokeTarget 鍚嶇О
+     * @return true鏄?false鍚?
      */
     public static boolean isValidClassName(String invokeTarget)
     {
@@ -74,10 +74,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 获取bean名称
+     * 鑾峰彇bean鍚嶇О
      * 
-     * @param invokeTarget 目标字符串
-     * @return bean名称
+     * @param invokeTarget 鐩爣瀛楃涓?
+     * @return bean鍚嶇О
      */
     public static String getBeanName(String invokeTarget)
     {
@@ -86,10 +86,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 获取bean方法
+     * 鑾峰彇bean鏂规硶
      * 
-     * @param invokeTarget 目标字符串
-     * @return method方法
+     * @param invokeTarget 鐩爣瀛楃涓?
+     * @return method鏂规硶
      */
     public static String getMethodName(String invokeTarget)
     {
@@ -98,10 +98,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 获取method方法参数相关列表
+     * 鑾峰彇method鏂规硶鍙傛暟鐩稿叧鍒楄〃
      * 
-     * @param invokeTarget 目标字符串
-     * @return method方法相关参数列表
+     * @param invokeTarget 鐩爣瀛楃涓?
+     * @return method鏂规硶鐩稿叧鍙傛暟鍒楄〃
      */
     public static List<Object[]> getMethodParams(String invokeTarget)
     {
@@ -115,27 +115,27 @@ public class JobInvokeUtil
         for (int i = 0; i < methodParams.length; i++)
         {
             String str = StringUtils.trimToEmpty(methodParams[i]);
-            // String字符串类型，以'或"开头
+            // String瀛楃涓茬被鍨嬶紝浠?鎴?寮€澶?
             if (StringUtils.startsWithAny(str, "'", "\""))
             {
                 classs.add(new Object[] { StringUtils.substring(str, 1, str.length() - 1), String.class });
             }
-            // boolean布尔类型，等于true或者false
+            // boolean甯冨皵绫诲瀷锛岀瓑浜巘rue鎴栬€協alse
             else if ("true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str))
             {
                 classs.add(new Object[] { Boolean.valueOf(str), Boolean.class });
             }
-            // long长整形，以L结尾
+            // long闀挎暣褰紝浠缁撳熬
             else if (StringUtils.endsWith(str, "L"))
             {
                 classs.add(new Object[] { Long.valueOf(StringUtils.substring(str, 0, str.length() - 1)), Long.class });
             }
-            // double浮点类型，以D结尾
+            // double娴偣绫诲瀷锛屼互D缁撳熬
             else if (StringUtils.endsWith(str, "D"))
             {
                 classs.add(new Object[] { Double.valueOf(StringUtils.substring(str, 0, str.length() - 1)), Double.class });
             }
-            // 其他类型归类为整形
+            // 鍏朵粬绫诲瀷褰掔被涓烘暣褰?
             else
             {
                 classs.add(new Object[] { Integer.valueOf(str), Integer.class });
@@ -145,10 +145,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 获取参数类型
+     * 鑾峰彇鍙傛暟绫诲瀷
      * 
-     * @param methodParams 参数相关列表
-     * @return 参数类型列表
+     * @param methodParams 鍙傛暟鐩稿叧鍒楄〃
+     * @return 鍙傛暟绫诲瀷鍒楄〃
      */
     public static Class<?>[] getMethodParamsType(List<Object[]> methodParams)
     {
@@ -163,10 +163,10 @@ public class JobInvokeUtil
     }
 
     /**
-     * 获取参数值
+     * 鑾峰彇鍙傛暟鍊?
      * 
-     * @param methodParams 参数相关列表
-     * @return 参数值列表
+     * @param methodParams 鍙傛暟鐩稿叧鍒楄〃
+     * @return 鍙傛暟鍊煎垪琛?
      */
     public static Object[] getMethodParamsValue(List<Object[]> methodParams)
     {
@@ -180,4 +180,5 @@ public class JobInvokeUtil
         return classs;
     }
 }
+
 

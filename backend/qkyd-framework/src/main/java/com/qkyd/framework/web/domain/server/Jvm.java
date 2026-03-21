@@ -5,34 +5,34 @@ import com.qkyd.common.utils.Arith;
 import com.qkyd.common.utils.DateUtils;
 
 /**
- * JVM相关信息
+ * JVM鐩稿叧淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Jvm
 {
     /**
-     * 当前JVM占用的内存总数(M)
+     * 褰撳墠JVM鍗犵敤鐨勫唴瀛樻€绘暟(M)
      */
     private double total;
 
     /**
-     * JVM最大可用内存总数(M)
+     * JVM鏈€澶у彲鐢ㄥ唴瀛樻€绘暟(M)
      */
     private double max;
 
     /**
-     * JVM空闲内存(M)
+     * JVM绌洪棽鍐呭瓨(M)
      */
     private double free;
 
     /**
-     * JDK版本
+     * JDK鐗堟湰
      */
     private String version;
 
     /**
-     * JDK路径
+     * JDK璺緞
      */
     private String home;
 
@@ -77,7 +77,7 @@ public class Jvm
     }
 
     /**
-     * 获取JDK名称
+     * 鑾峰彇JDK鍚嶇О
      */
     public String getName()
     {
@@ -105,7 +105,7 @@ public class Jvm
     }
 
     /**
-     * JDK启动时间
+     * JDK鍚姩鏃堕棿
      */
     public String getStartTime()
     {
@@ -113,7 +113,7 @@ public class Jvm
     }
 
     /**
-     * JDK运行时间
+     * JDK杩愯鏃堕棿
      */
     public String getRunTime()
     {
@@ -121,11 +121,12 @@ public class Jvm
     }
 
     /**
-     * 运行参数
+     * 杩愯鍙傛暟
      */
     public String getInputArgs()
     {
         return ManagementFactory.getRuntimeMXBean().getInputArguments().toString();
     }
 }
+
 

@@ -12,11 +12,11 @@ server:
       enabled: true
       force: true
 
-ruoyi:
-  name: RuoYi
+qkyd:
+  name: 耆康云盾健康监测平台
   version: 3.8.7
   copyrightYear: 2023
-  profile: ${RUOYI_PROFILE:/app/upload}
+  profile: ${QKYD_PROFILE:/app/upload}
   addressEnabled: false
   captchaType: math
 
@@ -59,7 +59,7 @@ spring:
         enabled: true
         allow:
         url-pattern: /druid/*
-        login-username: ${DRUID_USER:ruoyi}
+        login-username: ${DRUID_USER:qkyd}
         login-password: ${DRUID_PASSWORD:123456}
       filter:
         stat:
@@ -123,3 +123,5 @@ xss:
   enabled: true
   excludes: /system/notice
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+

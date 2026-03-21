@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.user;
 
 /**
- * 用户密码不正确或不符合规范异常类
+ * 鐢ㄦ埛瀵嗙爜涓嶆纭垨涓嶇鍚堣鑼冨紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UserPasswordNotMatchException extends UserException
 {
@@ -14,4 +14,5 @@ public class UserPasswordNotMatchException extends UserException
         super("user.password.not.match", null);
     }
 }
+
 

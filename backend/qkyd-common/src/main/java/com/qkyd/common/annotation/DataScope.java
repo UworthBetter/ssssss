@@ -7,9 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 数据权限过滤注解
+ * 鏁版嵁鏉冮檺杩囨护娉ㄨВ
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,18 +17,19 @@ import java.lang.annotation.Target;
 public @interface DataScope
 {
     /**
-     * 部门表的别名
+     * 閮ㄩ棬琛ㄧ殑鍒悕
      */
     public String deptAlias() default "";
 
     /**
-     * 用户表的别名
+     * 鐢ㄦ埛琛ㄧ殑鍒悕
      */
     public String userAlias() default "";
 
     /**
-     * 权限字符（用于多个角色匹配符合要求的权限）默认根据权限注解@ss获取，多个权限用逗号分隔开来
+     * 鏉冮檺瀛楃锛堢敤浜庡涓鑹插尮閰嶇鍚堣姹傜殑鏉冮檺锛夐粯璁ゆ牴鎹潈闄愭敞瑙ss鑾峰彇锛屽涓潈闄愮敤閫楀彿鍒嗛殧寮€鏉?
      */
     public String permission() default "";
 }
+
 

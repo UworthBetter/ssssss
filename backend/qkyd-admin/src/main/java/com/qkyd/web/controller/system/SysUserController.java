@@ -33,9 +33,9 @@ import com.qkyd.system.service.ISysRoleService;
 import com.qkyd.system.service.ISysUserService;
 
 /**
- * 用户信息
+ * 鐢ㄦ埛淇℃伅
  *
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/user")
@@ -54,7 +54,7 @@ public class SysUserController extends BaseController
     private ISysPostService postService;
 
     /**
-     * 获取用户列表
+     * 鑾峰彇鐢ㄦ埛鍒楄〃
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:list')")
     @GetMapping("/list")
@@ -65,17 +65,17 @@ public class SysUserController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "用户管理", businessType = BusinessType.EXPORT)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.EXPORT)
 //    @PreAuthorize("@ss.hasPermi('system:user:export')")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysUser user)
     {
         List<SysUser> list = userService.selectUserList(user);
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        util.exportExcel(response, list, "用户数据");
+        util.exportExcel(response, list, "鐢ㄦ埛鏁版嵁");
     }
 
-    @Log(title = "用户管理", businessType = BusinessType.IMPORT)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.IMPORT)
 //    @PreAuthorize("@ss.hasPermi('system:user:import')")
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
@@ -91,11 +91,11 @@ public class SysUserController extends BaseController
     public void importTemplate(HttpServletResponse response)
     {
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        util.importTemplateExcel(response, "用户数据");
+        util.importTemplateExcel(response, "鐢ㄦ埛鏁版嵁");
     }
 
     /**
-     * 根据用户编号获取详细信息
+     * 鏍规嵁鐢ㄦ埛缂栧彿鑾峰彇璇︾粏淇℃伅
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:query')")
     @GetMapping(value = { "/", "/{userId}" })
@@ -117,24 +117,24 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 新增用户
+     * 鏂板鐢ㄦ埛
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:add')")
-    @Log(title = "用户管理", businessType = BusinessType.INSERT)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysUser user)
     {
         if (!userService.checkUserNameUnique(user))
         {
-            return error("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
+            return error("鏂板鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛岀櫥褰曡处鍙峰凡瀛樺湪");
         }
         else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
         {
-            return error("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
+            return error("鏂板鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛屾墜鏈哄彿鐮佸凡瀛樺湪");
         }
         else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user))
         {
-            return error("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            return error("鏂板鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛岄偖绠辫处鍙峰凡瀛樺湪");
         }
         user.setCreateBy(getUsername());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
@@ -142,10 +142,10 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 修改用户
+     * 淇敼鐢ㄦ埛
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    @Log(title = "用户管理", businessType = BusinessType.UPDATE)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysUser user)
     {
@@ -153,40 +153,40 @@ public class SysUserController extends BaseController
         userService.checkUserDataScope(user.getUserId());
         if (!userService.checkUserNameUnique(user))
         {
-            return error("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+            return error("淇敼鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛岀櫥褰曡处鍙峰凡瀛樺湪");
         }
         else if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
         {
-            return error("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+            return error("淇敼鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛屾墜鏈哄彿鐮佸凡瀛樺湪");
         }
         else if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user))
         {
-            return error("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            return error("淇敼鐢ㄦ埛'" + user.getUserName() + "'澶辫触锛岄偖绠辫处鍙峰凡瀛樺湪");
         }
         user.setUpdateBy(getUsername());
         return toAjax(userService.updateUser(user));
     }
 
     /**
-     * 删除用户
+     * 鍒犻櫎鐢ㄦ埛
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:remove')")
-    @Log(title = "用户管理", businessType = BusinessType.DELETE)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
     public AjaxResult remove(@PathVariable Long[] userIds)
     {
         if (ArrayUtils.contains(userIds, getUserId()))
         {
-            return error("当前用户不能删除");
+            return error("褰撳墠鐢ㄦ埛涓嶈兘鍒犻櫎");
         }
         return toAjax(userService.deleteUserByIds(userIds));
     }
 
     /**
-     * 重置密码
+     * 閲嶇疆瀵嗙爜
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:resetPwd')")
-    @Log(title = "用户管理", businessType = BusinessType.UPDATE)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.UPDATE)
     @PutMapping("/resetPwd")
     public AjaxResult resetPwd(@RequestBody SysUser user)
     {
@@ -198,10 +198,10 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 状态修改
+     * 鐘舵€佷慨鏀?
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    @Log(title = "用户管理", businessType = BusinessType.UPDATE)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody SysUser user)
     {
@@ -212,7 +212,7 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 根据用户编号获取授权角色
+     * 鏍规嵁鐢ㄦ埛缂栧彿鑾峰彇鎺堟潈瑙掕壊
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:query')")
     @GetMapping("/authRole/{userId}")
@@ -227,10 +227,10 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 用户授权角色
+     * 鐢ㄦ埛鎺堟潈瑙掕壊
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    @Log(title = "用户管理", businessType = BusinessType.GRANT)
+    @Log(title = "鐢ㄦ埛绠＄悊", businessType = BusinessType.GRANT)
     @PutMapping("/authRole")
     public AjaxResult insertAuthRole(Long userId, Long[] roleIds)
     {
@@ -240,7 +240,7 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 获取部门树列表
+     * 鑾峰彇閮ㄩ棬鏍戝垪琛?
      */
 //    @PreAuthorize("@ss.hasPermi('system:user:list')")
     @GetMapping("/deptTree")
@@ -249,4 +249,5 @@ public class SysUserController extends BaseController
         return success(deptService.selectDeptTreeList(dept));
     }
 }
+
 

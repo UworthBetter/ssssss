@@ -11,18 +11,18 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.framework.security.context.PermissionContextHolder;
 
 /**
- * RuoYi首创 自定义权限实现，ss取自SpringSecurity首字母
+ * RuoYi棣栧垱 鑷畾涔夋潈闄愬疄鐜帮紝ss鍙栬嚜SpringSecurity棣栧瓧姣?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service("ss")
 public class PermissionService
 {
     /**
-     * 验证用户是否具备某权限
+     * 楠岃瘉鐢ㄦ埛鏄惁鍏峰鏌愭潈闄?
      * 
-     * @param permission 权限字符串
-     * @return 用户是否具备某权限
+     * @param permission 鏉冮檺瀛楃涓?
+     * @return 鐢ㄦ埛鏄惁鍏峰鏌愭潈闄?
      */
     public boolean hasPermi(String permission)
     {
@@ -40,10 +40,10 @@ public class PermissionService
     }
 
     /**
-     * 验证用户是否不具备某权限，与 hasPermi逻辑相反
+     * 楠岃瘉鐢ㄦ埛鏄惁涓嶅叿澶囨煇鏉冮檺锛屼笌 hasPermi閫昏緫鐩稿弽
      *
-     * @param permission 权限字符串
-     * @return 用户是否不具备某权限
+     * @param permission 鏉冮檺瀛楃涓?
+     * @return 鐢ㄦ埛鏄惁涓嶅叿澶囨煇鏉冮檺
      */
     public boolean lacksPermi(String permission)
     {
@@ -51,10 +51,10 @@ public class PermissionService
     }
 
     /**
-     * 验证用户是否具有以下任意一个权限
+     * 楠岃瘉鐢ㄦ埛鏄惁鍏锋湁浠ヤ笅浠绘剰涓€涓潈闄?
      *
-     * @param permissions 以 PERMISSION_DELIMETER 为分隔符的权限列表
-     * @return 用户是否具有以下任意一个权限
+     * @param permissions 浠?PERMISSION_DELIMETER 涓哄垎闅旂鐨勬潈闄愬垪琛?
+     * @return 鐢ㄦ埛鏄惁鍏锋湁浠ヤ笅浠绘剰涓€涓潈闄?
      */
     public boolean hasAnyPermi(String permissions)
     {
@@ -80,10 +80,10 @@ public class PermissionService
     }
 
     /**
-     * 判断用户是否拥有某个角色
+     * 鍒ゆ柇鐢ㄦ埛鏄惁鎷ユ湁鏌愪釜瑙掕壊
      * 
-     * @param role 角色字符串
-     * @return 用户是否具备某角色
+     * @param role 瑙掕壊瀛楃涓?
+     * @return 鐢ㄦ埛鏄惁鍏峰鏌愯鑹?
      */
     public boolean hasRole(String role)
     {
@@ -108,10 +108,10 @@ public class PermissionService
     }
 
     /**
-     * 验证用户是否不具备某角色，与 isRole逻辑相反。
+     * 楠岃瘉鐢ㄦ埛鏄惁涓嶅叿澶囨煇瑙掕壊锛屼笌 isRole閫昏緫鐩稿弽銆?
      *
-     * @param role 角色名称
-     * @return 用户是否不具备某角色
+     * @param role 瑙掕壊鍚嶇О
+     * @return 鐢ㄦ埛鏄惁涓嶅叿澶囨煇瑙掕壊
      */
     public boolean lacksRole(String role)
     {
@@ -119,10 +119,10 @@ public class PermissionService
     }
 
     /**
-     * 验证用户是否具有以下任意一个角色
+     * 楠岃瘉鐢ㄦ埛鏄惁鍏锋湁浠ヤ笅浠绘剰涓€涓鑹?
      *
-     * @param roles 以 ROLE_NAMES_DELIMETER 为分隔符的角色列表
-     * @return 用户是否具有以下任意一个角色
+     * @param roles 浠?ROLE_NAMES_DELIMETER 涓哄垎闅旂鐨勮鑹插垪琛?
+     * @return 鐢ㄦ埛鏄惁鍏锋湁浠ヤ笅浠绘剰涓€涓鑹?
      */
     public boolean hasAnyRoles(String roles)
     {
@@ -146,15 +146,16 @@ public class PermissionService
     }
 
     /**
-     * 判断是否包含权限
+     * 鍒ゆ柇鏄惁鍖呭惈鏉冮檺
      * 
-     * @param permissions 权限列表
-     * @param permission 权限字符串
-     * @return 用户是否具备某权限
+     * @param permissions 鏉冮檺鍒楄〃
+     * @param permission 鏉冮檺瀛楃涓?
+     * @return 鐢ㄦ埛鏄惁鍏峰鏌愭潈闄?
      */
     private boolean hasPermissions(Set<String> permissions, String permission)
     {
         return permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission));
     }
 }
+
 

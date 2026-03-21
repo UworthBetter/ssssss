@@ -5,59 +5,60 @@ import org.apache.ibatis.annotations.Param;
 import com.qkyd.system.domain.SysUserRole;
 
 /**
- * 用户与角色关联表 数据层
+ * 鐢ㄦ埛涓庤鑹插叧鑱旇〃 鏁版嵁灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysUserRoleMapper
 {
     /**
-     * 通过用户ID删除用户和角色关联
+     * 閫氳繃鐢ㄦ埛ID鍒犻櫎鐢ㄦ埛鍜岃鑹插叧鑱?
      * 
-     * @param userId 用户ID
-     * @return 结果
+     * @param userId 鐢ㄦ埛ID
+     * @return 缁撴灉
      */
     public int deleteUserRoleByUserId(Long userId);
 
     /**
-     * 批量删除用户和角色关联
+     * 鎵归噺鍒犻櫎鐢ㄦ埛鍜岃鑹插叧鑱?
      * 
-     * @param ids 需要删除的数据ID
-     * @return 结果
+     * @param ids 闇€瑕佸垹闄ょ殑鏁版嵁ID
+     * @return 缁撴灉
      */
     public int deleteUserRole(Long[] ids);
 
     /**
-     * 通过角色ID查询角色使用数量
+     * 閫氳繃瑙掕壊ID鏌ヨ瑙掕壊浣跨敤鏁伴噺
      * 
-     * @param roleId 角色ID
-     * @return 结果
+     * @param roleId 瑙掕壊ID
+     * @return 缁撴灉
      */
     public int countUserRoleByRoleId(Long roleId);
 
     /**
-     * 批量新增用户角色信息
+     * 鎵归噺鏂板鐢ㄦ埛瑙掕壊淇℃伅
      * 
-     * @param userRoleList 用户角色列表
-     * @return 结果
+     * @param userRoleList 鐢ㄦ埛瑙掕壊鍒楄〃
+     * @return 缁撴灉
      */
     public int batchUserRole(List<SysUserRole> userRoleList);
 
     /**
-     * 删除用户和角色关联信息
+     * 鍒犻櫎鐢ㄦ埛鍜岃鑹插叧鑱斾俊鎭?
      * 
-     * @param userRole 用户和角色关联信息
-     * @return 结果
+     * @param userRole 鐢ㄦ埛鍜岃鑹插叧鑱斾俊鎭?
+     * @return 缁撴灉
      */
     public int deleteUserRoleInfo(SysUserRole userRole);
 
     /**
-     * 批量取消授权用户角色
+     * 鎵归噺鍙栨秷鎺堟潈鐢ㄦ埛瑙掕壊
      * 
-     * @param roleId 角色ID
-     * @param userIds 需要删除的用户数据ID
-     * @return 结果
+     * @param roleId 瑙掕壊ID
+     * @param userIds 闇€瑕佸垹闄ょ殑鐢ㄦ埛鏁版嵁ID
+     * @return 缁撴灉
      */
     public int deleteUserRoleInfos(@Param("roleId") Long roleId, @Param("userIds") Long[] userIds);
 }
+
 

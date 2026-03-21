@@ -1,44 +1,44 @@
 package com.qkyd.framework.web.domain.server;
 
 /**
- * 系统文件相关信息
+ * 绯荤粺鏂囦欢鐩稿叧淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysFile
 {
     /**
-     * 盘符路径
+     * 鐩樼璺緞
      */
     private String dirName;
 
     /**
-     * 盘符类型
+     * 鐩樼绫诲瀷
      */
     private String sysTypeName;
 
     /**
-     * 文件类型
+     * 鏂囦欢绫诲瀷
      */
     private String typeName;
 
     /**
-     * 总大小
+     * 鎬诲ぇ灏?
      */
     private String total;
 
     /**
-     * 剩余大小
+     * 鍓╀綑澶у皬
      */
     private String free;
 
     /**
-     * 已经使用量
+     * 宸茬粡浣跨敤閲?
      */
     private String used;
 
     /**
-     * 资源的使用率
+     * 璧勬簮鐨勪娇鐢ㄧ巼
      */
     private double usage;
 
@@ -112,4 +112,5 @@ public class SysFile
         this.usage = usage;
     }
 }
+
 

@@ -12,9 +12,9 @@ import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.common.utils.ServletUtils;
 
 /**
- * 防止重复提交拦截器
+ * 闃叉閲嶅鎻愪氦鎷︽埅鍣?
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public abstract class RepeatSubmitInterceptor implements HandlerInterceptor
@@ -45,13 +45,14 @@ public abstract class RepeatSubmitInterceptor implements HandlerInterceptor
     }
 
     /**
-     * 验证是否重复提交由子类实现具体的防重复提交的规则
+     * 楠岃瘉鏄惁閲嶅鎻愪氦鐢卞瓙绫诲疄鐜板叿浣撶殑闃查噸澶嶆彁浜ょ殑瑙勫垯
      *
-     * @param request 请求信息
-     * @param annotation 防重复注解参数
-     * @return 结果
+     * @param request 璇锋眰淇℃伅
+     * @param annotation 闃查噸澶嶆敞瑙ｅ弬鏁?
+     * @return 缁撴灉
      * @throws Exception
      */
     public abstract boolean isRepeatSubmit(HttpServletRequest request, RepeatSubmit annotation);
 }
+
 

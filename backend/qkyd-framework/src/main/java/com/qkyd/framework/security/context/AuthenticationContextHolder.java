@@ -3,9 +3,9 @@ package com.qkyd.framework.security.context;
 import org.springframework.security.core.Authentication;
 
 /**
- * 身份验证信息
+ * 韬唤楠岃瘉淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class AuthenticationContextHolder
 {
@@ -26,4 +26,5 @@ public class AuthenticationContextHolder
         contextHolder.remove();
     }
 }
+
 

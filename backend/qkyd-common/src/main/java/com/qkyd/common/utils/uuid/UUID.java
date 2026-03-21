@@ -8,16 +8,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.qkyd.common.exception.UtilException;
 
 /**
- * 提供通用唯一识别码（universally unique identifier）（UUID）实现
+ * 鎻愪緵閫氱敤鍞竴璇嗗埆鐮侊紙universally unique identifier锛夛紙UUID锛夊疄鐜?
  *
- * @author ruoyi
+ * @author qkyd
  */
 public final class UUID implements java.io.Serializable, Comparable<UUID>
 {
     private static final long serialVersionUID = -1185015143654744140L;
 
     /**
-     * SecureRandom 的单例
+     * SecureRandom 鐨勫崟渚?
      *
      */
     private static class Holder
@@ -25,16 +25,16 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
         static final SecureRandom numberGenerator = getSecureRandom();
     }
 
-    /** 此UUID的最高64有效位 */
+    /** 姝UID鐨勬渶楂?4鏈夋晥浣?*/
     private final long mostSigBits;
 
-    /** 此UUID的最低64有效位 */
+    /** 姝UID鐨勬渶浣?4鏈夋晥浣?*/
     private final long leastSigBits;
 
     /**
-     * 私有构造
+     * 绉佹湁鏋勯€?
      * 
-     * @param data 数据
+     * @param data 鏁版嵁
      */
     private UUID(byte[] data)
     {
@@ -54,10 +54,10 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 使用指定的数据构造新的 UUID。
+     * 浣跨敤鎸囧畾鐨勬暟鎹瀯閫犳柊鐨?UUID銆?
      *
-     * @param mostSigBits 用于 {@code UUID} 的最高有效 64 位
-     * @param leastSigBits 用于 {@code UUID} 的最低有效 64 位
+     * @param mostSigBits 鐢ㄤ簬 {@code UUID} 鐨勬渶楂樻湁鏁?64 浣?
+     * @param leastSigBits 鐢ㄤ簬 {@code UUID} 鐨勬渶浣庢湁鏁?64 浣?
      */
     public UUID(long mostSigBits, long leastSigBits)
     {
@@ -66,9 +66,9 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 获取类型 4（伪随机生成的）UUID 的静态工厂。
+     * 鑾峰彇绫诲瀷 4锛堜吉闅忔満鐢熸垚鐨勶級UUID 鐨勯潤鎬佸伐鍘傘€?
      * 
-     * @return 随机生成的 {@code UUID}
+     * @return 闅忔満鐢熸垚鐨?{@code UUID}
      */
     public static UUID fastUUID()
     {
@@ -76,9 +76,9 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 获取类型 4（伪随机生成的）UUID 的静态工厂。 使用加密的强伪随机数生成器生成该 UUID。
+     * 鑾峰彇绫诲瀷 4锛堜吉闅忔満鐢熸垚鐨勶級UUID 鐨勯潤鎬佸伐鍘傘€?浣跨敤鍔犲瘑鐨勫己浼殢鏈烘暟鐢熸垚鍣ㄧ敓鎴愯 UUID銆?
      * 
-     * @return 随机生成的 {@code UUID}
+     * @return 闅忔満鐢熸垚鐨?{@code UUID}
      */
     public static UUID randomUUID()
     {
@@ -86,10 +86,10 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 获取类型 4（伪随机生成的）UUID 的静态工厂。 使用加密的强伪随机数生成器生成该 UUID。
+     * 鑾峰彇绫诲瀷 4锛堜吉闅忔満鐢熸垚鐨勶級UUID 鐨勯潤鎬佸伐鍘傘€?浣跨敤鍔犲瘑鐨勫己浼殢鏈烘暟鐢熸垚鍣ㄧ敓鎴愯 UUID銆?
      * 
-     * @param isSecure 是否使用{@link SecureRandom}如果是可以获得更安全的随机码，否则可以得到更好的性能
-     * @return 随机生成的 {@code UUID}
+     * @param isSecure 鏄惁浣跨敤{@link SecureRandom}濡傛灉鏄彲浠ヨ幏寰楁洿瀹夊叏鐨勯殢鏈虹爜锛屽惁鍒欏彲浠ュ緱鍒版洿濂界殑鎬ц兘
+     * @return 闅忔満鐢熸垚鐨?{@code UUID}
      */
     public static UUID randomUUID(boolean isSecure)
     {
@@ -105,11 +105,11 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 根据指定的字节数组获取类型 3（基于名称的）UUID 的静态工厂。
+     * 鏍规嵁鎸囧畾鐨勫瓧鑺傛暟缁勮幏鍙栫被鍨?3锛堝熀浜庡悕绉扮殑锛塙UID 鐨勯潤鎬佸伐鍘傘€?
      *
-     * @param name 用于构造 UUID 的字节数组。
+     * @param name 鐢ㄤ簬鏋勯€?UUID 鐨勫瓧鑺傛暟缁勩€?
      *
-     * @return 根据指定数组生成的 {@code UUID}
+     * @return 鏍规嵁鎸囧畾鏁扮粍鐢熸垚鐨?{@code UUID}
      */
     public static UUID nameUUIDFromBytes(byte[] name)
     {
@@ -131,11 +131,11 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 根据 {@link #toString()} 方法中描述的字符串标准表示形式创建{@code UUID}。
+     * 鏍规嵁 {@link #toString()} 鏂规硶涓弿杩扮殑瀛楃涓叉爣鍑嗚〃绀哄舰寮忓垱寤簕@code UUID}銆?
      *
-     * @param name 指定 {@code UUID} 字符串
-     * @return 具有指定值的 {@code UUID}
-     * @throws IllegalArgumentException 如果 name 与 {@link #toString} 中描述的字符串表示形式不符抛出此异常
+     * @param name 鎸囧畾 {@code UUID} 瀛楃涓?
+     * @return 鍏锋湁鎸囧畾鍊肩殑 {@code UUID}
+     * @throws IllegalArgumentException 濡傛灉 name 涓?{@link #toString} 涓弿杩扮殑瀛楃涓茶〃绀哄舰寮忎笉绗︽姏鍑烘寮傚父
      *
      */
     public static UUID fromString(String name)
@@ -164,9 +164,9 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 返回此 UUID 的 128 位值中的最低有效 64 位。
+     * 杩斿洖姝?UUID 鐨?128 浣嶅€间腑鐨勬渶浣庢湁鏁?64 浣嶃€?
      *
-     * @return 此 UUID 的 128 位值中的最低有效 64 位。
+     * @return 姝?UUID 鐨?128 浣嶅€间腑鐨勬渶浣庢湁鏁?64 浣嶃€?
      */
     public long getLeastSignificantBits()
     {
@@ -174,9 +174,9 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 返回此 UUID 的 128 位值中的最高有效 64 位。
+     * 杩斿洖姝?UUID 鐨?128 浣嶅€间腑鐨勬渶楂樻湁鏁?64 浣嶃€?
      *
-     * @return 此 UUID 的 128 位值中最高有效 64 位。
+     * @return 姝?UUID 鐨?128 浣嶅€间腑鏈€楂樻湁鏁?64 浣嶃€?
      */
     public long getMostSignificantBits()
     {
@@ -184,17 +184,17 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 与此 {@code UUID} 相关联的版本号. 版本号描述此 {@code UUID} 是如何生成的。
+     * 涓庢 {@code UUID} 鐩稿叧鑱旂殑鐗堟湰鍙? 鐗堟湰鍙锋弿杩版 {@code UUID} 鏄浣曠敓鎴愮殑銆?
      * <p>
-     * 版本号具有以下含意:
+     * 鐗堟湰鍙峰叿鏈変互涓嬪惈鎰?
      * <ul>
-     * <li>1 基于时间的 UUID
-     * <li>2 DCE 安全 UUID
-     * <li>3 基于名称的 UUID
-     * <li>4 随机生成的 UUID
+     * <li>1 鍩轰簬鏃堕棿鐨?UUID
+     * <li>2 DCE 瀹夊叏 UUID
+     * <li>3 鍩轰簬鍚嶇О鐨?UUID
+     * <li>4 闅忔満鐢熸垚鐨?UUID
      * </ul>
      *
-     * @return 此 {@code UUID} 的版本号
+     * @return 姝?{@code UUID} 鐨勭増鏈彿
      */
     public int version()
     {
@@ -203,17 +203,17 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 与此 {@code UUID} 相关联的变体号。变体号描述 {@code UUID} 的布局。
+     * 涓庢 {@code UUID} 鐩稿叧鑱旂殑鍙樹綋鍙枫€傚彉浣撳彿鎻忚堪 {@code UUID} 鐨勫竷灞€銆?
      * <p>
-     * 变体号具有以下含意：
+     * 鍙樹綋鍙峰叿鏈変互涓嬪惈鎰忥細
      * <ul>
-     * <li>0 为 NCS 向后兼容保留
-     * <li>2 <a href="http://www.ietf.org/rfc/rfc4122.txt">IETF&nbsp;RFC&nbsp;4122</a>(Leach-Salz), 用于此类
-     * <li>6 保留，微软向后兼容
-     * <li>7 保留供以后定义使用
+     * <li>0 涓?NCS 鍚戝悗鍏煎淇濈暀
+     * <li>2 <a href="http://www.ietf.org/rfc/rfc4122.txt">IETF&nbsp;RFC&nbsp;4122</a>(Leach-Salz), 鐢ㄤ簬姝ょ被
+     * <li>6 淇濈暀锛屽井杞悜鍚庡吋瀹?
+     * <li>7 淇濈暀渚涗互鍚庡畾涔変娇鐢?
      * </ul>
      *
-     * @return 此 {@code UUID} 相关联的变体号
+     * @return 姝?{@code UUID} 鐩稿叧鑱旂殑鍙樹綋鍙?
      */
     public int variant()
     {
@@ -226,17 +226,17 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 与此 UUID 相关联的时间戳值。
+     * 涓庢 UUID 鐩稿叧鑱旂殑鏃堕棿鎴冲€笺€?
      *
      * <p>
-     * 60 位的时间戳值根据此 {@code UUID} 的 time_low、time_mid 和 time_hi 字段构造。<br>
-     * 所得到的时间戳以 100 毫微秒为单位，从 UTC（通用协调时间） 1582 年 10 月 15 日零时开始。
+     * 60 浣嶇殑鏃堕棿鎴冲€兼牴鎹 {@code UUID} 鐨?time_low銆乼ime_mid 鍜?time_hi 瀛楁鏋勯€犮€?br>
+     * 鎵€寰楀埌鐨勬椂闂存埑浠?100 姣井绉掍负鍗曚綅锛屼粠 UTC锛堥€氱敤鍗忚皟鏃堕棿锛?1582 骞?10 鏈?15 鏃ラ浂鏃跺紑濮嬨€?
      *
      * <p>
-     * 时间戳值仅在在基于时间的 UUID（其 version 类型为 1）中才有意义。<br>
-     * 如果此 {@code UUID} 不是基于时间的 UUID，则此方法抛出 UnsupportedOperationException。
+     * 鏃堕棿鎴冲€间粎鍦ㄥ湪鍩轰簬鏃堕棿鐨?UUID锛堝叾 version 绫诲瀷涓?1锛変腑鎵嶆湁鎰忎箟銆?br>
+     * 濡傛灉姝?{@code UUID} 涓嶆槸鍩轰簬鏃堕棿鐨?UUID锛屽垯姝ゆ柟娉曟姏鍑?UnsupportedOperationException銆?
      *
-     * @throws UnsupportedOperationException 如果此 {@code UUID} 不是 version 为 1 的 UUID。
+     * @throws UnsupportedOperationException 濡傛灉姝?{@code UUID} 涓嶆槸 version 涓?1 鐨?UUID銆?
      */
     public long timestamp() throws UnsupportedOperationException
     {
@@ -247,17 +247,17 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 与此 UUID 相关联的时钟序列值。
+     * 涓庢 UUID 鐩稿叧鑱旂殑鏃堕挓搴忓垪鍊笺€?
      *
      * <p>
-     * 14 位的时钟序列值根据此 UUID 的 clock_seq 字段构造。clock_seq 字段用于保证在基于时间的 UUID 中的时间唯一性。
+     * 14 浣嶇殑鏃堕挓搴忓垪鍊兼牴鎹 UUID 鐨?clock_seq 瀛楁鏋勯€犮€俢lock_seq 瀛楁鐢ㄤ簬淇濊瘉鍦ㄥ熀浜庢椂闂寸殑 UUID 涓殑鏃堕棿鍞竴鎬с€?
      * <p>
-     * {@code clockSequence} 值仅在基于时间的 UUID（其 version 类型为 1）中才有意义。 如果此 UUID 不是基于时间的 UUID，则此方法抛出
-     * UnsupportedOperationException。
+     * {@code clockSequence} 鍊间粎鍦ㄥ熀浜庢椂闂寸殑 UUID锛堝叾 version 绫诲瀷涓?1锛変腑鎵嶆湁鎰忎箟銆?濡傛灉姝?UUID 涓嶆槸鍩轰簬鏃堕棿鐨?UUID锛屽垯姝ゆ柟娉曟姏鍑?
+     * UnsupportedOperationException銆?
      *
-     * @return 此 {@code UUID} 的时钟序列
+     * @return 姝?{@code UUID} 鐨勬椂閽熷簭鍒?
      *
-     * @throws UnsupportedOperationException 如果此 UUID 的 version 不为 1
+     * @throws UnsupportedOperationException 濡傛灉姝?UUID 鐨?version 涓嶄负 1
      */
     public int clockSequence() throws UnsupportedOperationException
     {
@@ -266,17 +266,17 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 与此 UUID 相关的节点值。
+     * 涓庢 UUID 鐩稿叧鐨勮妭鐐瑰€笺€?
      *
      * <p>
-     * 48 位的节点值根据此 UUID 的 node 字段构造。此字段旨在用于保存机器的 IEEE 802 地址，该地址用于生成此 UUID 以保证空间唯一性。
+     * 48 浣嶇殑鑺傜偣鍊兼牴鎹 UUID 鐨?node 瀛楁鏋勯€犮€傛瀛楁鏃ㄥ湪鐢ㄤ簬淇濆瓨鏈哄櫒鐨?IEEE 802 鍦板潃锛岃鍦板潃鐢ㄤ簬鐢熸垚姝?UUID 浠ヤ繚璇佺┖闂村敮涓€鎬с€?
      * <p>
-     * 节点值仅在基于时间的 UUID（其 version 类型为 1）中才有意义。<br>
-     * 如果此 UUID 不是基于时间的 UUID，则此方法抛出 UnsupportedOperationException。
+     * 鑺傜偣鍊间粎鍦ㄥ熀浜庢椂闂寸殑 UUID锛堝叾 version 绫诲瀷涓?1锛変腑鎵嶆湁鎰忎箟銆?br>
+     * 濡傛灉姝?UUID 涓嶆槸鍩轰簬鏃堕棿鐨?UUID锛屽垯姝ゆ柟娉曟姏鍑?UnsupportedOperationException銆?
      *
-     * @return 此 {@code UUID} 的节点值
+     * @return 姝?{@code UUID} 鐨勮妭鐐瑰€?
      *
-     * @throws UnsupportedOperationException 如果此 UUID 的 version 不为 1
+     * @throws UnsupportedOperationException 濡傛灉姝?UUID 鐨?version 涓嶄负 1
      */
     public long node() throws UnsupportedOperationException
     {
@@ -285,10 +285,10 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 返回此{@code UUID} 的字符串表现形式。
+     * 杩斿洖姝@code UUID} 鐨勫瓧绗︿覆琛ㄧ幇褰㈠紡銆?
      *
      * <p>
-     * UUID 的字符串表示形式由此 BNF 描述：
+     * UUID 鐨勫瓧绗︿覆琛ㄧず褰㈠紡鐢辨 BNF 鎻忚堪锛?
      * 
      * <pre>
      * {@code
@@ -305,7 +305,7 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
      * 
      * </blockquote>
      *
-     * @return 此{@code UUID} 的字符串表现形式
+     * @return 姝@code UUID} 鐨勫瓧绗︿覆琛ㄧ幇褰㈠紡
      * @see #toString(boolean)
      */
     @Override
@@ -315,10 +315,10 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 返回此{@code UUID} 的字符串表现形式。
+     * 杩斿洖姝@code UUID} 鐨勫瓧绗︿覆琛ㄧ幇褰㈠紡銆?
      *
      * <p>
-     * UUID 的字符串表示形式由此 BNF 描述：
+     * UUID 鐨勫瓧绗︿覆琛ㄧず褰㈠紡鐢辨 BNF 鎻忚堪锛?
      * 
      * <pre>
      * {@code
@@ -335,8 +335,8 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
      * 
      * </blockquote>
      *
-     * @param isSimple 是否简单模式，简单模式为不带'-'的UUID字符串
-     * @return 此{@code UUID} 的字符串表现形式
+     * @param isSimple 鏄惁绠€鍗曟ā寮忥紝绠€鍗曟ā寮忎负涓嶅甫'-'鐨刄UID瀛楃涓?
+     * @return 姝@code UUID} 鐨勫瓧绗︿覆琛ㄧ幇褰㈠紡
      */
     public String toString(boolean isSimple)
     {
@@ -372,9 +372,9 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 返回此 UUID 的哈希码。
+     * 杩斿洖姝?UUID 鐨勫搱甯岀爜銆?
      *
-     * @return UUID 的哈希码值。
+     * @return UUID 鐨勫搱甯岀爜鍊笺€?
      */
     @Override
     public int hashCode()
@@ -384,13 +384,13 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 将此对象与指定对象比较。
+     * 灏嗘瀵硅薄涓庢寚瀹氬璞℃瘮杈冦€?
      * <p>
-     * 当且仅当参数不为 {@code null}、而是一个 UUID 对象、具有与此 UUID 相同的 varriant、包含相同的值（每一位均相同）时，结果才为 {@code true}。
+     * 褰撲笖浠呭綋鍙傛暟涓嶄负 {@code null}銆佽€屾槸涓€涓?UUID 瀵硅薄銆佸叿鏈変笌姝?UUID 鐩稿悓鐨?varriant銆佸寘鍚浉鍚岀殑鍊硷紙姣忎竴浣嶅潎鐩稿悓锛夋椂锛岀粨鏋滄墠涓?{@code true}銆?
      *
-     * @param obj 要与之比较的对象
+     * @param obj 瑕佷笌涔嬫瘮杈冪殑瀵硅薄
      *
-     * @return 如果对象相同，则返回 {@code true}；否则返回 {@code false}
+     * @return 濡傛灉瀵硅薄鐩稿悓锛屽垯杩斿洖 {@code true}锛涘惁鍒欒繑鍥?{@code false}
      */
     @Override
     public boolean equals(Object obj)
@@ -406,14 +406,14 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     // Comparison Operations
 
     /**
-     * 将此 UUID 与指定的 UUID 比较。
+     * 灏嗘 UUID 涓庢寚瀹氱殑 UUID 姣旇緝銆?
      *
      * <p>
-     * 如果两个 UUID 不同，且第一个 UUID 的最高有效字段大于第二个 UUID 的对应字段，则第一个 UUID 大于第二个 UUID。
+     * 濡傛灉涓や釜 UUID 涓嶅悓锛屼笖绗竴涓?UUID 鐨勬渶楂樻湁鏁堝瓧娈靛ぇ浜庣浜屼釜 UUID 鐨勫搴斿瓧娈碉紝鍒欑涓€涓?UUID 澶т簬绗簩涓?UUID銆?
      *
-     * @param val 与此 UUID 比较的 UUID
+     * @param val 涓庢 UUID 姣旇緝鐨?UUID
      *
-     * @return 在此 UUID 小于、等于或大于 val 时，分别返回 -1、0 或 1。
+     * @return 鍦ㄦ UUID 灏忎簬銆佺瓑浜庢垨澶т簬 val 鏃讹紝鍒嗗埆杩斿洖 -1銆? 鎴?1銆?
      *
      */
     @Override
@@ -431,11 +431,11 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     // -------------------------------------------------------------------------------------------------------------------
     // Private method start
     /**
-     * 返回指定数字对应的hex值
+     * 杩斿洖鎸囧畾鏁板瓧瀵瑰簲鐨刪ex鍊?
      * 
-     * @param val 值
-     * @param digits 位
-     * @return 值
+     * @param val 鍊?
+     * @param digits 浣?
+     * @return 鍊?
      */
     private static String digits(long val, int digits)
     {
@@ -444,7 +444,7 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 检查是否为time-based版本UUID
+     * 妫€鏌ユ槸鍚︿负time-based鐗堟湰UUID
      */
     private void checkTimeBase()
     {
@@ -455,7 +455,7 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 获取{@link SecureRandom}，类提供加密的强随机数生成器 (RNG)
+     * 鑾峰彇{@link SecureRandom}锛岀被鎻愪緵鍔犲瘑鐨勫己闅忔満鏁扮敓鎴愬櫒 (RNG)
      * 
      * @return {@link SecureRandom}
      */
@@ -472,8 +472,8 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
     }
 
     /**
-     * 获取随机数生成器对象<br>
-     * ThreadLocalRandom是JDK 7之后提供并发产生随机数，能够解决多个线程发生的竞争争夺。
+     * 鑾峰彇闅忔満鏁扮敓鎴愬櫒瀵硅薄<br>
+     * ThreadLocalRandom鏄疛DK 7涔嬪悗鎻愪緵骞跺彂浜х敓闅忔満鏁帮紝鑳藉瑙ｅ喅澶氫釜绾跨▼鍙戠敓鐨勭珵浜変簤澶恒€?
      * 
      * @return {@link ThreadLocalRandom}
      */
@@ -482,4 +482,5 @@ public final class UUID implements java.io.Serializable, Comparable<UUID>
         return ThreadLocalRandom.current();
     }
 }
+
 

@@ -5,121 +5,122 @@ import com.qkyd.common.core.domain.TreeSelect;
 import com.qkyd.common.core.domain.entity.SysDept;
 
 /**
- * 部门管理 服务层
+ * 閮ㄩ棬绠＄悊 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysDeptService
 {
     /**
-     * 查询部门管理数据
+     * 鏌ヨ閮ㄩ棬绠＄悊鏁版嵁
      * 
-     * @param dept 部门信息
-     * @return 部门信息集合
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 閮ㄩ棬淇℃伅闆嗗悎
      */
     public List<SysDept> selectDeptList(SysDept dept);
 
     /**
-     * 查询部门树结构信息
+     * 鏌ヨ閮ㄩ棬鏍戠粨鏋勪俊鎭?
      * 
-     * @param dept 部门信息
-     * @return 部门树信息集合
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 閮ㄩ棬鏍戜俊鎭泦鍚?
      */
     public List<TreeSelect> selectDeptTreeList(SysDept dept);
 
     /**
-     * 构建前端所需要树结构
+     * 鏋勫缓鍓嶇鎵€闇€瑕佹爲缁撴瀯
      * 
-     * @param depts 部门列表
-     * @return 树结构列表
+     * @param depts 閮ㄩ棬鍒楄〃
+     * @return 鏍戠粨鏋勫垪琛?
      */
     public List<SysDept> buildDeptTree(List<SysDept> depts);
 
     /**
-     * 构建前端所需要下拉树结构
+     * 鏋勫缓鍓嶇鎵€闇€瑕佷笅鎷夋爲缁撴瀯
      * 
-     * @param depts 部门列表
-     * @return 下拉树结构列表
+     * @param depts 閮ㄩ棬鍒楄〃
+     * @return 涓嬫媺鏍戠粨鏋勫垪琛?
      */
     public List<TreeSelect> buildDeptTreeSelect(List<SysDept> depts);
 
     /**
-     * 根据角色ID查询部门树信息
+     * 鏍规嵁瑙掕壊ID鏌ヨ閮ㄩ棬鏍戜俊鎭?
      * 
-     * @param roleId 角色ID
-     * @return 选中部门列表
+     * @param roleId 瑙掕壊ID
+     * @return 閫変腑閮ㄩ棬鍒楄〃
      */
     public List<Long> selectDeptListByRoleId(Long roleId);
 
     /**
-     * 根据部门ID查询信息
+     * 鏍规嵁閮ㄩ棬ID鏌ヨ淇℃伅
      * 
-     * @param deptId 部门ID
-     * @return 部门信息
+     * @param deptId 閮ㄩ棬ID
+     * @return 閮ㄩ棬淇℃伅
      */
     public SysDept selectDeptById(Long deptId);
 
     /**
-     * 根据ID查询所有子部门（正常状态）
+     * 鏍规嵁ID鏌ヨ鎵€鏈夊瓙閮ㄩ棬锛堟甯哥姸鎬侊級
      * 
-     * @param deptId 部门ID
-     * @return 子部门数
+     * @param deptId 閮ㄩ棬ID
+     * @return 瀛愰儴闂ㄦ暟
      */
     public int selectNormalChildrenDeptById(Long deptId);
 
     /**
-     * 是否存在部门子节点
+     * 鏄惁瀛樺湪閮ㄩ棬瀛愯妭鐐?
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public boolean hasChildByDeptId(Long deptId);
 
     /**
-     * 查询部门是否存在用户
+     * 鏌ヨ閮ㄩ棬鏄惁瀛樺湪鐢ㄦ埛
      * 
-     * @param deptId 部门ID
-     * @return 结果 true 存在 false 不存在
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉 true 瀛樺湪 false 涓嶅瓨鍦?
      */
     public boolean checkDeptExistUser(Long deptId);
 
     /**
-     * 校验部门名称是否唯一
+     * 鏍￠獙閮ㄩ棬鍚嶇О鏄惁鍞竴
      * 
-     * @param dept 部门信息
-     * @return 结果
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 缁撴灉
      */
     public boolean checkDeptNameUnique(SysDept dept);
 
     /**
-     * 校验部门是否有数据权限
+     * 鏍￠獙閮ㄩ棬鏄惁鏈夋暟鎹潈闄?
      * 
-     * @param deptId 部门id
+     * @param deptId 閮ㄩ棬id
      */
     public void checkDeptDataScope(Long deptId);
 
     /**
-     * 新增保存部门信息
+     * 鏂板淇濆瓨閮ㄩ棬淇℃伅
      * 
-     * @param dept 部门信息
-     * @return 结果
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 缁撴灉
      */
     public int insertDept(SysDept dept);
 
     /**
-     * 修改保存部门信息
+     * 淇敼淇濆瓨閮ㄩ棬淇℃伅
      * 
-     * @param dept 部门信息
-     * @return 结果
+     * @param dept 閮ㄩ棬淇℃伅
+     * @return 缁撴灉
      */
     public int updateDept(SysDept dept);
 
     /**
-     * 删除部门管理信息
+     * 鍒犻櫎閮ㄩ棬绠＄悊淇℃伅
      * 
-     * @param deptId 部门ID
-     * @return 结果
+     * @param deptId 閮ㄩ棬ID
+     * @return 缁撴灉
      */
     public int deleteDeptById(Long deptId);
 }
+
 

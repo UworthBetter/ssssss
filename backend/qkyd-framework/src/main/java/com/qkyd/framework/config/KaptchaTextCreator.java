@@ -4,9 +4,9 @@ import java.util.Random;
 import com.google.code.kaptcha.text.impl.DefaultTextCreator;
 
 /**
- * 验证码文本生成器
+ * 楠岃瘉鐮佹枃鏈敓鎴愬櫒
  *
- * @author ruoyi
+ * @author qkyd
  */
 public class KaptchaTextCreator extends DefaultTextCreator
 {
@@ -66,3 +66,4 @@ public class KaptchaTextCreator extends DefaultTextCreator
         return suChinese.toString();
     }
 }
+

@@ -1,6 +1,7 @@
-# 系统管理平台
+﻿# 耆康云盾健康监测平台前端（qkyd）
 
-基于 Vue 3 + Element Plus + TypeScript 的后台管理系统
+本目录为耆康云盾健康监测平台管理端，基于 Vue 3、TypeScript、
+Element Plus 与 Vite 构建。
 
 ## 技术栈
 
@@ -11,57 +12,31 @@
 - Vue Router
 - Vite
 
-## 功能特性
+## 核心能力
 
-- 登录/登出
-- 用户管理
-- 菜单管理
-- 角色管理
-- 首页仪表盘
+- 平台登录与会话管理
+- 健康总览与运营看板
+- 服务对象管理
+- 设备管理
+- 异常告警处置
+- AI 工作台
 
-## 项目结构
-
-```
-src/
-├── api/          # API 接口
-├── assets/       # 静态资源
-├── components/   # 公共组件
-├── layout/       # 布局组件
-├── router/       # 路由配置
-├── store/        # 状态管理
-├── types/        # 类型定义
-├── utils/        # 工具函数
-├── views/        # 页面视图
-└── main.ts       # 入口文件
-```
-
-## 安装依赖
+## 开发命令
 
 ```bash
 npm install
-```
-
-## 启动项目
-
-```bash
 npm run dev
 ```
 
-## 构建项目
+## 构建命令
 
 ```bash
 npm run build
 ```
 
-## 后端接口
+## 后端接口约定
 
-- 登录: POST /login
-- 获取用户信息: GET /getInfo
-- 获取菜单: GET /system/menu/treeselect
-- 用户列表: GET /system/user/list
-
-## 开发说明
-
-- 代码遵循 Vue 3 Composition API 规范
-- 使用 TypeScript 进行类型检查
-- 遵循 Element Plus 组件使用规范
+- 登录：`POST /login`
+- 获取用户信息：`GET /getInfo`
+- 菜单树：`GET /system/menu/treeselect`
+- 用户列表：`GET /system/user/list`

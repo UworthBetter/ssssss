@@ -9,8 +9,8 @@ import com.qkyd.common.xss.Xss;
 
 /**
  * 通知公告表 sys_notice
- * 
- * @author ruoyi
+ *
+ * @author qkyd
  */
 public class SysNotice extends BaseEntity
 {
@@ -85,8 +85,9 @@ public class SysNotice extends BaseEntity
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+    public String toString()
+    {
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("noticeId", getNoticeId())
             .append("noticeTitle", getNoticeTitle())
             .append("noticeType", getNoticeType())
@@ -100,4 +101,3 @@ public class SysNotice extends BaseEntity
             .toString();
     }
 }
-

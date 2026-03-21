@@ -9,9 +9,9 @@ import com.qkyd.common.enums.BusinessType;
 import com.qkyd.common.enums.OperatorType;
 
 /**
- * 自定义操作日志记录注解
+ * 鑷畾涔夋搷浣滄棩蹇楄褰曟敞瑙?
  * 
- * @author ruoyi
+ * @author qkyd
  *
  */
 @Target({ ElementType.PARAMETER, ElementType.METHOD })
@@ -20,33 +20,34 @@ import com.qkyd.common.enums.OperatorType;
 public @interface Log
 {
     /**
-     * 模块
+     * 妯″潡
      */
     public String title() default "";
 
     /**
-     * 功能
+     * 鍔熻兘
      */
     public BusinessType businessType() default BusinessType.OTHER;
 
     /**
-     * 操作人类别
+     * 鎿嶄綔浜虹被鍒?
      */
     public OperatorType operatorType() default OperatorType.MANAGE;
 
     /**
-     * 是否保存请求的参数
+     * 鏄惁淇濆瓨璇锋眰鐨勫弬鏁?
      */
     public boolean isSaveRequestData() default true;
 
     /**
-     * 是否保存响应的参数
+     * 鏄惁淇濆瓨鍝嶅簲鐨勫弬鏁?
      */
     public boolean isSaveResponseData() default true;
 
     /**
-     * 排除指定的请求参数
+     * 鎺掗櫎鎸囧畾鐨勮姹傚弬鏁?
      */
     public String[] excludeParamNames() default {};
 }
+
 

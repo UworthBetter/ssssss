@@ -1,79 +1,80 @@
 package com.qkyd.common.constant;
 
 /**
- * 用户常量信息
+ * 鐢ㄦ埛甯搁噺淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UserConstants
 {
     /**
-     * 平台内系统用户的唯一标志
+     * 骞冲彴鍐呯郴缁熺敤鎴风殑鍞竴鏍囧織
      */
     public static final String SYS_USER = "SYS_USER";
 
-    /** 正常状态 */
+    /** 姝ｅ父鐘舵€?*/
     public static final String NORMAL = "0";
 
-    /** 异常状态 */
+    /** 寮傚父鐘舵€?*/
     public static final String EXCEPTION = "1";
 
-    /** 用户封禁状态 */
+    /** 鐢ㄦ埛灏佺鐘舵€?*/
     public static final String USER_DISABLE = "1";
 
-    /** 角色封禁状态 */
+    /** 瑙掕壊灏佺鐘舵€?*/
     public static final String ROLE_DISABLE = "1";
 
-    /** 部门正常状态 */
+    /** 閮ㄩ棬姝ｅ父鐘舵€?*/
     public static final String DEPT_NORMAL = "0";
 
-    /** 部门停用状态 */
+    /** 閮ㄩ棬鍋滅敤鐘舵€?*/
     public static final String DEPT_DISABLE = "1";
 
-    /** 字典正常状态 */
+    /** 瀛楀吀姝ｅ父鐘舵€?*/
     public static final String DICT_NORMAL = "0";
 
-    /** 是否为系统默认（是） */
+    /** 鏄惁涓虹郴缁熼粯璁わ紙鏄級 */
     public static final String YES = "Y";
 
-    /** 是否菜单外链（是） */
+    /** 鏄惁鑿滃崟澶栭摼锛堟槸锛?*/
     public static final String YES_FRAME = "0";
 
-    /** 是否菜单外链（否） */
+    /** 鏄惁鑿滃崟澶栭摼锛堝惁锛?*/
     public static final String NO_FRAME = "1";
 
-    /** 菜单类型（目录） */
+    /** 鑿滃崟绫诲瀷锛堢洰褰曪級 */
     public static final String TYPE_DIR = "M";
 
-    /** 菜单类型（菜单） */
+    /** 鑿滃崟绫诲瀷锛堣彍鍗曪級 */
     public static final String TYPE_MENU = "C";
 
-    /** 菜单类型（按钮） */
+    /** 鑿滃崟绫诲瀷锛堟寜閽級 */
     public static final String TYPE_BUTTON = "F";
 
-    /** Layout组件标识 */
+    /** Layout缁勪欢鏍囪瘑 */
     public final static String LAYOUT = "Layout";
     
-    /** ParentView组件标识 */
+    /** ParentView缁勪欢鏍囪瘑 */
     public final static String PARENT_VIEW = "ParentView";
 
-    /** InnerLink组件标识 */
+    /** InnerLink缁勪欢鏍囪瘑 */
     public final static String INNER_LINK = "InnerLink";
 
-    /** 校验是否唯一的返回标识 */
+    /** 鏍￠獙鏄惁鍞竴鐨勮繑鍥炴爣璇?*/
     public final static boolean UNIQUE = true;
     public final static boolean NOT_UNIQUE = false;
 
     /**
-     * 用户名长度限制
+     * 鐢ㄦ埛鍚嶉暱搴﹂檺鍒?
      */
     public static final int USERNAME_MIN_LENGTH = 2;
     public static final int USERNAME_MAX_LENGTH = 20;
 
     /**
-     * 密码长度限制
+     * 瀵嗙爜闀垮害闄愬埗
      */
     public static final int PASSWORD_MIN_LENGTH = 5;
     public static final int PASSWORD_MAX_LENGTH = 20;
 }
+
 

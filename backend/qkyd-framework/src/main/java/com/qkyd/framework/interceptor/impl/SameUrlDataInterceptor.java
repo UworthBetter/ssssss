@@ -17,10 +17,10 @@ import com.qkyd.common.utils.http.HttpHelper;
 import com.qkyd.framework.interceptor.RepeatSubmitInterceptor;
 
 /**
- * 判断请求url和数据是否和上一次相同，
- * 如果和上次相同，则是重复提交表单。 有效时间为10秒内。
+ * 鍒ゆ柇璇锋眰url鍜屾暟鎹槸鍚﹀拰涓婁竴娆＄浉鍚岋紝
+ * 濡傛灉鍜屼笂娆＄浉鍚岋紝鍒欐槸閲嶅鎻愪氦琛ㄥ崟銆?鏈夋晥鏃堕棿涓?0绉掑唴銆?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
@@ -29,7 +29,7 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
 
     public final String REPEAT_TIME = "repeatTime";
 
-    // 令牌自定义标识
+    // 浠ょ墝鑷畾涔夋爣璇?
     @Value("${token.header}")
     private String header;
 
@@ -47,7 +47,7 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
             nowParams = HttpHelper.getBodyString(repeatedlyRequest);
         }
 
-        // body参数为空，获取Parameter的数据
+        // body鍙傛暟涓虹┖锛岃幏鍙朠arameter鐨勬暟鎹?
         if (StringUtils.isEmpty(nowParams))
         {
             nowParams = JSON.toJSONString(request.getParameterMap());
@@ -56,13 +56,13 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
         nowDataMap.put(REPEAT_PARAMS, nowParams);
         nowDataMap.put(REPEAT_TIME, System.currentTimeMillis());
 
-        // 请求地址（作为存放cache的key值）
+        // 璇锋眰鍦板潃锛堜綔涓哄瓨鏀綾ache鐨刱ey鍊硷級
         String url = request.getRequestURI();
 
-        // 唯一值（没有消息头则使用请求地址）
+        // 鍞竴鍊硷紙娌℃湁娑堟伅澶村垯浣跨敤璇锋眰鍦板潃锛?
         String submitKey = StringUtils.trimToEmpty(request.getHeader(header));
 
-        // 唯一标识（指定key + url + 消息头）
+        // 鍞竴鏍囪瘑锛堟寚瀹歬ey + url + 娑堟伅澶达級
         String cacheRepeatKey = CacheConstants.REPEAT_SUBMIT_KEY + url + submitKey;
 
         Object sessionObj = redisCache.getCacheObject(cacheRepeatKey);
@@ -85,7 +85,7 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
     }
 
     /**
-     * 判断参数是否相同
+     * 鍒ゆ柇鍙傛暟鏄惁鐩稿悓
      */
     private boolean compareParams(Map<String, Object> nowMap, Map<String, Object> preMap)
     {
@@ -95,7 +95,7 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
     }
 
     /**
-     * 判断两次间隔时间
+     * 鍒ゆ柇涓ゆ闂撮殧鏃堕棿
      */
     private boolean compareTime(Map<String, Object> nowMap, Map<String, Object> preMap, int interval)
     {
@@ -108,4 +108,5 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
         return false;
     }
 }
+
 

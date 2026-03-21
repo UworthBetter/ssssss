@@ -1,12 +1,13 @@
 package com.qkyd.common.core.domain.model;
 
 /**
- * 用户注册对象
+ * 鐢ㄦ埛娉ㄥ唽瀵硅薄
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class RegisterBody extends LoginBody
 {
 
 }
+
 

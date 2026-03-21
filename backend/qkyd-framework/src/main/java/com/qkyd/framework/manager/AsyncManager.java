@@ -7,24 +7,24 @@ import com.qkyd.common.utils.Threads;
 import com.qkyd.common.utils.spring.SpringUtils;
 
 /**
- * 异步任务管理器
+ * 寮傛浠诲姟绠＄悊鍣?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class AsyncManager
 {
     /**
-     * 操作延迟10毫秒
+     * 鎿嶄綔寤惰繜10姣
      */
     private final int OPERATE_DELAY_TIME = 10;
 
     /**
-     * 异步操作任务调度线程池
+     * 寮傛鎿嶄綔浠诲姟璋冨害绾跨▼姹?
      */
     private ScheduledExecutorService executor = SpringUtils.getBean("scheduledExecutorService");
 
     /**
-     * 单例模式
+     * 鍗曚緥妯″紡
      */
     private AsyncManager(){}
 
@@ -36,9 +36,9 @@ public class AsyncManager
     }
 
     /**
-     * 执行任务
+     * 鎵ц浠诲姟
      * 
-     * @param task 任务
+     * @param task 浠诲姟
      */
     public void execute(TimerTask task)
     {
@@ -46,11 +46,12 @@ public class AsyncManager
     }
 
     /**
-     * 停止任务线程池
+     * 鍋滄浠诲姟绾跨▼姹?
      */
     public void shutdown()
     {
         Threads.shutdownAndAwaitTermination(executor);
     }
 }
+
 

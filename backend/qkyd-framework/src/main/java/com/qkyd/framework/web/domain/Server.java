@@ -22,36 +22,36 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.Util;
 
 /**
- * 服务器相关信息
+ * 鏈嶅姟鍣ㄧ浉鍏充俊鎭?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Server
 {
     private static final int OSHI_WAIT_SECOND = 1000;
     
     /**
-     * CPU相关信息
+     * CPU鐩稿叧淇℃伅
      */
     private Cpu cpu = new Cpu();
 
     /**
-     * 內存相关信息
+     * 鍏у瓨鐩稿叧淇℃伅
      */
     private Mem mem = new Mem();
 
     /**
-     * JVM相关信息
+     * JVM鐩稿叧淇℃伅
      */
     private Jvm jvm = new Jvm();
 
     /**
-     * 服务器相关信息
+     * 鏈嶅姟鍣ㄧ浉鍏充俊鎭?
      */
     private Sys sys = new Sys();
 
     /**
-     * 磁盘相关信息
+     * 纾佺洏鐩稿叧淇℃伅
      */
     private List<SysFile> sysFiles = new LinkedList<SysFile>();
 
@@ -122,11 +122,11 @@ public class Server
     }
 
     /**
-     * 设置CPU信息
+     * 璁剧疆CPU淇℃伅
      */
     private void setCpuInfo(CentralProcessor processor)
     {
-        // CPU信息
+        // CPU淇℃伅
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         Util.sleep(OSHI_WAIT_SECOND);
         long[] ticks = processor.getSystemCpuLoadTicks();
@@ -148,7 +148,7 @@ public class Server
     }
 
     /**
-     * 设置内存信息
+     * 璁剧疆鍐呭瓨淇℃伅
      */
     private void setMemInfo(GlobalMemory memory)
     {
@@ -158,7 +158,7 @@ public class Server
     }
 
     /**
-     * 设置服务器信息
+     * 璁剧疆鏈嶅姟鍣ㄤ俊鎭?
      */
     private void setSysInfo()
     {
@@ -171,7 +171,7 @@ public class Server
     }
 
     /**
-     * 设置Java虚拟机
+     * 璁剧疆Java铏氭嫙鏈?
      */
     private void setJvmInfo() throws UnknownHostException
     {
@@ -184,7 +184,7 @@ public class Server
     }
 
     /**
-     * 设置磁盘信息
+     * 璁剧疆纾佺洏淇℃伅
      */
     private void setSysFiles(OperatingSystem os)
     {
@@ -208,10 +208,10 @@ public class Server
     }
 
     /**
-     * 字节转换
+     * 瀛楄妭杞崲
      * 
-     * @param size 字节大小
-     * @return 转换后值
+     * @param size 瀛楄妭澶у皬
+     * @return 杞崲鍚庡€?
      */
     public String convertFileSize(long size)
     {
@@ -238,4 +238,5 @@ public class Server
         }
     }
 }
+
 

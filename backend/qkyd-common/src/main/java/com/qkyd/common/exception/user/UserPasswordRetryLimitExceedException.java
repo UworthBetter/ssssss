@@ -1,9 +1,9 @@
 package com.qkyd.common.exception.user;
 
 /**
- * 用户错误最大次数异常类
+ * 鐢ㄦ埛閿欒鏈€澶ф鏁板紓甯哥被
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UserPasswordRetryLimitExceedException extends UserException
 {
@@ -14,4 +14,5 @@ public class UserPasswordRetryLimitExceedException extends UserException
         super("user.password.retry.limit.exceed", new Object[] { retryLimitCount, lockTime });
     }
 }
+
 

@@ -1,21 +1,22 @@
 package com.qkyd.common.enums;
 
 /**
- * 操作状态
+ * 鎿嶄綔鐘舵€?
  * 
- * @author ruoyi
+ * @author qkyd
  *
  */
 public enum BusinessStatus
 {
     /**
-     * 成功
+     * 鎴愬姛
      */
     SUCCESS,
 
     /**
-     * 失败
+     * 澶辫触
      */
     FAIL,
 }
+
 

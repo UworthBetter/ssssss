@@ -16,9 +16,9 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.framework.datasource.DynamicDataSourceContextHolder;
 
 /**
- * 多数据源处理
+ * 澶氭暟鎹簮澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Aspect
 @Order(1)
@@ -50,13 +50,13 @@ public class DataSourceAspect
         }
         finally
         {
-            // 销毁数据源 在执行方法之后
+            // 閿€姣佹暟鎹簮 鍦ㄦ墽琛屾柟娉曚箣鍚?
             DynamicDataSourceContextHolder.clearDataSourceType();
         }
     }
 
     /**
-     * 获取需要切换的数据源
+     * 鑾峰彇闇€瑕佸垏鎹㈢殑鏁版嵁婧?
      */
     public DataSource getDataSource(ProceedingJoinPoint point)
     {
@@ -70,4 +70,5 @@ public class DataSourceAspect
         return AnnotationUtils.findAnnotation(signature.getDeclaringType(), DataSource.class);
     }
 }
+
 

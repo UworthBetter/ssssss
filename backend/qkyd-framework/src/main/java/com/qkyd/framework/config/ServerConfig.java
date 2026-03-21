@@ -5,17 +5,17 @@ import org.springframework.stereotype.Component;
 import com.qkyd.common.utils.ServletUtils;
 
 /**
- * 服务相关配置
+ * 鏈嶅姟鐩稿叧閰嶇疆
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class ServerConfig
 {
     /**
-     * 获取完整的请求路径，包括：域名，端口，上下文访问路径
+     * 鑾峰彇瀹屾暣鐨勮姹傝矾寰勶紝鍖呮嫭锛氬煙鍚嶏紝绔彛锛屼笂涓嬫枃璁块棶璺緞
      * 
-     * @return 服务地址
+     * @return 鏈嶅姟鍦板潃
      */
     public String getUrl()
     {
@@ -30,4 +30,5 @@ public class ServerConfig
         return url.delete(url.length() - request.getRequestURI().length(), url.length()).append(contextPath).toString();
     }
 }
+
 

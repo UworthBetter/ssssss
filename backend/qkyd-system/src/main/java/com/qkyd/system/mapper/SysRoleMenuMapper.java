@@ -4,42 +4,43 @@ import java.util.List;
 import com.qkyd.system.domain.SysRoleMenu;
 
 /**
- * 角色与菜单关联表 数据层
+ * 瑙掕壊涓庤彍鍗曞叧鑱旇〃 鏁版嵁灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysRoleMenuMapper
 {
     /**
-     * 查询菜单使用数量
+     * 鏌ヨ鑿滃崟浣跨敤鏁伴噺
      * 
-     * @param menuId 菜单ID
-     * @return 结果
+     * @param menuId 鑿滃崟ID
+     * @return 缁撴灉
      */
     public int checkMenuExistRole(Long menuId);
 
     /**
-     * 通过角色ID删除角色和菜单关联
+     * 閫氳繃瑙掕壊ID鍒犻櫎瑙掕壊鍜岃彍鍗曞叧鑱?
      * 
-     * @param roleId 角色ID
-     * @return 结果
+     * @param roleId 瑙掕壊ID
+     * @return 缁撴灉
      */
     public int deleteRoleMenuByRoleId(Long roleId);
 
     /**
-     * 批量删除角色菜单关联信息
+     * 鎵归噺鍒犻櫎瑙掕壊鑿滃崟鍏宠仈淇℃伅
      * 
-     * @param ids 需要删除的数据ID
-     * @return 结果
+     * @param ids 闇€瑕佸垹闄ょ殑鏁版嵁ID
+     * @return 缁撴灉
      */
     public int deleteRoleMenu(Long[] ids);
 
     /**
-     * 批量新增角色菜单信息
+     * 鎵归噺鏂板瑙掕壊鑿滃崟淇℃伅
      * 
-     * @param roleMenuList 角色菜单列表
-     * @return 结果
+     * @param roleMenuList 瑙掕壊鑿滃崟鍒楄〃
+     * @return 缁撴灉
      */
     public int batchRoleMenu(List<SysRoleMenu> roleMenuList);
 }
+
 

@@ -3,166 +3,167 @@ package com.qkyd.common.constant;
 import io.jsonwebtoken.Claims;
 
 /**
- * 通用常量信息
+ * 閫氱敤甯搁噺淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Constants
 {
     /**
-     * UTF-8 字符集
+     * UTF-8 瀛楃闆?
      */
     public static final String UTF8 = "UTF-8";
 
     /**
-     * GBK 字符集
+     * GBK 瀛楃闆?
      */
     public static final String GBK = "GBK";
 
     /**
-     * www主域
+     * www涓诲煙
      */
     public static final String WWW = "www.";
 
     /**
-     * http请求
+     * http璇锋眰
      */
     public static final String HTTP = "http://";
 
     /**
-     * https请求
+     * https璇锋眰
      */
     public static final String HTTPS = "https://";
 
     /**
-     * 通用成功标识
+     * 閫氱敤鎴愬姛鏍囪瘑
      */
     public static final String SUCCESS = "0";
 
     /**
-     * 通用失败标识
+     * 閫氱敤澶辫触鏍囪瘑
      */
     public static final String FAIL = "1";
 
     /**
-     * 登录成功
+     * 鐧诲綍鎴愬姛
      */
     public static final String LOGIN_SUCCESS = "Success";
 
     /**
-     * 注销
+     * 娉ㄩ攢
      */
     public static final String LOGOUT = "Logout";
 
     /**
-     * 注册
+     * 娉ㄥ唽
      */
     public static final String REGISTER = "Register";
 
     /**
-     * 登录失败
+     * 鐧诲綍澶辫触
      */
     public static final String LOGIN_FAIL = "Error";
 
     /**
-     * 所有权限标识
+     * 鎵€鏈夋潈闄愭爣璇?
      */
     public static final String ALL_PERMISSION = "*:*:*";
 
     /**
-     * 管理员角色权限标识
+     * 绠＄悊鍛樿鑹叉潈闄愭爣璇?
      */
     public static final String SUPER_ADMIN = "admin";
 
     /**
-     * 角色权限分隔符
+     * 瑙掕壊鏉冮檺鍒嗛殧绗?
      */
     public static final String ROLE_DELIMETER = ",";
 
     /**
-     * 权限标识分隔符
+     * 鏉冮檺鏍囪瘑鍒嗛殧绗?
      */
     public static final String PERMISSION_DELIMETER = ",";
 
     /**
-     * 验证码有效期（分钟）
+     * 楠岃瘉鐮佹湁鏁堟湡锛堝垎閽燂級
      */
     public static final Integer CAPTCHA_EXPIRATION = 2;
 
     /**
-     * 令牌
+     * 浠ょ墝
      */
     public static final String TOKEN = "token";
 
     /**
-     * 令牌前缀
+     * 浠ょ墝鍓嶇紑
      */
     public static final String TOKEN_PREFIX = "Bearer ";
 
     /**
-     * 令牌前缀
+     * 浠ょ墝鍓嶇紑
      */
     public static final String LOGIN_USER_KEY = "login_user_key";
 
     /**
-     * 用户ID
+     * 鐢ㄦ埛ID
      */
     public static final String JWT_USERID = "userid";
 
     /**
-     * 用户名称
+     * 鐢ㄦ埛鍚嶇О
      */
     public static final String JWT_USERNAME = Claims.SUBJECT;
 
     /**
-     * 用户头像
+     * 鐢ㄦ埛澶村儚
      */
     public static final String JWT_AVATAR = "avatar";
 
     /**
-     * 创建时间
+     * 鍒涘缓鏃堕棿
      */
     public static final String JWT_CREATED = "created";
 
     /**
-     * 用户权限
+     * 鐢ㄦ埛鏉冮檺
      */
     public static final String JWT_AUTHORITIES = "authorities";
 
     /**
-     * 资源映射路径 前缀
+     * 璧勬簮鏄犲皠璺緞 鍓嶇紑
      */
     public static final String RESOURCE_PREFIX = "/profile";
 
     /**
-     * RMI 远程方法调用
+     * RMI 杩滅▼鏂规硶璋冪敤
      */
     public static final String LOOKUP_RMI = "rmi:";
 
     /**
-     * LDAP 远程方法调用
+     * LDAP 杩滅▼鏂规硶璋冪敤
      */
     public static final String LOOKUP_LDAP = "ldap:";
 
     /**
-     * LDAPS 远程方法调用
+     * LDAPS 杩滅▼鏂规硶璋冪敤
      */
     public static final String LOOKUP_LDAPS = "ldaps:";
 
     /**
-     * 自动识别json对象白名单配置（仅允许解析的包名，范围越小越安全）
+     * 鑷姩璇嗗埆json瀵硅薄鐧藉悕鍗曢厤缃紙浠呭厑璁歌В鏋愮殑鍖呭悕锛岃寖鍥磋秺灏忚秺瀹夊叏锛?
      */
     public static final String[] JSON_WHITELIST_STR = { "org.springframework", "com.qkyd" };
 
     /**
-     * 定时任务白名单配置（仅允许访问的包名，如其他需要可以自行添加）
+     * 瀹氭椂浠诲姟鐧藉悕鍗曢厤缃紙浠呭厑璁歌闂殑鍖呭悕锛屽鍏朵粬闇€瑕佸彲浠ヨ嚜琛屾坊鍔狅級
      */
     public static final String[] JOB_WHITELIST_STR = { "com.qkyd" };
 
     /**
-     * 定时任务违规的字符
+     * 瀹氭椂浠诲姟杩濊鐨勫瓧绗?
      */
     public static final String[] JOB_ERROR_STR = { "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
             "org.springframework", "org.apache", "com.qkyd.common.utils.file", "com.qkyd.common.config" };
 }
+
 

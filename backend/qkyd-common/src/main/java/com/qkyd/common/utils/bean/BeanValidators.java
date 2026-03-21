@@ -6,9 +6,9 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 
 /**
- * bean对象属性验证
+ * bean瀵硅薄灞炴€ч獙璇?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class BeanValidators
 {
@@ -22,4 +22,5 @@ public class BeanValidators
         }
     }
 }
+
 

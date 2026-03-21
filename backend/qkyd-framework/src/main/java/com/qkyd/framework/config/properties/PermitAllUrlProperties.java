@@ -19,9 +19,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import com.qkyd.common.annotation.Anonymous;
 
 /**
- * 设置Anonymous注解允许匿名访问的url
+ * 璁剧疆Anonymous娉ㄨВ鍏佽鍖垮悕璁块棶鐨剈rl
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 public class PermitAllUrlProperties implements InitializingBean, ApplicationContextAware
@@ -43,12 +43,12 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
         map.keySet().forEach(info -> {
             HandlerMethod handlerMethod = map.get(info);
 
-            // 获取方法上边的注解 替代path variable 为 *
+            // 鑾峰彇鏂规硶涓婅竟鐨勬敞瑙?鏇夸唬path variable 涓?*
             Anonymous method = AnnotationUtils.findAnnotation(handlerMethod.getMethod(), Anonymous.class);
             Optional.ofNullable(method).ifPresent(anonymous -> Objects.requireNonNull(info.getPatternsCondition().getPatterns())
                     .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK))));
 
-            // 获取类上边的注解, 替代path variable 为 *
+            // 鑾峰彇绫讳笂杈圭殑娉ㄨВ, 鏇夸唬path variable 涓?*
             Anonymous controller = AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), Anonymous.class);
             Optional.ofNullable(controller).ifPresent(anonymous -> Objects.requireNonNull(info.getPatternsCondition().getPatterns())
                     .forEach(url -> urls.add(RegExUtils.replaceAll(url, PATTERN, ASTERISK))));
@@ -71,4 +71,5 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
         this.urls = urls;
     }
 }
+
 

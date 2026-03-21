@@ -8,9 +8,9 @@ import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.framework.web.domain.Server;
 
 /**
- * 服务器监控
+ * 鏈嶅姟鍣ㄧ洃鎺?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/monitor/server")
@@ -25,4 +25,5 @@ public class ServerController
         return AjaxResult.success(server);
     }
 }
+
 

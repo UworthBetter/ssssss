@@ -11,14 +11,14 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.constant.Constants;
 import com.qkyd.framework.interceptor.RepeatSubmitInterceptor;
 
 /**
- * 通用配置
+ * 閫氱敤閰嶇疆
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 public class ResourcesConfig implements WebMvcConfigurer
@@ -29,18 +29,18 @@ public class ResourcesConfig implements WebMvcConfigurer
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
     {
-        /** 本地文件上传路径 */
+        /** 鏈湴鏂囦欢涓婁紶璺緞 */
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
-                .addResourceLocations("file:" + RuoYiConfig.getProfile() + "/");
+                .addResourceLocations("file:" + QkydConfig.getProfile() + "/");
 
-        /** swagger配置 */
+        /** swagger閰嶇疆 */
         registry.addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .setCacheControl(CacheControl.maxAge(5, TimeUnit.HOURS).cachePublic());;
     }
 
     /**
-     * 自定义拦截规则
+     * 鑷畾涔夋嫤鎴鍒?
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry)
@@ -49,25 +49,27 @@ public class ResourcesConfig implements WebMvcConfigurer
     }
 
     /**
-     * 跨域配置
+     * 璺ㄥ煙閰嶇疆
      */
     @Bean
     public CorsFilter corsFilter()
     {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // 设置访问源地址
+        // 璁剧疆璁块棶婧愬湴鍧€
         config.addAllowedOriginPattern("*");
-        // 设置访问源请求头
+        // 璁剧疆璁块棶婧愯姹傚ご
         config.addAllowedHeader("*");
-        // 设置访问源请求方法
+        // 璁剧疆璁块棶婧愯姹傛柟娉?
         config.addAllowedMethod("*");
-        // 有效期 1800秒
+        // 鏈夋晥鏈?1800绉?
         config.setMaxAge(1800L);
-        // 添加映射路径，拦截一切请求
+        // 娣诲姞鏄犲皠璺緞锛屾嫤鎴竴鍒囪姹?
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        // 返回新的CorsFilter
+        // 杩斿洖鏂扮殑CorsFilter
         return new CorsFilter(source);
     }
 }
+
+

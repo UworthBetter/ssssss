@@ -21,10 +21,10 @@ public class RiskScoreController {
 
     @PostMapping("/assess")
     public AjaxResult assess(@RequestBody Map<String, Object> data) {
-        // 执行风险评分
+        // 鎵ц椋庨櫓璇勫垎
         AjaxResult result = riskScoreService.assessRisk(data);
         
-        // 如果评分成功，发布WebSocket推送事件
+        // 濡傛灉璇勫垎鎴愬姛锛屽彂甯僕ebSocket鎺ㄩ€佷簨浠?
         if (result != null && result.get("data") != null) {
             try {
                 Map<String, Object> riskData = (Map<String, Object>) result.get("data");
@@ -40,8 +40,8 @@ public class RiskScoreController {
                     eventPublisher.publishEvent(event);
                 }
             } catch (Exception e) {
-                // 不影响评分结果，只记录日志
-                System.err.println("发布风险评分更新事件失败: " + e.getMessage());
+                // 涓嶅奖鍝嶈瘎鍒嗙粨鏋滐紝鍙褰曟棩蹇?
+                System.err.println("鍙戝竷椋庨櫓璇勫垎鏇存柊浜嬩欢澶辫触: " + e.getMessage());
             }
         }
         

@@ -9,11 +9,11 @@ import java.lang.annotation.Target;
 import com.qkyd.common.enums.DataSourceType;
 
 /**
- * 自定义多数据源切换注解
+ * 鑷畾涔夊鏁版嵁婧愬垏鎹㈡敞瑙?
  *
- * 优先级：先方法，后类，如果方法覆盖了类上的数据源类型，以方法的为准，否则以类上的为准
+ * 浼樺厛绾э細鍏堟柟娉曪紝鍚庣被锛屽鏋滄柟娉曡鐩栦簡绫讳笂鐨勬暟鎹簮绫诲瀷锛屼互鏂规硶鐨勪负鍑嗭紝鍚﹀垯浠ョ被涓婄殑涓哄噯
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,8 +22,9 @@ import com.qkyd.common.enums.DataSourceType;
 public @interface DataSource
 {
     /**
-     * 切换数据源名称
+     * 鍒囨崲鏁版嵁婧愬悕绉?
      */
     public DataSourceType value() default DataSourceType.MASTER;
 }
+
 

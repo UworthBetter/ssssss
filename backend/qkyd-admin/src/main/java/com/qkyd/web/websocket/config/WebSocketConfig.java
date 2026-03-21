@@ -10,7 +10,7 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 import com.qkyd.web.websocket.handler.HealthDataWebSocketHandler;
 
 /**
- * WebSocket配置类
+ * WebSocket閰嶇疆绫?
  * 
  * @author qkyd
  * @date 2026-02-02
@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // 注册健康数据WebSocket端点
+        // 娉ㄥ唽鍋ュ悍鏁版嵁WebSocket绔偣
         registry.addHandler(healthDataWebSocketHandler, "/ws/health/data")
                 .setAllowedOrigins("*");
     }
@@ -35,9 +35,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        // 设置最大文本消息缓冲区大小（10MB）
+        // 璁剧疆鏈€澶ф枃鏈秷鎭紦鍐插尯澶у皬锛?0MB锛?
         container.setMaxTextMessageBufferSize(10 * 1024 * 1024);
-        // 设置最大二进制消息缓冲区大小（10MB）
+        // 璁剧疆鏈€澶т簩杩涘埗娑堟伅缂撳啿鍖哄ぇ灏忥紙10MB锛?
         container.setMaxBinaryMessageBufferSize(10 * 1024 * 1024);
         return container;
     }

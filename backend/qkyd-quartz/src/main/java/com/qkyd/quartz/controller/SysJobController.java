@@ -28,9 +28,9 @@ import com.qkyd.quartz.util.CronUtils;
 import com.qkyd.quartz.util.ScheduleUtils;
 
 /**
- * 调度任务信息操作处理
+ * 璋冨害浠诲姟淇℃伅鎿嶄綔澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/monitor/job")
@@ -40,7 +40,7 @@ public class SysJobController extends BaseController
     private ISysJobService jobService;
 
     /**
-     * 查询定时任务列表
+     * 鏌ヨ瀹氭椂浠诲姟鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:list')")
     @GetMapping("/list")
@@ -52,20 +52,20 @@ public class SysJobController extends BaseController
     }
 
     /**
-     * 导出定时任务列表
+     * 瀵煎嚭瀹氭椂浠诲姟鍒楄〃
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:export')")
-    @Log(title = "定时任务", businessType = BusinessType.EXPORT)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysJob sysJob)
     {
         List<SysJob> list = jobService.selectJobList(sysJob);
         ExcelUtil<SysJob> util = new ExcelUtil<SysJob>(SysJob.class);
-        util.exportExcel(response, list, "定时任务");
+        util.exportExcel(response, list, "瀹氭椂浠诲姟");
     }
 
     /**
-     * 获取定时任务详细信息
+     * 鑾峰彇瀹氭椂浠诲姟璇︾粏淇℃伅
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:query')")
     @GetMapping(value = "/{jobId}")
@@ -75,82 +75,82 @@ public class SysJobController extends BaseController
     }
 
     /**
-     * 新增定时任务
+     * 鏂板瀹氭椂浠诲姟
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:add')")
-    @Log(title = "定时任务", businessType = BusinessType.INSERT)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SysJob job) throws SchedulerException, TaskException
     {
         if (!CronUtils.isValid(job.getCronExpression()))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，Cron表达式不正确");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛孋ron琛ㄨ揪寮忎笉姝ｇ‘");
         }
         else if (StringUtils.containsIgnoreCase(job.getInvokeTarget(), Constants.LOOKUP_RMI))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，目标字符串不允许'rmi'调用");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?rmi'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.LOOKUP_LDAP, Constants.LOOKUP_LDAPS }))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，目标字符串不允许'ldap(s)'调用");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?ldap(s)'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.HTTP, Constants.HTTPS }))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，目标字符串不允许'http(s)'调用");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?http(s)'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), Constants.JOB_ERROR_STR))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，目标字符串存在违规");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆瀛樺湪杩濊");
         }
         else if (!ScheduleUtils.whiteList(job.getInvokeTarget()))
         {
-            return error("新增任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
+            return error("鏂板浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅湪鐧藉悕鍗曞唴");
         }
         job.setCreateBy(getUsername());
         return toAjax(jobService.insertJob(job));
     }
 
     /**
-     * 修改定时任务
+     * 淇敼瀹氭椂浠诲姟
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:edit')")
-    @Log(title = "定时任务", businessType = BusinessType.UPDATE)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SysJob job) throws SchedulerException, TaskException
     {
         if (!CronUtils.isValid(job.getCronExpression()))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，Cron表达式不正确");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛孋ron琛ㄨ揪寮忎笉姝ｇ‘");
         }
         else if (StringUtils.containsIgnoreCase(job.getInvokeTarget(), Constants.LOOKUP_RMI))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不允许'rmi'调用");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?rmi'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.LOOKUP_LDAP, Constants.LOOKUP_LDAPS }))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不允许'ldap(s)'调用");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?ldap(s)'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.HTTP, Constants.HTTPS }))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不允许'http(s)'调用");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅厑璁?http(s)'璋冪敤");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), Constants.JOB_ERROR_STR))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串存在违规");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆瀛樺湪杩濊");
         }
         else if (!ScheduleUtils.whiteList(job.getInvokeTarget()))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
+            return error("淇敼浠诲姟'" + job.getJobName() + "'澶辫触锛岀洰鏍囧瓧绗︿覆涓嶅湪鐧藉悕鍗曞唴");
         }
         job.setUpdateBy(getUsername());
         return toAjax(jobService.updateJob(job));
     }
 
     /**
-     * 定时任务状态修改
+     * 瀹氭椂浠诲姟鐘舵€佷慨鏀?
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:changeStatus')")
-    @Log(title = "定时任务", businessType = BusinessType.UPDATE)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody SysJob job) throws SchedulerException
     {
@@ -160,22 +160,22 @@ public class SysJobController extends BaseController
     }
 
     /**
-     * 定时任务立即执行一次
+     * 瀹氭椂浠诲姟绔嬪嵆鎵ц涓€娆?
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:changeStatus')")
-    @Log(title = "定时任务", businessType = BusinessType.UPDATE)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.UPDATE)
     @PutMapping("/run")
     public AjaxResult run(@RequestBody SysJob job) throws SchedulerException
     {
         boolean result = jobService.run(job);
-        return result ? success() : error("任务不存在或已过期！");
+        return result ? success() : error("浠诲姟涓嶅瓨鍦ㄦ垨宸茶繃鏈燂紒");
     }
 
     /**
-     * 删除定时任务
+     * 鍒犻櫎瀹氭椂浠诲姟
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:remove')")
-    @Log(title = "定时任务", businessType = BusinessType.DELETE)
+    @Log(title = "瀹氭椂浠诲姟", businessType = BusinessType.DELETE)
     @DeleteMapping("/{jobIds}")
     public AjaxResult remove(@PathVariable Long[] jobIds) throws SchedulerException, TaskException
     {
@@ -183,4 +183,5 @@ public class SysJobController extends BaseController
         return success();
     }
 }
+
 

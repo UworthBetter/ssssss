@@ -6,98 +6,99 @@ import com.qkyd.common.exception.job.TaskException;
 import com.qkyd.quartz.domain.SysJob;
 
 /**
- * 定时任务调度信息信息 服务层
+ * 瀹氭椂浠诲姟璋冨害淇℃伅淇℃伅 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysJobService
 {
     /**
-     * 获取quartz调度器的计划任务
+     * 鑾峰彇quartz璋冨害鍣ㄧ殑璁″垝浠诲姟
      * 
-     * @param job 调度信息
-     * @return 调度任务集合
+     * @param job 璋冨害淇℃伅
+     * @return 璋冨害浠诲姟闆嗗悎
      */
     public List<SysJob> selectJobList(SysJob job);
 
     /**
-     * 通过调度任务ID查询调度信息
+     * 閫氳繃璋冨害浠诲姟ID鏌ヨ璋冨害淇℃伅
      * 
-     * @param jobId 调度任务ID
-     * @return 调度任务对象信息
+     * @param jobId 璋冨害浠诲姟ID
+     * @return 璋冨害浠诲姟瀵硅薄淇℃伅
      */
     public SysJob selectJobById(Long jobId);
 
     /**
-     * 暂停任务
+     * 鏆傚仠浠诲姟
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int pauseJob(SysJob job) throws SchedulerException;
 
     /**
-     * 恢复任务
+     * 鎭㈠浠诲姟
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int resumeJob(SysJob job) throws SchedulerException;
 
     /**
-     * 删除任务后，所对应的trigger也将被删除
+     * 鍒犻櫎浠诲姟鍚庯紝鎵€瀵瑰簲鐨則rigger涔熷皢琚垹闄?
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int deleteJob(SysJob job) throws SchedulerException;
 
     /**
-     * 批量删除调度信息
+     * 鎵归噺鍒犻櫎璋冨害淇℃伅
      * 
-     * @param jobIds 需要删除的任务ID
-     * @return 结果
+     * @param jobIds 闇€瑕佸垹闄ょ殑浠诲姟ID
+     * @return 缁撴灉
      */
     public void deleteJobByIds(Long[] jobIds) throws SchedulerException;
 
     /**
-     * 任务调度状态修改
+     * 浠诲姟璋冨害鐘舵€佷慨鏀?
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int changeStatus(SysJob job) throws SchedulerException;
 
     /**
-     * 立即运行任务
+     * 绔嬪嵆杩愯浠诲姟
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public boolean run(SysJob job) throws SchedulerException;
 
     /**
-     * 新增任务
+     * 鏂板浠诲姟
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int insertJob(SysJob job) throws SchedulerException, TaskException;
 
     /**
-     * 更新任务
+     * 鏇存柊浠诲姟
      * 
-     * @param job 调度信息
-     * @return 结果
+     * @param job 璋冨害淇℃伅
+     * @return 缁撴灉
      */
     public int updateJob(SysJob job) throws SchedulerException, TaskException;
 
     /**
-     * 校验cron表达式是否有效
+     * 鏍￠獙cron琛ㄨ揪寮忔槸鍚︽湁鏁?
      * 
-     * @param cronExpression 表达式
-     * @return 结果
+     * @param cronExpression 琛ㄨ揪寮?
+     * @return 缁撴灉
      */
     public boolean checkCronExpressionIsValid(String cronExpression);
 }
+
 

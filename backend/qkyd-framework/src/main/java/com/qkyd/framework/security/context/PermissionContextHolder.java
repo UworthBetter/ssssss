@@ -5,9 +5,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import com.qkyd.common.core.text.Convert;
 
 /**
- * 权限信息
+ * 鏉冮檺淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class PermissionContextHolder
 {
@@ -25,4 +25,5 @@ public class PermissionContextHolder
                 RequestAttributes.SCOPE_REQUEST));
     }
 }
+
 

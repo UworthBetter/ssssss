@@ -18,9 +18,9 @@ import com.qkyd.system.mapper.SysConfigMapper;
 import com.qkyd.system.service.ISysConfigService;
 
 /**
- * 参数配置 服务层实现
+ * 鍙傛暟閰嶇疆 鏈嶅姟灞傚疄鐜?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysConfigServiceImpl implements ISysConfigService
@@ -32,7 +32,7 @@ public class SysConfigServiceImpl implements ISysConfigService
     private RedisCache redisCache;
 
     /**
-     * 项目启动时，初始化参数到缓存
+     * 椤圭洰鍚姩鏃讹紝鍒濆鍖栧弬鏁板埌缂撳瓨
      */
     @PostConstruct
     public void init()
@@ -41,10 +41,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 查询参数配置信息
+     * 鏌ヨ鍙傛暟閰嶇疆淇℃伅
      * 
-     * @param configId 参数配置ID
-     * @return 参数配置信息
+     * @param configId 鍙傛暟閰嶇疆ID
+     * @return 鍙傛暟閰嶇疆淇℃伅
      */
     @Override
     @DataSource(DataSourceType.MASTER)
@@ -56,10 +56,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 根据键名查询参数配置信息
+     * 鏍规嵁閿悕鏌ヨ鍙傛暟閰嶇疆淇℃伅
      * 
-     * @param configKey 参数key
-     * @return 参数键值
+     * @param configKey 鍙傛暟key
+     * @return 鍙傛暟閿€?
      */
     @Override
     public String selectConfigByKey(String configKey)
@@ -81,9 +81,9 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 获取验证码开关
+     * 鑾峰彇楠岃瘉鐮佸紑鍏?
      * 
-     * @return true开启，false关闭
+     * @return true寮€鍚紝false鍏抽棴
      */
     @Override
     public boolean selectCaptchaEnabled()
@@ -97,10 +97,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 查询参数配置列表
+     * 鏌ヨ鍙傛暟閰嶇疆鍒楄〃
      * 
-     * @param config 参数配置信息
-     * @return 参数配置集合
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 鍙傛暟閰嶇疆闆嗗悎
      */
     @Override
     public List<SysConfig> selectConfigList(SysConfig config)
@@ -109,10 +109,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 新增参数配置
+     * 鏂板鍙傛暟閰嶇疆
      * 
-     * @param config 参数配置信息
-     * @return 结果
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int insertConfig(SysConfig config)
@@ -126,10 +126,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 修改参数配置
+     * 淇敼鍙傛暟閰嶇疆
      * 
-     * @param config 参数配置信息
-     * @return 结果
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int updateConfig(SysConfig config)
@@ -149,9 +149,9 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 批量删除参数信息
+     * 鎵归噺鍒犻櫎鍙傛暟淇℃伅
      * 
-     * @param configIds 需要删除的参数ID
+     * @param configIds 闇€瑕佸垹闄ょ殑鍙傛暟ID
      */
     @Override
     public void deleteConfigByIds(Long[] configIds)
@@ -161,7 +161,7 @@ public class SysConfigServiceImpl implements ISysConfigService
             SysConfig config = selectConfigById(configId);
             if (StringUtils.equals(UserConstants.YES, config.getConfigType()))
             {
-                throw new ServiceException(String.format("内置参数【%1$s】不能删除 ", config.getConfigKey()));
+                throw new ServiceException(String.format("鍐呯疆鍙傛暟銆?1$s銆戜笉鑳藉垹闄?", config.getConfigKey()));
             }
             configMapper.deleteConfigById(configId);
             redisCache.deleteObject(getCacheKey(config.getConfigKey()));
@@ -169,7 +169,7 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 加载参数缓存数据
+     * 鍔犺浇鍙傛暟缂撳瓨鏁版嵁
      */
     @Override
     public void loadingConfigCache()
@@ -182,7 +182,7 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 清空参数缓存数据
+     * 娓呯┖鍙傛暟缂撳瓨鏁版嵁
      */
     @Override
     public void clearConfigCache()
@@ -192,7 +192,7 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 重置参数缓存数据
+     * 閲嶇疆鍙傛暟缂撳瓨鏁版嵁
      */
     @Override
     public void resetConfigCache()
@@ -202,10 +202,10 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 校验参数键名是否唯一
+     * 鏍￠獙鍙傛暟閿悕鏄惁鍞竴
      * 
-     * @param config 参数配置信息
-     * @return 结果
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public boolean checkConfigKeyUnique(SysConfig config)
@@ -220,14 +220,15 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 设置cache key
+     * 璁剧疆cache key
      * 
-     * @param configKey 参数键
-     * @return 缓存键key
+     * @param configKey 鍙傛暟閿?
+     * @return 缂撳瓨閿甼ey
      */
     private String getCacheKey(String configKey)
     {
         return CacheConstants.SYS_CONFIG_KEY + configKey;
     }
 }
+
 

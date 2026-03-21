@@ -3,9 +3,9 @@ package com.qkyd.common.exception.user;
 import com.qkyd.common.exception.base.BaseException;
 
 /**
- * 用户信息异常类
+ * 鐢ㄦ埛淇℃伅寮傚父绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class UserException extends BaseException
 {
@@ -16,4 +16,5 @@ public class UserException extends BaseException
         super("user", code, args, null);
     }
 }
+
 

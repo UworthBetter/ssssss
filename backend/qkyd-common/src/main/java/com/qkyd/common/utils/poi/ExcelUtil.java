@@ -73,7 +73,7 @@ import com.qkyd.common.annotation.Excel;
 import com.qkyd.common.annotation.Excel.ColumnType;
 import com.qkyd.common.annotation.Excel.Type;
 import com.qkyd.common.annotation.Excels;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.common.core.text.Convert;
 import com.qkyd.common.exception.UtilException;
@@ -1355,7 +1355,7 @@ public class ExcelUtil<T>
      */
     public String getAbsoluteFile(String filename)
     {
-        String downloadPath = RuoYiConfig.getDownloadPath() + filename;
+        String downloadPath = QkydConfig.getDownloadPath() + filename;
         File desc = new File(downloadPath);
         if (!desc.getParentFile().exists())
         {

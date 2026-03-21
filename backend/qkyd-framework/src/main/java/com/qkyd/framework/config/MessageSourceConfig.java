@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 /**
- * 国际化消息源配置
+ * 鍥介檯鍖栨秷鎭簮閰嶇疆
  * 
  * @author qkyd
  */
@@ -14,20 +14,20 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 public class MessageSourceConfig {
 
     /**
-     * 配置 MessageSource Bean 用于加载 i18n 国际化资源文件
+     * 閰嶇疆 MessageSource Bean 鐢ㄤ簬鍔犺浇 i18n 鍥介檯鍖栬祫婧愭枃浠?
      * 
-     * @return MessageSource 实例
+     * @return MessageSource 瀹炰緥
      */
     @Bean
     public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        // 设置基础名称，对应 resources/i18n/messages.properties
+        // 璁剧疆鍩虹鍚嶇О锛屽搴?resources/i18n/messages.properties
         messageSource.setBasename("i18n/messages");
-        // 设置默认编码
+        // 璁剧疆榛樿缂栫爜
         messageSource.setDefaultEncoding("UTF-8");
-        // 如果找不到消息代码的键值，使用消息代码本身作为返回值
+        // 濡傛灉鎵句笉鍒版秷鎭唬鐮佺殑閿€硷紝浣跨敤娑堟伅浠ｇ爜鏈韩浣滀负杩斿洖鍊?
         messageSource.setUseCodeAsDefaultMessage(true);
-        // 缓存时间（秒），-1表示永久缓存
+        // 缂撳瓨鏃堕棿锛堢锛夛紝-1琛ㄧず姘镐箙缂撳瓨
         messageSource.setCacheSeconds(3600);
         return messageSource;
     }

@@ -1,20 +1,21 @@
 package com.qkyd.common.enums;
 
 /**
- * 数据源
+ * 鏁版嵁婧?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public enum DataSourceType
 {
     /**
-     * 主库
+     * 涓诲簱
      */
     MASTER,
 
     /**
-     * 从库
+     * 浠庡簱
      */
     SLAVE
 }
+
 

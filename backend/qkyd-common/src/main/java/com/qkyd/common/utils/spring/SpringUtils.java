@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * spring工具类 方便在非spring管理环境中获取bean
+ * spring宸ュ叿绫?鏂逛究鍦ㄩ潪spring绠＄悊鐜涓幏鍙朾ean
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationContextAware 
 {
-    /** Spring应用上下文环境 */
+    /** Spring搴旂敤涓婁笅鏂囩幆澧?*/
     private static ConfigurableListableBeanFactory beanFactory;
 
     private static ApplicationContext applicationContext;
@@ -36,10 +36,10 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取对象
+     * 鑾峰彇瀵硅薄
      *
      * @param name
-     * @return Object 一个以所给名字注册的bean的实例
+     * @return Object 涓€涓互鎵€缁欏悕瀛楁敞鍐岀殑bean鐨勫疄渚?
      * @throws org.springframework.beans.BeansException
      *
      */
@@ -50,7 +50,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取类型为requiredType的对象
+     * 鑾峰彇绫诲瀷涓簉equiredType鐨勫璞?
      *
      * @param clz
      * @return
@@ -64,7 +64,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true
+     * 濡傛灉BeanFactory鍖呭惈涓€涓笌鎵€缁欏悕绉板尮閰嶇殑bean瀹氫箟锛屽垯杩斿洖true
      *
      * @param name
      * @return boolean
@@ -75,7 +75,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 判断以给定名字注册的bean定义是一个singleton还是一个prototype。 如果与给定名字相应的bean定义没有被找到，将会抛出一个异常（NoSuchBeanDefinitionException）
+     * 鍒ゆ柇浠ョ粰瀹氬悕瀛楁敞鍐岀殑bean瀹氫箟鏄竴涓猻ingleton杩樻槸涓€涓猵rototype銆?濡傛灉涓庣粰瀹氬悕瀛楃浉搴旂殑bean瀹氫箟娌℃湁琚壘鍒帮紝灏嗕細鎶涘嚭涓€涓紓甯革紙NoSuchBeanDefinitionException锛?
      *
      * @param name
      * @return boolean
@@ -89,7 +89,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
 
     /**
      * @param name
-     * @return Class 注册对象的类型
+     * @return Class 娉ㄥ唽瀵硅薄鐨勭被鍨?
      * @throws org.springframework.beans.factory.NoSuchBeanDefinitionException
      *
      */
@@ -99,7 +99,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 如果给定的bean名字在bean定义中有别名，则返回这些别名
+     * 濡傛灉缁欏畾鐨刡ean鍚嶅瓧鍦╞ean瀹氫箟涓湁鍒悕锛屽垯杩斿洖杩欎簺鍒悕
      *
      * @param name
      * @return
@@ -112,7 +112,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取aop代理对象
+     * 鑾峰彇aop浠ｇ悊瀵硅薄
      * 
      * @param invoker
      * @return
@@ -124,9 +124,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取当前的环境配置，无配置返回null
+     * 鑾峰彇褰撳墠鐨勭幆澧冮厤缃紝鏃犻厤缃繑鍥瀗ull
      *
-     * @return 当前的环境配置
+     * @return 褰撳墠鐨勭幆澧冮厤缃?
      */
     public static String[] getActiveProfiles()
     {
@@ -134,9 +134,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取当前的环境配置，当有多个环境配置时，只获取第一个
+     * 鑾峰彇褰撳墠鐨勭幆澧冮厤缃紝褰撴湁澶氫釜鐜閰嶇疆鏃讹紝鍙幏鍙栫涓€涓?
      *
-     * @return 当前的环境配置
+     * @return 褰撳墠鐨勭幆澧冮厤缃?
      */
     public static String getActiveProfile()
     {
@@ -145,10 +145,10 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     }
 
     /**
-     * 获取配置文件中的值
+     * 鑾峰彇閰嶇疆鏂囦欢涓殑鍊?
      *
-     * @param key 配置文件的key
-     * @return 当前的配置文件的值
+     * @param key 閰嶇疆鏂囦欢鐨刱ey
+     * @return 褰撳墠鐨勯厤缃枃浠剁殑鍊?
      *
      */
     public static String getRequiredProperty(String key)
@@ -156,4 +156,5 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
         return applicationContext.getEnvironment().getRequiredProperty(key);
     }
 }
+
 

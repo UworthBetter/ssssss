@@ -1,34 +1,34 @@
 package com.qkyd.framework.web.domain.server;
 
 /**
- * 系统相关信息
+ * 绯荤粺鐩稿叧淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Sys
 {
     /**
-     * 服务器名称
+     * 鏈嶅姟鍣ㄥ悕绉?
      */
     private String computerName;
 
     /**
-     * 服务器Ip
+     * 鏈嶅姟鍣↖p
      */
     private String computerIp;
 
     /**
-     * 项目路径
+     * 椤圭洰璺緞
      */
     private String userDir;
 
     /**
-     * 操作系统
+     * 鎿嶄綔绯荤粺
      */
     private String osName;
 
     /**
-     * 系统架构
+     * 绯荤粺鏋舵瀯
      */
     private String osArch;
 
@@ -82,4 +82,5 @@ public class Sys
         this.osArch = osArch;
     }
 }
+
 

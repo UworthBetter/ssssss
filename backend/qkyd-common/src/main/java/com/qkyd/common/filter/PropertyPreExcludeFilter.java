@@ -3,9 +3,9 @@ package com.qkyd.common.filter;
 import com.alibaba.fastjson2.filter.SimplePropertyPreFilter;
 
 /**
- * 排除JSON敏感属性
+ * 鎺掗櫎JSON鏁忔劅灞炴€?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class PropertyPreExcludeFilter extends SimplePropertyPreFilter
 {
@@ -22,4 +22,5 @@ public class PropertyPreExcludeFilter extends SimplePropertyPreFilter
         return this;
     }
 }
+
 

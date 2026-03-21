@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PreDestroy;
 
 /**
- * 确保应用退出时能关闭后台线程
+ * 纭繚搴旂敤閫€鍑烘椂鑳藉叧闂悗鍙扮嚎绋?
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class ShutdownManager
@@ -22,13 +22,13 @@ public class ShutdownManager
     }
 
     /**
-     * 停止异步执行任务
+     * 鍋滄寮傛鎵ц浠诲姟
      */
     private void shutdownAsyncManager()
     {
         try
         {
-            logger.info("====关闭后台任务任务线程池====");
+            logger.info("====鍏抽棴鍚庡彴浠诲姟浠诲姟绾跨▼姹?===");
             AsyncManager.me().shutdown();
         }
         catch (Exception e)
@@ -37,4 +37,5 @@ public class ShutdownManager
         }
     }
 }
+
 

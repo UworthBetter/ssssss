@@ -4,9 +4,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * 文件上传异常类
+ * 鏂囦欢涓婁紶寮傚父绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class FileUploadException extends Exception
 {
@@ -59,4 +59,5 @@ public class FileUploadException extends Exception
         return cause;
     }
 }
+
 

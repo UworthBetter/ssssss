@@ -8,9 +8,9 @@ import com.qkyd.system.mapper.SysNoticeMapper;
 import com.qkyd.system.service.ISysNoticeService;
 
 /**
- * 公告 服务层实现
+ * 鍏憡 鏈嶅姟灞傚疄鐜?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysNoticeServiceImpl implements ISysNoticeService
@@ -19,10 +19,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     private SysNoticeMapper noticeMapper;
 
     /**
-     * 查询公告信息
+     * 鏌ヨ鍏憡淇℃伅
      * 
-     * @param noticeId 公告ID
-     * @return 公告信息
+     * @param noticeId 鍏憡ID
+     * @return 鍏憡淇℃伅
      */
     @Override
     public SysNotice selectNoticeById(Long noticeId)
@@ -31,10 +31,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
-     * 查询公告列表
+     * 鏌ヨ鍏憡鍒楄〃
      * 
-     * @param notice 公告信息
-     * @return 公告集合
+     * @param notice 鍏憡淇℃伅
+     * @return 鍏憡闆嗗悎
      */
     @Override
     public List<SysNotice> selectNoticeList(SysNotice notice)
@@ -43,10 +43,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
-     * 新增公告
+     * 鏂板鍏憡
      * 
-     * @param notice 公告信息
-     * @return 结果
+     * @param notice 鍏憡淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int insertNotice(SysNotice notice)
@@ -55,10 +55,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
-     * 修改公告
+     * 淇敼鍏憡
      * 
-     * @param notice 公告信息
-     * @return 结果
+     * @param notice 鍏憡淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int updateNotice(SysNotice notice)
@@ -67,10 +67,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
-     * 删除公告对象
+     * 鍒犻櫎鍏憡瀵硅薄
      * 
-     * @param noticeId 公告ID
-     * @return 结果
+     * @param noticeId 鍏憡ID
+     * @return 缁撴灉
      */
     @Override
     public int deleteNoticeById(Long noticeId)
@@ -79,10 +79,10 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
-     * 批量删除公告信息
+     * 鎵归噺鍒犻櫎鍏憡淇℃伅
      * 
-     * @param noticeIds 需要删除的公告ID
-     * @return 结果
+     * @param noticeIds 闇€瑕佸垹闄ょ殑鍏憡ID
+     * @return 缁撴灉
      */
     @Override
     public int deleteNoticeByIds(Long[] noticeIds)
@@ -90,4 +90,5 @@ public class SysNoticeServiceImpl implements ISysNoticeService
         return noticeMapper.deleteNoticeByIds(noticeIds);
     }
 }
+
 

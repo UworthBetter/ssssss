@@ -26,9 +26,9 @@ import com.qkyd.system.service.ISysDictDataService;
 import com.qkyd.system.service.ISysDictTypeService;
 
 /**
- * 数据字典信息
+ * 鏁版嵁瀛楀吀淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/dict/data")
@@ -49,18 +49,18 @@ public class SysDictDataController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "字典数据", businessType = BusinessType.EXPORT)
+    @Log(title = "瀛楀吀鏁版嵁", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:dict:export')")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysDictData dictData)
     {
         List<SysDictData> list = dictDataService.selectDictDataList(dictData);
         ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
-        util.exportExcel(response, list, "字典数据");
+        util.exportExcel(response, list, "瀛楀吀鏁版嵁");
     }
 
     /**
-     * 查询字典数据详细
+     * 鏌ヨ瀛楀吀鏁版嵁璇︾粏
      */
     @PreAuthorize("@ss.hasPermi('system:dict:query')")
     @GetMapping(value = "/{dictCode}")
@@ -70,7 +70,7 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 根据字典类型查询字典数据信息
+     * 鏍规嵁瀛楀吀绫诲瀷鏌ヨ瀛楀吀鏁版嵁淇℃伅
      */
     @GetMapping(value = "/type/{dictType}")
     public AjaxResult dictType(@PathVariable String dictType)
@@ -84,10 +84,10 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 新增字典类型
+     * 鏂板瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
-    @Log(title = "字典数据", businessType = BusinessType.INSERT)
+    @Log(title = "瀛楀吀鏁版嵁", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictData dict)
     {
@@ -96,10 +96,10 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 修改保存字典类型
+     * 淇敼淇濆瓨瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
-    @Log(title = "字典数据", businessType = BusinessType.UPDATE)
+    @Log(title = "瀛楀吀鏁版嵁", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictData dict)
     {
@@ -108,10 +108,10 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 删除字典类型
+     * 鍒犻櫎瀛楀吀绫诲瀷
      */
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
-    @Log(title = "字典类型", businessType = BusinessType.DELETE)
+    @Log(title = "瀛楀吀绫诲瀷", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictCodes}")
     public AjaxResult remove(@PathVariable Long[] dictCodes)
     {
@@ -119,4 +119,5 @@ public class SysDictDataController extends BaseController
         return success();
     }
 }
+
 

@@ -17,41 +17,41 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.framework.security.context.PermissionContextHolder;
 
 /**
- * 数据过滤处理
+ * 鏁版嵁杩囨护澶勭悊
  *
- * @author ruoyi
+ * @author qkyd
  */
 @Aspect
 @Component
 public class DataScopeAspect
 {
     /**
-     * 全部数据权限
+     * 鍏ㄩ儴鏁版嵁鏉冮檺
      */
     public static final String DATA_SCOPE_ALL = "1";
 
     /**
-     * 自定数据权限
+     * 鑷畾鏁版嵁鏉冮檺
      */
     public static final String DATA_SCOPE_CUSTOM = "2";
 
     /**
-     * 部门数据权限
+     * 閮ㄩ棬鏁版嵁鏉冮檺
      */
     public static final String DATA_SCOPE_DEPT = "3";
 
     /**
-     * 部门及以下数据权限
+     * 閮ㄩ棬鍙婁互涓嬫暟鎹潈闄?
      */
     public static final String DATA_SCOPE_DEPT_AND_CHILD = "4";
 
     /**
-     * 仅本人数据权限
+     * 浠呮湰浜烘暟鎹潈闄?
      */
     public static final String DATA_SCOPE_SELF = "5";
 
     /**
-     * 数据权限过滤关键字
+     * 鏁版嵁鏉冮檺杩囨护鍏抽敭瀛?
      */
     public static final String DATA_SCOPE = "dataScope";
 
@@ -64,12 +64,12 @@ public class DataScopeAspect
 
     protected void handleDataScope(final JoinPoint joinPoint, DataScope controllerDataScope)
     {
-        // 获取当前的用户
+        // 鑾峰彇褰撳墠鐨勭敤鎴?
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (StringUtils.isNotNull(loginUser))
         {
             SysUser currentUser = loginUser.getUser();
-            // 如果是超级管理员，则不过滤数据
+            // 濡傛灉鏄秴绾х鐞嗗憳锛屽垯涓嶈繃婊ゆ暟鎹?
             if (StringUtils.isNotNull(currentUser) && !currentUser.isAdmin())
             {
                 String permission = StringUtils.defaultIfEmpty(controllerDataScope.permission(), PermissionContextHolder.getContext());
@@ -80,13 +80,13 @@ public class DataScopeAspect
     }
 
     /**
-     * 数据范围过滤
+     * 鏁版嵁鑼冨洿杩囨护
      *
-     * @param joinPoint 切点
-     * @param user 用户
-     * @param deptAlias 部门别名
-     * @param userAlias 用户别名
-     * @param permission 权限字符
+     * @param joinPoint 鍒囩偣
+     * @param user 鐢ㄦ埛
+     * @param deptAlias 閮ㄩ棬鍒悕
+     * @param userAlias 鐢ㄦ埛鍒悕
+     * @param permission 鏉冮檺瀛楃
      */
     public static void dataScopeFilter(JoinPoint joinPoint, SysUser user, String deptAlias, String userAlias, String permission)
     {
@@ -135,14 +135,14 @@ public class DataScopeAspect
                 }
                 else
                 {
-                    // 数据权限为仅本人且没有userAlias别名不查询任何数据
+                    // 鏁版嵁鏉冮檺涓轰粎鏈汉涓旀病鏈塽serAlias鍒悕涓嶆煡璇换浣曟暟鎹?
                     sqlString.append(StringUtils.format(" OR {}.dept_id = 0 ", deptAlias));
                 }
             }
             conditions.add(dataScope);
         }
 
-        // 多角色情况下，所有角色都不包含传递过来的权限字符，这个时候sqlString也会为空，所以要限制一下,不查询任何数据
+        // 澶氳鑹叉儏鍐典笅锛屾墍鏈夎鑹查兘涓嶅寘鍚紶閫掕繃鏉ョ殑鏉冮檺瀛楃锛岃繖涓椂鍊檚qlString涔熶細涓虹┖锛屾墍浠ヨ闄愬埗涓€涓?涓嶆煡璇换浣曟暟鎹?
         if (StringUtils.isEmpty(conditions))
         {
             sqlString.append(StringUtils.format(" OR {}.dept_id = 0 ", deptAlias));
@@ -160,7 +160,7 @@ public class DataScopeAspect
     }
 
     /**
-     * 拼接权限sql前先清空params.dataScope参数防止注入
+     * 鎷兼帴鏉冮檺sql鍓嶅厛娓呯┖params.dataScope鍙傛暟闃叉娉ㄥ叆
      */
     private void clearDataScope(final JoinPoint joinPoint)
     {
@@ -172,4 +172,5 @@ public class DataScopeAspect
         }
     }
 }
+
 

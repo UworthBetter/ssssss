@@ -1,33 +1,33 @@
 package com.qkyd.common.exception;
 
 /**
- * 业务异常
+ * 涓氬姟寮傚父
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public final class ServiceException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 错误码
+     * 閿欒鐮?
      */
     private Integer code;
 
     /**
-     * 错误提示
+     * 閿欒鎻愮ず
      */
     private String message;
 
     /**
-     * 错误明细，内部调试错误
+     * 閿欒鏄庣粏锛屽唴閮ㄨ皟璇曢敊璇?
      *
-     * 和 {@link CommonResult#getDetailMessage()} 一致的设计
+     * 鍜?{@link CommonResult#getDetailMessage()} 涓€鑷寸殑璁捐
      */
     private String detailMessage;
 
     /**
-     * 空构造方法，避免反序列化问题
+     * 绌烘瀯閫犳柟娉曪紝閬垮厤鍙嶅簭鍒楀寲闂
      */
     public ServiceException()
     {
@@ -72,3 +72,4 @@ public final class ServiceException extends RuntimeException
         return this;
     }
 }
+

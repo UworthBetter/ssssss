@@ -1,9 +1,9 @@
 package com.qkyd.common.exception;
 
 /**
- * 演示模式异常
+ * 婕旂ず妯″紡寮傚父
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class DemoModeException extends RuntimeException
 {
@@ -13,4 +13,5 @@ public class DemoModeException extends RuntimeException
     {
     }
 }
+
 

@@ -4,62 +4,63 @@ import java.util.List;
 import com.qkyd.quartz.domain.SysJobLog;
 
 /**
- * 调度任务日志信息 数据层
+ * 璋冨害浠诲姟鏃ュ織淇℃伅 鏁版嵁灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface SysJobLogMapper
 {
     /**
-     * 获取quartz调度器日志的计划任务
+     * 鑾峰彇quartz璋冨害鍣ㄦ棩蹇楃殑璁″垝浠诲姟
      * 
-     * @param jobLog 调度日志信息
-     * @return 调度任务日志集合
+     * @param jobLog 璋冨害鏃ュ織淇℃伅
+     * @return 璋冨害浠诲姟鏃ュ織闆嗗悎
      */
     public List<SysJobLog> selectJobLogList(SysJobLog jobLog);
 
     /**
-     * 查询所有调度任务日志
+     * 鏌ヨ鎵€鏈夎皟搴︿换鍔℃棩蹇?
      *
-     * @return 调度任务日志列表
+     * @return 璋冨害浠诲姟鏃ュ織鍒楄〃
      */
     public List<SysJobLog> selectJobLogAll();
 
     /**
-     * 通过调度任务日志ID查询调度信息
+     * 閫氳繃璋冨害浠诲姟鏃ュ織ID鏌ヨ璋冨害淇℃伅
      * 
-     * @param jobLogId 调度任务日志ID
-     * @return 调度任务日志对象信息
+     * @param jobLogId 璋冨害浠诲姟鏃ュ織ID
+     * @return 璋冨害浠诲姟鏃ュ織瀵硅薄淇℃伅
      */
     public SysJobLog selectJobLogById(Long jobLogId);
 
     /**
-     * 新增任务日志
+     * 鏂板浠诲姟鏃ュ織
      * 
-     * @param jobLog 调度日志信息
-     * @return 结果
+     * @param jobLog 璋冨害鏃ュ織淇℃伅
+     * @return 缁撴灉
      */
     public int insertJobLog(SysJobLog jobLog);
 
     /**
-     * 批量删除调度日志信息
+     * 鎵归噺鍒犻櫎璋冨害鏃ュ織淇℃伅
      * 
-     * @param logIds 需要删除的数据ID
-     * @return 结果
+     * @param logIds 闇€瑕佸垹闄ょ殑鏁版嵁ID
+     * @return 缁撴灉
      */
     public int deleteJobLogByIds(Long[] logIds);
 
     /**
-     * 删除任务日志
+     * 鍒犻櫎浠诲姟鏃ュ織
      * 
-     * @param jobId 调度日志ID
-     * @return 结果
+     * @param jobId 璋冨害鏃ュ織ID
+     * @return 缁撴灉
      */
     public int deleteJobLogById(Long jobId);
 
     /**
-     * 清空任务日志
+     * 娓呯┖浠诲姟鏃ュ織
      */
     public void cleanJobLog();
 }
+
 

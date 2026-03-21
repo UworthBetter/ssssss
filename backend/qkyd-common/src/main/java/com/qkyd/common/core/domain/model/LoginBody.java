@@ -1,29 +1,29 @@
 package com.qkyd.common.core.domain.model;
 
 /**
- * 用户登录对象
+ * 鐢ㄦ埛鐧诲綍瀵硅薄
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class LoginBody
 {
     /**
-     * 用户名
+     * 鐢ㄦ埛鍚?
      */
     private String username;
 
     /**
-     * 用户密码
+     * 鐢ㄦ埛瀵嗙爜
      */
     private String password;
 
     /**
-     * 验证码
+     * 楠岃瘉鐮?
      */
     private String code;
 
     /**
-     * 唯一标识
+     * 鍞竴鏍囪瘑
      */
     private String uuid;
 
@@ -67,4 +67,5 @@ public class LoginBody
         this.uuid = uuid;
     }
 }
+
 

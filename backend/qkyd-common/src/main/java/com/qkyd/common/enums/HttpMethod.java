@@ -5,9 +5,9 @@ import java.util.Map;
 import org.springframework.lang.Nullable;
 
 /**
- * 请求方式
+ * 璇锋眰鏂瑰紡
  *
- * @author ruoyi
+ * @author qkyd
  */
 public enum HttpMethod
 {
@@ -34,4 +34,5 @@ public enum HttpMethod
         return (this == resolve(method));
     }
 }
+
 

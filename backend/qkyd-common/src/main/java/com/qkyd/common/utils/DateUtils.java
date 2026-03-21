@@ -12,9 +12,9 @@ import java.util.Date;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
- * 时间工具类
+ * 鏃堕棿宸ュ叿绫?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils
 {
@@ -34,9 +34,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
             "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
 
     /**
-     * 获取当前Date型日期
+     * 鑾峰彇褰撳墠Date鍨嬫棩鏈?
      * 
-     * @return Date() 当前日期
+     * @return Date() 褰撳墠鏃ユ湡
      */
     public static Date getNowDate()
     {
@@ -44,7 +44,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 获取当前日期, 默认格式为yyyy-MM-dd
+     * 鑾峰彇褰撳墠鏃ユ湡, 榛樿鏍煎紡涓簓yyy-MM-dd
      * 
      * @return String
      */
@@ -91,7 +91,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 日期路径 即年/月/日 如2018/08/08
+     * 鏃ユ湡璺緞 鍗冲勾/鏈?鏃?濡?018/08/08
      */
     public static final String datePath()
     {
@@ -100,7 +100,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 日期路径 即年/月/日 如20180808
+     * 鏃ユ湡璺緞 鍗冲勾/鏈?鏃?濡?0180808
      */
     public static final String dateTime()
     {
@@ -109,7 +109,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 日期型字符串转化为日期 格式
+     * 鏃ユ湡鍨嬪瓧绗︿覆杞寲涓烘棩鏈?鏍煎紡
      */
     public static Date parseDate(Object str)
     {
@@ -128,7 +128,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 获取服务器启动时间
+     * 鑾峰彇鏈嶅姟鍣ㄥ惎鍔ㄦ椂闂?
      */
     public static Date getServerStartDate()
     {
@@ -137,7 +137,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 计算相差天数
+     * 璁＄畻鐩稿樊澶╂暟
      */
     public static int differentDaysByMillisecond(Date date1, Date date2)
     {
@@ -145,11 +145,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 计算时间差
+     * 璁＄畻鏃堕棿宸?
      *
-     * @param endDate 最后时间
-     * @param startTime 开始时间
-     * @return 时间差（天/小时/分钟）
+     * @param endDate 鏈€鍚庢椂闂?
+     * @param startTime 寮€濮嬫椂闂?
+     * @return 鏃堕棿宸紙澶?灏忔椂/鍒嗛挓锛?
      */
     public static String timeDistance(Date endDate, Date startTime)
     {
@@ -157,21 +157,21 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         long nh = 1000 * 60 * 60;
         long nm = 1000 * 60;
         // long ns = 1000;
-        // 获得两个时间的毫秒时间差异
+        // 鑾峰緱涓や釜鏃堕棿鐨勬绉掓椂闂村樊寮?
         long diff = endDate.getTime() - startTime.getTime();
-        // 计算差多少天
+        // 璁＄畻宸灏戝ぉ
         long day = diff / nd;
-        // 计算差多少小时
+        // 璁＄畻宸灏戝皬鏃?
         long hour = diff % nd / nh;
-        // 计算差多少分钟
+        // 璁＄畻宸灏戝垎閽?
         long min = diff % nd % nh / nm;
-        // 计算差多少秒//输出结果
+        // 璁＄畻宸灏戠//杈撳嚭缁撴灉
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
     }
 
     /**
-     * 增加 LocalDateTime ==> Date
+     * 澧炲姞 LocalDateTime ==> Date
      */
     public static Date toDate(LocalDateTime temporalAccessor)
     {
@@ -180,7 +180,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     }
 
     /**
-     * 增加 LocalDate ==> Date
+     * 澧炲姞 LocalDate ==> Date
      */
     public static Date toDate(LocalDate temporalAccessor)
     {
@@ -189,4 +189,5 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         return Date.from(zdt.toInstant());
     }
 }
+
 

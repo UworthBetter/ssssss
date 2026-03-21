@@ -9,14 +9,14 @@ import java.util.Arrays;
 import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.constant.Constants;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 图片处理工具类
+ * 鍥剧墖澶勭悊宸ュ叿绫?
  *
- * @author ruoyi
+ * @author qkyd
  */
 public class ImageUtils
 {
@@ -31,7 +31,7 @@ public class ImageUtils
         }
         catch (Exception e)
         {
-            log.error("图片加载异常 {}", e);
+            log.error("鍥剧墖鍔犺浇寮傚父 {}", e);
             return null;
         }
         finally
@@ -50,16 +50,16 @@ public class ImageUtils
         }
         catch (Exception e)
         {
-            log.error("获取图片异常 {}", e);
+            log.error("鑾峰彇鍥剧墖寮傚父 {}", e);
         }
         return null;
     }
 
     /**
-     * 读取文件为字节数据
+     * 璇诲彇鏂囦欢涓哄瓧鑺傛暟鎹?
      * 
-     * @param url 地址
-     * @return 字节数据
+     * @param url 鍦板潃
+     * @return 瀛楄妭鏁版嵁
      */
     public static byte[] readFile(String url)
     {
@@ -68,7 +68,7 @@ public class ImageUtils
         {
             if (url.startsWith("http"))
             {
-                // 网络地址
+                // 缃戠粶鍦板潃
                 URL urlObj = new URL(url);
                 URLConnection urlConnection = urlObj.openConnection();
                 urlConnection.setConnectTimeout(30 * 1000);
@@ -78,8 +78,8 @@ public class ImageUtils
             }
             else
             {
-                // 本机地址
-                String localPath = RuoYiConfig.getProfile();
+                // 鏈満鍦板潃
+                String localPath = QkydConfig.getProfile();
                 String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
                 in = new FileInputStream(downloadPath);
             }
@@ -87,7 +87,7 @@ public class ImageUtils
         }
         catch (Exception e)
         {
-            log.error("获取文件路径异常 {}", e);
+            log.error("鑾峰彇鏂囦欢璺緞寮傚父 {}", e);
             return null;
         }
         finally
@@ -96,4 +96,6 @@ public class ImageUtils
         }
     }
 }
+
+
 

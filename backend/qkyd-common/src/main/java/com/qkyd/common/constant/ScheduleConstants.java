@@ -1,37 +1,37 @@
 package com.qkyd.common.constant;
 
 /**
- * 任务调度通用常量
+ * 浠诲姟璋冨害閫氱敤甯搁噺
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class ScheduleConstants
 {
     public static final String TASK_CLASS_NAME = "TASK_CLASS_NAME";
 
-    /** 执行目标key */
+    /** 鎵ц鐩爣key */
     public static final String TASK_PROPERTIES = "TASK_PROPERTIES";
 
-    /** 默认 */
+    /** 榛樿 */
     public static final String MISFIRE_DEFAULT = "0";
 
-    /** 立即触发执行 */
+    /** 绔嬪嵆瑙﹀彂鎵ц */
     public static final String MISFIRE_IGNORE_MISFIRES = "1";
 
-    /** 触发一次执行 */
+    /** 瑙﹀彂涓€娆℃墽琛?*/
     public static final String MISFIRE_FIRE_AND_PROCEED = "2";
 
-    /** 不触发立即执行 */
+    /** 涓嶈Е鍙戠珛鍗虫墽琛?*/
     public static final String MISFIRE_DO_NOTHING = "3";
 
     public enum Status
     {
         /**
-         * 正常
+         * 姝ｅ父
          */
         NORMAL("0"),
         /**
-         * 暂停
+         * 鏆傚仠
          */
         PAUSE("1");
 
@@ -48,4 +48,5 @@ public class ScheduleConstants
         }
     }
 }
+
 

@@ -3,29 +3,29 @@ package com.qkyd.system.domain.vo;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 路由显示信息
+ * 璺敱鏄剧ず淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class MetaVo
 {
     /**
-     * 设置该路由在侧边栏和面包屑中展示的名字
+     * 璁剧疆璇ヨ矾鐢卞湪渚ц竟鏍忓拰闈㈠寘灞戜腑灞曠ず鐨勫悕瀛?
      */
     private String title;
 
     /**
-     * 设置该路由的图标，对应路径src/assets/icons/svg
+     * 璁剧疆璇ヨ矾鐢辩殑鍥炬爣锛屽搴旇矾寰剆rc/assets/icons/svg
      */
     private String icon;
 
     /**
-     * 设置为true，则不会被 <keep-alive>缓存
+     * 璁剧疆涓簍rue锛屽垯涓嶄細琚?<keep-alive>缂撳瓨
      */
     private boolean noCache;
 
     /**
-     * 内链地址（http(s)://开头）
+     * 鍐呴摼鍦板潃锛坔ttp(s)://寮€澶达級
      */
     private String link;
 
@@ -104,4 +104,5 @@ public class MetaVo
         this.link = link;
     }
 }
+
 

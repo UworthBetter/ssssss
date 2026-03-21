@@ -9,9 +9,9 @@ import com.qkyd.common.constant.CacheConstants;
 import com.qkyd.common.enums.LimitType;
 
 /**
- * 限流注解
+ * 闄愭祦娉ㄨВ
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -19,23 +19,24 @@ import com.qkyd.common.enums.LimitType;
 public @interface RateLimiter
 {
     /**
-     * 限流key
+     * 闄愭祦key
      */
     public String key() default CacheConstants.RATE_LIMIT_KEY;
 
     /**
-     * 限流时间,单位秒
+     * 闄愭祦鏃堕棿,鍗曚綅绉?
      */
     public int time() default 60;
 
     /**
-     * 限流次数
+     * 闄愭祦娆℃暟
      */
     public int count() default 100;
 
     /**
-     * 限流类型
+     * 闄愭祦绫诲瀷
      */
     public LimitType limitType() default LimitType.DEFAULT;
 }
+
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.qkyd.common.annotation.Log;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.core.controller.BaseController;
 import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.common.core.domain.entity.SysUser;
@@ -25,8 +25,8 @@ import com.qkyd.system.service.ISysUserService;
 
 /**
  * 个人信息 业务处理
- * 
- * @author ruoyi
+ *
+ * @author qkyd
  */
 @RestController
 @RequestMapping("/system/user/profile")
@@ -79,7 +79,7 @@ public class SysProfileController extends BaseController
             tokenService.setLoginUser(loginUser);
             return success();
         }
-        return error("修改个人信息异常，请联系管理员");
+        return error("修改个人信息异常，请联系系统管理员");
     }
 
     /**
@@ -108,7 +108,7 @@ public class SysProfileController extends BaseController
             tokenService.setLoginUser(loginUser);
             return success();
         }
-        return error("修改密码异常，请联系管理员");
+        return error("修改密码异常，请联系系统管理员");
     }
 
     /**
@@ -121,7 +121,7 @@ public class SysProfileController extends BaseController
         if (!file.isEmpty())
         {
             LoginUser loginUser = getLoginUser();
-            String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION);
+            String avatar = FileUploadUtils.upload(QkydConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION);
             if (userService.updateUserAvatar(loginUser.getUsername(), avatar))
             {
                 AjaxResult ajax = AjaxResult.success();
@@ -132,7 +132,6 @@ public class SysProfileController extends BaseController
                 return ajax;
             }
         }
-        return error("上传图片异常，请联系管理员");
+        return error("上传图片异常，请联系系统管理员");
     }
 }
-

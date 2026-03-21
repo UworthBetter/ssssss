@@ -15,9 +15,9 @@ import com.qkyd.framework.config.properties.DruidProperties;
 import com.qkyd.framework.datasource.DynamicDataSource;
 
 /**
- * druid 配置多数据源
+ * druid 閰嶇疆澶氭暟鎹簮
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Configuration
 public class DruidConfig {
@@ -46,11 +46,11 @@ public class DruidConfig {
     }
 
     /**
-     * 设置数据源
+     * 璁剧疆鏁版嵁婧?
      * 
-     * @param targetDataSources 备选数据源集合
-     * @param sourceName        数据源名称
-     * @param beanName          bean名称
+     * @param targetDataSources 澶囬€夋暟鎹簮闆嗗悎
+     * @param sourceName        鏁版嵁婧愬悕绉?
+     * @param beanName          bean鍚嶇О
      */
     public void setDataSource(Map<Object, Object> targetDataSources, String sourceName, String beanName) {
         try {
@@ -60,3 +60,4 @@ public class DruidConfig {
         }
     }
 }
+

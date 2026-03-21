@@ -7,139 +7,140 @@ import com.qkyd.common.core.domain.entity.SysMenu;
 import com.qkyd.system.domain.vo.RouterVo;
 
 /**
- * 菜单 业务层
+ * 鑿滃崟 涓氬姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysMenuService
 {
     /**
-     * 根据用户查询系统菜单列表
+     * 鏍规嵁鐢ㄦ埛鏌ヨ绯荤粺鑿滃崟鍒楄〃
      * 
-     * @param userId 用户ID
-     * @return 菜单列表
+     * @param userId 鐢ㄦ埛ID
+     * @return 鑿滃崟鍒楄〃
      */
     public List<SysMenu> selectMenuList(Long userId);
 
     /**
-     * 根据用户查询系统菜单列表
+     * 鏍规嵁鐢ㄦ埛鏌ヨ绯荤粺鑿滃崟鍒楄〃
      * 
-     * @param menu 菜单信息
-     * @param userId 用户ID
-     * @return 菜单列表
+     * @param menu 鑿滃崟淇℃伅
+     * @param userId 鐢ㄦ埛ID
+     * @return 鑿滃崟鍒楄〃
      */
     public List<SysMenu> selectMenuList(SysMenu menu, Long userId);
 
     /**
-     * 根据用户ID查询权限
+     * 鏍规嵁鐢ㄦ埛ID鏌ヨ鏉冮檺
      * 
-     * @param userId 用户ID
-     * @return 权限列表
+     * @param userId 鐢ㄦ埛ID
+     * @return 鏉冮檺鍒楄〃
      */
     public Set<String> selectMenuPermsByUserId(Long userId);
 
     /**
-     * 根据角色ID查询权限
+     * 鏍规嵁瑙掕壊ID鏌ヨ鏉冮檺
      * 
-     * @param roleId 角色ID
-     * @return 权限列表
+     * @param roleId 瑙掕壊ID
+     * @return 鏉冮檺鍒楄〃
      */
     public Set<String> selectMenuPermsByRoleId(Long roleId);
 
     /**
-     * 根据用户ID查询菜单树信息
+     * 鏍规嵁鐢ㄦ埛ID鏌ヨ鑿滃崟鏍戜俊鎭?
      * 
-     * @param userId 用户ID
-     * @return 菜单列表
+     * @param userId 鐢ㄦ埛ID
+     * @return 鑿滃崟鍒楄〃
      */
     public List<SysMenu> selectMenuTreeByUserId(Long userId);
 
     /**
-     * 根据角色ID查询菜单树信息
+     * 鏍规嵁瑙掕壊ID鏌ヨ鑿滃崟鏍戜俊鎭?
      * 
-     * @param roleId 角色ID
-     * @return 选中菜单列表
+     * @param roleId 瑙掕壊ID
+     * @return 閫変腑鑿滃崟鍒楄〃
      */
     public List<Long> selectMenuListByRoleId(Long roleId);
 
     /**
-     * 构建前端路由所需要的菜单
+     * 鏋勫缓鍓嶇璺敱鎵€闇€瑕佺殑鑿滃崟
      * 
-     * @param menus 菜单列表
-     * @return 路由列表
+     * @param menus 鑿滃崟鍒楄〃
+     * @return 璺敱鍒楄〃
      */
     public List<RouterVo> buildMenus(List<SysMenu> menus);
 
     /**
-     * 构建前端所需要树结构
+     * 鏋勫缓鍓嶇鎵€闇€瑕佹爲缁撴瀯
      * 
-     * @param menus 菜单列表
-     * @return 树结构列表
+     * @param menus 鑿滃崟鍒楄〃
+     * @return 鏍戠粨鏋勫垪琛?
      */
     public List<SysMenu> buildMenuTree(List<SysMenu> menus);
 
     /**
-     * 构建前端所需要下拉树结构
+     * 鏋勫缓鍓嶇鎵€闇€瑕佷笅鎷夋爲缁撴瀯
      * 
-     * @param menus 菜单列表
-     * @return 下拉树结构列表
+     * @param menus 鑿滃崟鍒楄〃
+     * @return 涓嬫媺鏍戠粨鏋勫垪琛?
      */
     public List<TreeSelect> buildMenuTreeSelect(List<SysMenu> menus);
 
     /**
-     * 根据菜单ID查询信息
+     * 鏍规嵁鑿滃崟ID鏌ヨ淇℃伅
      * 
-     * @param menuId 菜单ID
-     * @return 菜单信息
+     * @param menuId 鑿滃崟ID
+     * @return 鑿滃崟淇℃伅
      */
     public SysMenu selectMenuById(Long menuId);
 
     /**
-     * 是否存在菜单子节点
+     * 鏄惁瀛樺湪鑿滃崟瀛愯妭鐐?
      * 
-     * @param menuId 菜单ID
-     * @return 结果 true 存在 false 不存在
+     * @param menuId 鑿滃崟ID
+     * @return 缁撴灉 true 瀛樺湪 false 涓嶅瓨鍦?
      */
     public boolean hasChildByMenuId(Long menuId);
 
     /**
-     * 查询菜单是否存在角色
+     * 鏌ヨ鑿滃崟鏄惁瀛樺湪瑙掕壊
      * 
-     * @param menuId 菜单ID
-     * @return 结果 true 存在 false 不存在
+     * @param menuId 鑿滃崟ID
+     * @return 缁撴灉 true 瀛樺湪 false 涓嶅瓨鍦?
      */
     public boolean checkMenuExistRole(Long menuId);
 
     /**
-     * 新增保存菜单信息
+     * 鏂板淇濆瓨鑿滃崟淇℃伅
      * 
-     * @param menu 菜单信息
-     * @return 结果
+     * @param menu 鑿滃崟淇℃伅
+     * @return 缁撴灉
      */
     public int insertMenu(SysMenu menu);
 
     /**
-     * 修改保存菜单信息
+     * 淇敼淇濆瓨鑿滃崟淇℃伅
      * 
-     * @param menu 菜单信息
-     * @return 结果
+     * @param menu 鑿滃崟淇℃伅
+     * @return 缁撴灉
      */
     public int updateMenu(SysMenu menu);
 
     /**
-     * 删除菜单管理信息
+     * 鍒犻櫎鑿滃崟绠＄悊淇℃伅
      * 
-     * @param menuId 菜单ID
-     * @return 结果
+     * @param menuId 鑿滃崟ID
+     * @return 缁撴灉
      */
     public int deleteMenuById(Long menuId);
 
     /**
-     * 校验菜单名称是否唯一
+     * 鏍￠獙鑿滃崟鍚嶇О鏄惁鍞竴
      * 
-     * @param menu 菜单信息
-     * @return 结果
+     * @param menu 鑿滃崟淇℃伅
+     * @return 缁撴灉
      */
     public boolean checkMenuNameUnique(SysMenu menu);
 }
+
 

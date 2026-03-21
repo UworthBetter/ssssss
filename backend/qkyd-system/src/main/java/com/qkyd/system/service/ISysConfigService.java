@@ -4,87 +4,88 @@ import java.util.List;
 import com.qkyd.system.domain.SysConfig;
 
 /**
- * 参数配置 服务层
+ * 鍙傛暟閰嶇疆 鏈嶅姟灞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public interface ISysConfigService
 {
     /**
-     * 查询参数配置信息
+     * 鏌ヨ鍙傛暟閰嶇疆淇℃伅
      * 
-     * @param configId 参数配置ID
-     * @return 参数配置信息
+     * @param configId 鍙傛暟閰嶇疆ID
+     * @return 鍙傛暟閰嶇疆淇℃伅
      */
     public SysConfig selectConfigById(Long configId);
 
     /**
-     * 根据键名查询参数配置信息
+     * 鏍规嵁閿悕鏌ヨ鍙傛暟閰嶇疆淇℃伅
      * 
-     * @param configKey 参数键名
-     * @return 参数键值
+     * @param configKey 鍙傛暟閿悕
+     * @return 鍙傛暟閿€?
      */
     public String selectConfigByKey(String configKey);
 
     /**
-     * 获取验证码开关
+     * 鑾峰彇楠岃瘉鐮佸紑鍏?
      * 
-     * @return true开启，false关闭
+     * @return true寮€鍚紝false鍏抽棴
      */
     public boolean selectCaptchaEnabled();
 
     /**
-     * 查询参数配置列表
+     * 鏌ヨ鍙傛暟閰嶇疆鍒楄〃
      * 
-     * @param config 参数配置信息
-     * @return 参数配置集合
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 鍙傛暟閰嶇疆闆嗗悎
      */
     public List<SysConfig> selectConfigList(SysConfig config);
 
     /**
-     * 新增参数配置
+     * 鏂板鍙傛暟閰嶇疆
      * 
-     * @param config 参数配置信息
-     * @return 结果
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 缁撴灉
      */
     public int insertConfig(SysConfig config);
 
     /**
-     * 修改参数配置
+     * 淇敼鍙傛暟閰嶇疆
      * 
-     * @param config 参数配置信息
-     * @return 结果
+     * @param config 鍙傛暟閰嶇疆淇℃伅
+     * @return 缁撴灉
      */
     public int updateConfig(SysConfig config);
 
     /**
-     * 批量删除参数信息
+     * 鎵归噺鍒犻櫎鍙傛暟淇℃伅
      * 
-     * @param configIds 需要删除的参数ID
+     * @param configIds 闇€瑕佸垹闄ょ殑鍙傛暟ID
      */
     public void deleteConfigByIds(Long[] configIds);
 
     /**
-     * 加载参数缓存数据
+     * 鍔犺浇鍙傛暟缂撳瓨鏁版嵁
      */
     public void loadingConfigCache();
 
     /**
-     * 清空参数缓存数据
+     * 娓呯┖鍙傛暟缂撳瓨鏁版嵁
      */
     public void clearConfigCache();
 
     /**
-     * 重置参数缓存数据
+     * 閲嶇疆鍙傛暟缂撳瓨鏁版嵁
      */
     public void resetConfigCache();
 
     /**
-     * 校验参数键名是否唯一
+     * 鏍￠獙鍙傛暟閿悕鏄惁鍞竴
      * 
-     * @param config 参数信息
-     * @return 结果
+     * @param config 鍙傛暟淇℃伅
+     * @return 缁撴灉
      */
     public boolean checkConfigKeyUnique(SysConfig config);
 }
+
 

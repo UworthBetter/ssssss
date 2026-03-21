@@ -5,9 +5,9 @@ import org.quartz.JobExecutionContext;
 import com.qkyd.quartz.domain.SysJob;
 
 /**
- * 定时任务处理（禁止并发执行）
+ * 瀹氭椂浠诲姟澶勭悊锛堢姝㈠苟鍙戞墽琛岋級
  * 
- * @author ruoyi
+ * @author qkyd
  *
  */
 @DisallowConcurrentExecution
@@ -19,4 +19,5 @@ public class QuartzDisallowConcurrentExecution extends AbstractQuartzJob
         JobInvokeUtil.invokeMethod(sysJob);
     }
 }
+
 

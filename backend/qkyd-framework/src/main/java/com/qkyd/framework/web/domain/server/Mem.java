@@ -3,24 +3,24 @@ package com.qkyd.framework.web.domain.server;
 import com.qkyd.common.utils.Arith;
 
 /**
- * 內存相关信息
+ * 鍏у瓨鐩稿叧淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Mem
 {
     /**
-     * 内存总量
+     * 鍐呭瓨鎬婚噺
      */
     private double total;
 
     /**
-     * 已用内存
+     * 宸茬敤鍐呭瓨
      */
     private double used;
 
     /**
-     * 剩余内存
+     * 鍓╀綑鍐呭瓨
      */
     private double free;
 
@@ -59,4 +59,5 @@ public class Mem
         return Arith.mul(Arith.div(used, total, 4), 100);
     }
 }
+
 

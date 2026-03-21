@@ -12,9 +12,9 @@ import com.qkyd.system.mapper.SysUserPostMapper;
 import com.qkyd.system.service.ISysPostService;
 
 /**
- * 岗位信息 服务层处理
+ * 宀椾綅淇℃伅 鏈嶅姟灞傚鐞?
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Service
 public class SysPostServiceImpl implements ISysPostService
@@ -26,10 +26,10 @@ public class SysPostServiceImpl implements ISysPostService
     private SysUserPostMapper userPostMapper;
 
     /**
-     * 查询岗位信息集合
+     * 鏌ヨ宀椾綅淇℃伅闆嗗悎
      * 
-     * @param post 岗位信息
-     * @return 岗位信息集合
+     * @param post 宀椾綅淇℃伅
+     * @return 宀椾綅淇℃伅闆嗗悎
      */
     @Override
     public List<SysPost> selectPostList(SysPost post)
@@ -38,9 +38,9 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 查询所有岗位
+     * 鏌ヨ鎵€鏈夊矖浣?
      * 
-     * @return 岗位列表
+     * @return 宀椾綅鍒楄〃
      */
     @Override
     public List<SysPost> selectPostAll()
@@ -49,10 +49,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 通过岗位ID查询岗位信息
+     * 閫氳繃宀椾綅ID鏌ヨ宀椾綅淇℃伅
      * 
-     * @param postId 岗位ID
-     * @return 角色对象信息
+     * @param postId 宀椾綅ID
+     * @return 瑙掕壊瀵硅薄淇℃伅
      */
     @Override
     public SysPost selectPostById(Long postId)
@@ -61,10 +61,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 根据用户ID获取岗位选择框列表
+     * 鏍规嵁鐢ㄦ埛ID鑾峰彇宀椾綅閫夋嫨妗嗗垪琛?
      * 
-     * @param userId 用户ID
-     * @return 选中岗位ID列表
+     * @param userId 鐢ㄦ埛ID
+     * @return 閫変腑宀椾綅ID鍒楄〃
      */
     @Override
     public List<Long> selectPostListByUserId(Long userId)
@@ -73,10 +73,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 校验岗位名称是否唯一
+     * 鏍￠獙宀椾綅鍚嶇О鏄惁鍞竴
      * 
-     * @param post 岗位信息
-     * @return 结果
+     * @param post 宀椾綅淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public boolean checkPostNameUnique(SysPost post)
@@ -91,10 +91,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 校验岗位编码是否唯一
+     * 鏍￠獙宀椾綅缂栫爜鏄惁鍞竴
      * 
-     * @param post 岗位信息
-     * @return 结果
+     * @param post 宀椾綅淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public boolean checkPostCodeUnique(SysPost post)
@@ -109,10 +109,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 通过岗位ID查询岗位使用数量
+     * 閫氳繃宀椾綅ID鏌ヨ宀椾綅浣跨敤鏁伴噺
      * 
-     * @param postId 岗位ID
-     * @return 结果
+     * @param postId 宀椾綅ID
+     * @return 缁撴灉
      */
     @Override
     public int countUserPostById(Long postId)
@@ -121,10 +121,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 删除岗位信息
+     * 鍒犻櫎宀椾綅淇℃伅
      * 
-     * @param postId 岗位ID
-     * @return 结果
+     * @param postId 宀椾綅ID
+     * @return 缁撴灉
      */
     @Override
     public int deletePostById(Long postId)
@@ -133,10 +133,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 批量删除岗位信息
+     * 鎵归噺鍒犻櫎宀椾綅淇℃伅
      * 
-     * @param postIds 需要删除的岗位ID
-     * @return 结果
+     * @param postIds 闇€瑕佸垹闄ょ殑宀椾綅ID
+     * @return 缁撴灉
      */
     @Override
     public int deletePostByIds(Long[] postIds)
@@ -146,17 +146,17 @@ public class SysPostServiceImpl implements ISysPostService
             SysPost post = selectPostById(postId);
             if (countUserPostById(postId) > 0)
             {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", post.getPostName()));
+                throw new ServiceException(String.format("%1$s宸插垎閰?涓嶈兘鍒犻櫎", post.getPostName()));
             }
         }
         return postMapper.deletePostByIds(postIds);
     }
 
     /**
-     * 新增保存岗位信息
+     * 鏂板淇濆瓨宀椾綅淇℃伅
      * 
-     * @param post 岗位信息
-     * @return 结果
+     * @param post 宀椾綅淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int insertPost(SysPost post)
@@ -165,10 +165,10 @@ public class SysPostServiceImpl implements ISysPostService
     }
 
     /**
-     * 修改保存岗位信息
+     * 淇敼淇濆瓨宀椾綅淇℃伅
      * 
-     * @param post 岗位信息
-     * @return 结果
+     * @param post 宀椾綅淇℃伅
+     * @return 缁撴灉
      */
     @Override
     public int updatePost(SysPost post)
@@ -176,4 +176,5 @@ public class SysPostServiceImpl implements ISysPostService
         return postMapper.updatePost(post);
     }
 }
+
 

@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
-import com.qkyd.common.config.RuoYiConfig;
+import com.qkyd.common.config.QkydConfig;
 import com.qkyd.common.constant.Constants;
 import com.qkyd.common.exception.file.FileNameLengthLimitExceededException;
 import com.qkyd.common.exception.file.FileSizeLimitExceededException;
@@ -16,26 +16,26 @@ import com.qkyd.common.utils.StringUtils;
 import com.qkyd.common.utils.uuid.Seq;
 
 /**
- * 文件上传工具类
+ * 鏂囦欢涓婁紶宸ュ叿绫?
  *
- * @author ruoyi
+ * @author qkyd
  */
 public class FileUploadUtils
 {
     /**
-     * 默认大小 50M
+     * 榛樿澶у皬 50M
      */
     public static final long DEFAULT_MAX_SIZE = 50 * 1024 * 1024;
 
     /**
-     * 默认的文件名最大长度 100
+     * 榛樿鐨勬枃浠跺悕鏈€澶ч暱搴?100
      */
     public static final int DEFAULT_FILE_NAME_LENGTH = 100;
 
     /**
-     * 默认上传的地址
+     * 榛樿涓婁紶鐨勫湴鍧€
      */
-    private static String defaultBaseDir = RuoYiConfig.getProfile();
+    private static String defaultBaseDir = QkydConfig.getProfile();
 
     public static void setDefaultBaseDir(String defaultBaseDir)
     {
@@ -48,10 +48,10 @@ public class FileUploadUtils
     }
 
     /**
-     * 以默认配置进行文件上传
+     * 浠ラ粯璁ら厤缃繘琛屾枃浠朵笂浼?
      *
-     * @param file 上传的文件
-     * @return 文件名称
+     * @param file 涓婁紶鐨勬枃浠?
+     * @return 鏂囦欢鍚嶇О
      * @throws Exception
      */
     public static final String upload(MultipartFile file) throws IOException
@@ -67,11 +67,11 @@ public class FileUploadUtils
     }
 
     /**
-     * 根据文件路径上传
+     * 鏍规嵁鏂囦欢璺緞涓婁紶
      *
-     * @param baseDir 相对应用的基目录
-     * @param file 上传的文件
-     * @return 文件名称
+     * @param baseDir 鐩稿搴旂敤鐨勫熀鐩綍
+     * @param file 涓婁紶鐨勬枃浠?
+     * @return 鏂囦欢鍚嶇О
      * @throws IOException
      */
     public static final String upload(String baseDir, MultipartFile file) throws IOException
@@ -87,16 +87,16 @@ public class FileUploadUtils
     }
 
     /**
-     * 文件上传
+     * 鏂囦欢涓婁紶
      *
-     * @param baseDir 相对应用的基目录
-     * @param file 上传的文件
-     * @param allowedExtension 上传文件类型
-     * @return 返回上传成功的文件名
-     * @throws FileSizeLimitExceededException 如果超出最大大小
-     * @throws FileNameLengthLimitExceededException 文件名太长
-     * @throws IOException 比如读写文件出错时
-     * @throws InvalidExtensionException 文件校验异常
+     * @param baseDir 鐩稿搴旂敤鐨勫熀鐩綍
+     * @param file 涓婁紶鐨勬枃浠?
+     * @param allowedExtension 涓婁紶鏂囦欢绫诲瀷
+     * @return 杩斿洖涓婁紶鎴愬姛鐨勬枃浠跺悕
+     * @throws FileSizeLimitExceededException 濡傛灉瓒呭嚭鏈€澶уぇ灏?
+     * @throws FileNameLengthLimitExceededException 鏂囦欢鍚嶅お闀?
+     * @throws IOException 姣斿璇诲啓鏂囦欢鍑洪敊鏃?
+     * @throws InvalidExtensionException 鏂囦欢鏍￠獙寮傚父
      */
     public static final String upload(String baseDir, MultipartFile file, String[] allowedExtension)
             throws FileSizeLimitExceededException, IOException, FileNameLengthLimitExceededException,
@@ -118,7 +118,7 @@ public class FileUploadUtils
     }
 
     /**
-     * 编码文件名
+     * 缂栫爜鏂囦欢鍚?
      */
     public static final String extractFilename(MultipartFile file)
     {
@@ -142,17 +142,17 @@ public class FileUploadUtils
 
     public static final String getPathFileName(String uploadDir, String fileName) throws IOException
     {
-        int dirLastIndex = RuoYiConfig.getProfile().length() + 1;
+        int dirLastIndex = QkydConfig.getProfile().length() + 1;
         String currentDir = StringUtils.substring(uploadDir, dirLastIndex);
         return Constants.RESOURCE_PREFIX + "/" + currentDir + "/" + fileName;
     }
 
     /**
-     * 文件大小校验
+     * 鏂囦欢澶у皬鏍￠獙
      *
-     * @param file 上传的文件
+     * @param file 涓婁紶鐨勬枃浠?
      * @return
-     * @throws FileSizeLimitExceededException 如果超出最大大小
+     * @throws FileSizeLimitExceededException 濡傛灉瓒呭嚭鏈€澶уぇ灏?
      * @throws InvalidExtensionException
      */
     public static final void assertAllowed(MultipartFile file, String[] allowedExtension)
@@ -196,7 +196,7 @@ public class FileUploadUtils
     }
 
     /**
-     * 判断MIME类型是否是允许的MIME类型
+     * 鍒ゆ柇MIME绫诲瀷鏄惁鏄厑璁哥殑MIME绫诲瀷
      *
      * @param extension
      * @param allowedExtension
@@ -215,10 +215,10 @@ public class FileUploadUtils
     }
 
     /**
-     * 获取文件名的后缀
+     * 鑾峰彇鏂囦欢鍚嶇殑鍚庣紑
      *
-     * @param file 表单文件
-     * @return 后缀名
+     * @param file 琛ㄥ崟鏂囦欢
+     * @return 鍚庣紑鍚?
      */
     public static final String getExtension(MultipartFile file)
     {
@@ -230,4 +230,6 @@ public class FileUploadUtils
         return extension;
     }
 }
+
+
 

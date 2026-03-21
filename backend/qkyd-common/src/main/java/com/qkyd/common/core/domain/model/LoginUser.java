@@ -8,66 +8,66 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * 登录用户身份权限
+ * 鐧诲綍鐢ㄦ埛韬唤鏉冮檺
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class LoginUser implements UserDetails
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+     * 鐢ㄦ埛ID
      */
     private Long userId;
 
     /**
-     * 部门ID
+     * 閮ㄩ棬ID
      */
     private Long deptId;
 
     /**
-     * 用户唯一标识
+     * 鐢ㄦ埛鍞竴鏍囪瘑
      */
     private String token;
 
     /**
-     * 登录时间
+     * 鐧诲綍鏃堕棿
      */
     private Long loginTime;
 
     /**
-     * 过期时间
+     * 杩囨湡鏃堕棿
      */
     private Long expireTime;
 
     /**
-     * 登录IP地址
+     * 鐧诲綍IP鍦板潃
      */
     private String ipaddr;
 
     /**
-     * 登录地点
+     * 鐧诲綍鍦扮偣
      */
     private String loginLocation;
 
     /**
-     * 浏览器类型
+     * 娴忚鍣ㄧ被鍨?
      */
     private String browser;
 
     /**
-     * 操作系统
+     * 鎿嶄綔绯荤粺
      */
     private String os;
 
     /**
-     * 权限列表
+     * 鏉冮檺鍒楄〃
      */
     private Set<String> permissions;
 
     /**
-     * 用户信息
+     * 鐢ㄦ埛淇℃伅
      */
     private SysUser user;
 
@@ -133,7 +133,7 @@ public class LoginUser implements UserDetails
     }
 
     /**
-     * 账户是否未过期,过期无法验证
+     * 璐︽埛鏄惁鏈繃鏈?杩囨湡鏃犳硶楠岃瘉
      */
     @JSONField(serialize = false)
     @Override
@@ -143,7 +143,7 @@ public class LoginUser implements UserDetails
     }
 
     /**
-     * 指定用户是否解锁,锁定的用户无法进行身份验证
+     * 鎸囧畾鐢ㄦ埛鏄惁瑙ｉ攣,閿佸畾鐨勭敤鎴锋棤娉曡繘琛岃韩浠介獙璇?
      * 
      * @return
      */
@@ -155,7 +155,7 @@ public class LoginUser implements UserDetails
     }
 
     /**
-     * 指示是否已过期的用户的凭据(密码),过期的凭据防止认证
+     * 鎸囩ず鏄惁宸茶繃鏈熺殑鐢ㄦ埛鐨勫嚟鎹?瀵嗙爜),杩囨湡鐨勫嚟鎹槻姝㈣璇?
      * 
      * @return
      */
@@ -167,7 +167,7 @@ public class LoginUser implements UserDetails
     }
 
     /**
-     * 是否可用 ,禁用的用户不能身份验证
+     * 鏄惁鍙敤 ,绂佺敤鐨勭敤鎴蜂笉鑳借韩浠介獙璇?
      * 
      * @return
      */
@@ -264,4 +264,5 @@ public class LoginUser implements UserDetails
         return null;
     }
 }
+
 

@@ -4,26 +4,26 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * 精确的浮点数运算
+ * 绮剧‘鐨勬诞鐐规暟杩愮畻
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class Arith
 {
 
-    /** 默认除法运算精度 */
+    /** 榛樿闄ゆ硶杩愮畻绮惧害 */
     private static final int DEF_DIV_SCALE = 10;
 
-    /** 这个类不能实例化 */
+    /** 杩欎釜绫讳笉鑳藉疄渚嬪寲 */
     private Arith()
     {
     }
 
     /**
-     * 提供精确的加法运算。
-     * @param v1 被加数
-     * @param v2 加数
-     * @return 两个参数的和
+     * 鎻愪緵绮剧‘鐨勫姞娉曡繍绠椼€?
+     * @param v1 琚姞鏁?
+     * @param v2 鍔犳暟
+     * @return 涓や釜鍙傛暟鐨勫拰
      */
     public static double add(double v1, double v2)
     {
@@ -33,10 +33,10 @@ public class Arith
     }
 
     /**
-     * 提供精确的减法运算。
-     * @param v1 被减数
-     * @param v2 减数
-     * @return 两个参数的差
+     * 鎻愪緵绮剧‘鐨勫噺娉曡繍绠椼€?
+     * @param v1 琚噺鏁?
+     * @param v2 鍑忔暟
+     * @return 涓や釜鍙傛暟鐨勫樊
      */
     public static double sub(double v1, double v2)
     {
@@ -46,10 +46,10 @@ public class Arith
     }
 
     /**
-     * 提供精确的乘法运算。
-     * @param v1 被乘数
-     * @param v2 乘数
-     * @return 两个参数的积
+     * 鎻愪緵绮剧‘鐨勪箻娉曡繍绠椼€?
+     * @param v1 琚箻鏁?
+     * @param v2 涔樻暟
+     * @return 涓や釜鍙傛暟鐨勭Н
      */
     public static double mul(double v1, double v2)
     {
@@ -59,11 +59,11 @@ public class Arith
     }
 
     /**
-     * 提供（相对）精确的除法运算，当发生除不尽的情况时，精确到
-     * 小数点以后10位，以后的数字四舍五入。
-     * @param v1 被除数
-     * @param v2 除数
-     * @return 两个参数的商
+     * 鎻愪緵锛堢浉瀵癸級绮剧‘鐨勯櫎娉曡繍绠楋紝褰撳彂鐢熼櫎涓嶅敖鐨勬儏鍐垫椂锛岀簿纭埌
+     * 灏忔暟鐐逛互鍚?0浣嶏紝浠ュ悗鐨勬暟瀛楀洓鑸嶄簲鍏ャ€?
+     * @param v1 琚櫎鏁?
+     * @param v2 闄ゆ暟
+     * @return 涓や釜鍙傛暟鐨勫晢
      */
     public static double div(double v1, double v2)
     {
@@ -71,12 +71,12 @@ public class Arith
     }
 
     /**
-     * 提供（相对）精确的除法运算。当发生除不尽的情况时，由scale参数指
-     * 定精度，以后的数字四舍五入。
-     * @param v1 被除数
-     * @param v2 除数
-     * @param scale 表示表示需要精确到小数点以后几位。
-     * @return 两个参数的商
+     * 鎻愪緵锛堢浉瀵癸級绮剧‘鐨勯櫎娉曡繍绠椼€傚綋鍙戠敓闄や笉灏界殑鎯呭喌鏃讹紝鐢眘cale鍙傛暟鎸?
+     * 瀹氱簿搴︼紝浠ュ悗鐨勬暟瀛楀洓鑸嶄簲鍏ャ€?
+     * @param v1 琚櫎鏁?
+     * @param v2 闄ゆ暟
+     * @param scale 琛ㄧず琛ㄧず闇€瑕佺簿纭埌灏忔暟鐐逛互鍚庡嚑浣嶃€?
+     * @return 涓や釜鍙傛暟鐨勫晢
      */
     public static double div(double v1, double v2, int scale)
     {
@@ -95,10 +95,10 @@ public class Arith
     }
 
     /**
-     * 提供精确的小数位四舍五入处理。
-     * @param v 需要四舍五入的数字
-     * @param scale 小数点后保留几位
-     * @return 四舍五入后的结果
+     * 鎻愪緵绮剧‘鐨勫皬鏁颁綅鍥涜垗浜斿叆澶勭悊銆?
+     * @param v 闇€瑕佸洓鑸嶄簲鍏ョ殑鏁板瓧
+     * @param scale 灏忔暟鐐瑰悗淇濈暀鍑犱綅
+     * @return 鍥涜垗浜斿叆鍚庣殑缁撴灉
      */
     public static double round(double v, int scale)
     {
@@ -112,4 +112,5 @@ public class Arith
         return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
     }
 }
+
 

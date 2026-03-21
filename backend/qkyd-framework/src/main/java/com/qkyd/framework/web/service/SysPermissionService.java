@@ -12,9 +12,9 @@ import com.qkyd.system.service.ISysMenuService;
 import com.qkyd.system.service.ISysRoleService;
 
 /**
- * 用户权限处理
+ * 鐢ㄦ埛鏉冮檺澶勭悊
  * 
- * @author ruoyi
+ * @author qkyd
  */
 @Component
 public class SysPermissionService
@@ -26,15 +26,15 @@ public class SysPermissionService
     private ISysMenuService menuService;
 
     /**
-     * 获取角色数据权限
+     * 鑾峰彇瑙掕壊鏁版嵁鏉冮檺
      * 
-     * @param user 用户信息
-     * @return 角色权限信息
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 瑙掕壊鏉冮檺淇℃伅
      */
     public Set<String> getRolePermission(SysUser user)
     {
         Set<String> roles = new HashSet<String>();
-        // 管理员拥有所有权限
+        // 绠＄悊鍛樻嫢鏈夋墍鏈夋潈闄?
         if (user.isAdmin())
         {
             roles.add("admin");
@@ -47,15 +47,15 @@ public class SysPermissionService
     }
 
     /**
-     * 获取菜单数据权限
+     * 鑾峰彇鑿滃崟鏁版嵁鏉冮檺
      * 
-     * @param user 用户信息
-     * @return 菜单权限信息
+     * @param user 鐢ㄦ埛淇℃伅
+     * @return 鑿滃崟鏉冮檺淇℃伅
      */
     public Set<String> getMenuPermission(SysUser user)
     {
         Set<String> perms = new HashSet<String>();
-        // 管理员拥有所有权限
+        // 绠＄悊鍛樻嫢鏈夋墍鏈夋潈闄?
         if (user.isAdmin())
         {
             perms.add("*:*:*");
@@ -65,7 +65,7 @@ public class SysPermissionService
             List<SysRole> roles = user.getRoles();
             if (!CollectionUtils.isEmpty(roles))
             {
-                // 多角色设置permissions属性，以便数据权限匹配权限
+                // 澶氳鑹茶缃畃ermissions灞炴€э紝浠ヤ究鏁版嵁鏉冮檺鍖归厤鏉冮檺
                 for (SysRole role : roles)
                 {
                     Set<String> rolePerms = menuService.selectMenuPermsByRoleId(role.getRoleId());
@@ -81,4 +81,5 @@ public class SysPermissionService
         return perms;
     }
 }
+
 

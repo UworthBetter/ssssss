@@ -3,22 +3,22 @@ package com.qkyd.system.domain;
 import com.qkyd.common.utils.StringUtils;
 
 /**
- * 缓存信息
+ * 缂撳瓨淇℃伅
  * 
- * @author ruoyi
+ * @author qkyd
  */
 public class SysCache
 {
-    /** 缓存名称 */
+    /** 缂撳瓨鍚嶇О */
     private String cacheName = "";
 
-    /** 缓存键名 */
+    /** 缂撳瓨閿悕 */
     private String cacheKey = "";
 
-    /** 缓存内容 */
+    /** 缂撳瓨鍐呭 */
     private String cacheValue = "";
 
-    /** 备注 */
+    /** 澶囨敞 */
     private String remark = "";
 
     public SysCache()
@@ -79,4 +79,5 @@ public class SysCache
         this.remark = remark;
     }
 }
+
 
