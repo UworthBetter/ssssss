@@ -1,0 +1,73 @@
+:root {
+  --bg-page: #f4f8fb;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --text-main: #143049;
+  --text-sub: #4f6577;
+  --line-soft: #d8e3ed;
+  --brand: #0d9488;
+  --brand-soft: #ccfbf1;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --shadow-soft: 0 12px 30px rgba(16, 46, 75, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 0% 10%, rgba(13, 148, 136, 0.16), transparent 36%),
+    radial-gradient(circle at 100% 100%, rgba(14, 116, 144, 0.12), transparent 38%),
+    var(--bg-page);
+}
+
+.page-shell {
+  padding: 18px;
+}
+
+.panel {
+  border: 1px solid rgba(216, 227, 237, 0.9);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-soft);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.json-block {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+@media (max-width: 1024px) {
+  .page-shell {
+    padding: 12px;
+  }
+}
