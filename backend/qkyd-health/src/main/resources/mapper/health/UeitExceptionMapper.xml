@@ -57,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM sys_user su
         JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
         <where>
-            <if test="type != null  and type != ''">AND qkyd_exception.type = #{type}</if>
+            <if test="type != null  and type != '' and type != 'all'">AND qkyd_exception.type = #{type}</if>
         </where>
         order by qkyd_exception.id desc
         limit 10
@@ -67,9 +67,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM qkyd_exception
         <where>
             user_id IS NOT NULL
-            <if test="type != null  and type != ''">AND qkyd_exception.type = #{type}</if>
+            <if test="type != null  and type != '' and type != 'all'">AND qkyd_exception.type = #{type}</if>
         </where>
-        GROUP BY type;
     </select>
     <select id="selectUeitExceptionListByUserId" resultType="com.qkyd.health.domain.UeitException">
         SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
@@ -84,6 +83,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="startCreateTime != null  and endCreateTime != null">AND qkyd_exception.create_time BETWEEN #{startCreateTime} AND #{endCreateTime}</if>
         </where>
         order by qkyd_exception.id desc
+    </select>
+
+    <select id="selectExceptionForDashboard" resultType="com.qkyd.health.domain.UeitException">
+        select id, user_id, device_id, type, value, longitude, latitude, state, create_time as readTime, location
+        from qkyd_exception
+        order by id desc
     </select>
 
     <insert id="insertUeitException" parameterType="UeitException" useGeneratedKeys="true" keyProperty="id">

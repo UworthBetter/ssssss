@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 系统首页相关接口
@@ -24,9 +21,7 @@ public class IndexController extends BaseController {
     private IndexService indexService;
 
     /**
-     * 年龄,性别分类数据
-     *
-     * @return
+     * 年龄、性别分组数据
      */
     @GetMapping(value = "/ageSexGroupCount")
     public AjaxResult ageSexGroupCount() {
@@ -35,10 +30,6 @@ public class IndexController extends BaseController {
 
     /**
      * 异常数据
-     *
-     * @param type
-     * @param pageNum
-     * @return
      */
     @GetMapping(value = "/exception")
     public JSONObject exception(@RequestParam("type") String type, @RequestParam("pageNum") int pageNum) {
@@ -50,45 +41,19 @@ public class IndexController extends BaseController {
         return null;
     }
 
-    //首页的实时数据
+    /**
+     * 首页实时汇总（与异常列表/地图同口径）
+     */
     @GetMapping(value = "/realTimeData")
     public AjaxResult realTimeData() {
-        return success(toDashboardSummary(indexService.realTimeData()));
+        return success(indexService.dashboardSummary());
     }
 
-    //  查询实时数据(所有用户的最后位置)
+    /**
+     * 查询实时位置数据（所有用户最后位置）
+     */
     @GetMapping(value = "/indexUserLocation")
     public AjaxResult indexUserLocation(@RequestParam("coordinateType") String coordinateType) {
         return success(indexService.indexUserLocation());
     }
-
-    private Map<String, Integer> toDashboardSummary(List<?> source) {
-        if (source == null || source.isEmpty()) {
-            return defaultRealtimeSummary();
-        }
-        Map<String, Integer> summary = new LinkedHashMap<>();
-        summary.put("stepExceptionCount", 7);
-        summary.put("fenceExceptionCount", 3);
-        summary.put("sosHelpCount", 1);
-        summary.put("temperatureExceptionCount", 5);
-        summary.put("heartRateExceptionCount", 6);
-        summary.put("spo2ExceptionCount", 2);
-        summary.put("bloodPressureExceptionCount", 4);
-        summary.put("onlineDeviceCount", source.size());
-        return summary;
-    }
-
-    private Map<String, Integer> defaultRealtimeSummary() {
-        Map<String, Integer> summary = new LinkedHashMap<>();
-        summary.put("stepExceptionCount", 8);
-        summary.put("fenceExceptionCount", 4);
-        summary.put("sosHelpCount", 2);
-        summary.put("temperatureExceptionCount", 6);
-        summary.put("heartRateExceptionCount", 9);
-        summary.put("spo2ExceptionCount", 3);
-        summary.put("bloodPressureExceptionCount", 5);
-        summary.put("onlineDeviceCount", 18);
-        return summary;
-    }
 }
-

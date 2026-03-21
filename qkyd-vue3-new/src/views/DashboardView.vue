@@ -1,8 +1,8 @@
-﻿<template>
+<template>
   <div class="page-shell light-glass-theme">
     
     <!-- ================= 0. 底层：全屏三维地图 ================= -->
-    <div ref="amapRef" class="amap-fullscreen-bg" :class="{'map-blur': activePill}"></div>
+    <div ref="amapRef" class="amap-fullscreen-bg"></div>
     <div v-if="mapLoadFailed" class="amap-fullscreen-bg map-core map-failed-fallback">
       <div class="radar-scan"></div>
       <el-icon class="map-icon"><Location /></el-icon>
@@ -12,6 +12,7 @@
 
     <!-- ================= 1. 顶部：战术胶囊信标 (HUD Pills) ================= -->
     <div class="hud-top-center">
+      <div v-if="useMockExceptionData" class="mock-data-tip">当前为演示异常点（后端暂无异常位置数据）</div>
       <div 
         class="hud-pill" 
         v-for="item in allPieCards" 
@@ -28,58 +29,66 @@
       </div>
     </div>
 
-    <!-- ================= 1.5 聚焦模式：时序波动流光图面板 ================= -->
-    <transition name="panel-drop">
-      <div v-if="activePill" class="trend-overlay-panel">
-        <div class="trend-header">
-          <div class="trend-title">
-            <span class="dot" :style="{ backgroundColor: activeColor }"></span>
-            {{ activePillName }} <span>// 24H 波动时序追踪</span>
-          </div>
-          <el-icon class="close-btn" @click="togglePill(null)"><Close /></el-icon>
-        </div>
-        <div ref="trendChartRef" class="trend-chart-container"></div>
-      </div>
-    </transition>
-
     <!-- ================= 2. 左侧：全息渐变翼 ================= -->
-    <div class="hud-side-panel hud-left fade-left" :class="{'panel-dim': activePill}">
-      <div class="hud-content-block flex-fill">
-        <div class="holo-title">DEMOGRAPHICS <span>// 人群画像</span></div>
-        <div class="table-wrapper">
-          <el-table :data="ageSexTable" height="100%" class="holo-table">
-            <el-table-column prop="label" label="分组" min-width="90" />
-            <el-table-column prop="value" label="人数" min-width="70" />
-          </el-table>
+    <div class="hud-side-panel hud-left fade-left">
+      <transition name="fade" mode="out-in">
+        <div v-if="!activePill" class="hud-content-block flex-fill" key="default">
+          <div class="holo-title">DEMOGRAPHICS <span>// 人群画像</span></div>
+          <div class="table-wrapper">
+            <el-table :data="ageSexTable" height="100%" class="holo-table">
+              <el-table-column prop="label" label="分组" min-width="90" />
+              <el-table-column prop="value" label="人数" min-width="70" />
+            </el-table>
+          </div>
         </div>
-      </div>
+        <div v-else class="hud-content-block flex-fill" key="trend">
+          <div class="trend-header">
+            <div class="trend-title">
+              <span class="dot" :style="{ backgroundColor: activeColor }"></span>
+              {{ activePillName }} <span>// 24H 波动时序追踪</span>
+            </div>
+            <el-icon class="close-btn" @click="togglePill(null)"><Close /></el-icon>
+          </div>
+          <div ref="trendChartRef" class="trend-chart-container" style="height: 100%; min-height: 250px; width: 100%;"></div>
+        </div>
+      </transition>
     </div>
 
     <!-- ================= 3. 右侧：全息渐变翼 ================= -->
-    <div class="hud-side-panel hud-right fade-right" :class="{'panel-dim': activePill}">
-      <div class="hud-content-block">
-        <div class="holo-title">ANALYSIS <span>// 异常占比</span></div>
-        <div ref="kpiPieRef" class="kpi-pie-slim" />
-      </div>
+    <div class="hud-side-panel hud-right fade-right">
+      <transition name="fade" mode="out-in">
+        <div :key="activePill ? 'active' : 'default'" class="hud-content-block h-full flex-fill" style="display: flex; flex-direction: column;">
+          <div class="hud-content-block">
+            <div class="holo-title">
+              {{ activePill ? 'STATUS' : 'ANALYSIS' }} 
+              <span>{{ activePill ? '// 处理状态分布' : '// 异常占比' }}</span>
+            </div>
+            <div ref="kpiPieRef" class="kpi-pie-slim" />
+          </div>
 
-      <div class="hud-content-block flex-fill">
-        <div class="holo-title">AI LOGS <span>// 最新判定</span></div>
-        <div class="table-wrapper">
-          <el-table :data="recentAbnormal" height="100%" class="holo-table">
-            <el-table-column prop="patientName" label="对象" min-width="70" />
-            <el-table-column prop="abnormalType" label="类型" min-width="90">
-              <template #default="{ row }">
-                <span class="tech-highlight">{{ row.abnormalType }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="riskLevel" label="级别" min-width="60" />
-          </el-table>
+          <div class="hud-content-block flex-fill" style="margin-top: 24px;">
+            <div class="holo-title">
+              {{ activePill ? 'RELATED LOGS' : 'AI LOGS' }} 
+              <span>// {{ activePill ? '相关判定' : '最新判定' }}</span>
+            </div>
+            <div class="table-wrapper">
+              <el-table :data="displayRecentAbnormal" height="100%" class="holo-table">
+                <el-table-column prop="patientName" label="对象" min-width="70" />
+                <el-table-column prop="abnormalType" label="类型" min-width="90">
+                  <template #default="{ row }">
+                    <span class="tech-highlight" :style="activePill ? { color: activeColor } : {}">{{ row.abnormalType }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="riskLevel" label="级别" min-width="60" />
+              </el-table>
+            </div>
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
 
     <!-- ================= 4. 底部：事件雷达流 ================= -->
-    <div class="hud-bottom-center fade-bottom" :class="{'panel-dim': activePill}">
+    <div class="hud-bottom-center fade-bottom">
       <div class="hud-content-block h-full">
         <div class="holo-title">EVENT STREAM <span>// 实时异常流 [点击坐标定位]</span></div>
         <div class="table-wrapper">
@@ -113,10 +122,25 @@ import { getRecentAbnormal } from '@/api/ai'
 import { getAgeSexGroupCount, getIndexException, getRealTimeData } from '@/api/index'
 
 interface GenericRow {
-  [key: string]: unknown;
-  _lng?: number; 
-  _lat?: number; 
-  type?: string;
+  [key: string]: unknown
+}
+
+interface ExceptionRow extends GenericRow {
+  id?: number | string
+  nickName?: string
+  type?: string
+  state?: string | number
+  location?: string
+  longitude?: number | string
+  latitude?: number | string
+  _lng?: number
+  _lat?: number
+}
+
+interface RecentAbnormalRow {
+  patientName: string
+  abnormalType: string
+  riskLevel: string
 }
 
 declare global {
@@ -128,17 +152,17 @@ declare global {
 
 const realTimeData = ref<Record<string, unknown>>({})
 const ageSexTable = ref<Array<{ label: string; value: number }>>([])
-const recentAbnormal = ref<GenericRow[]>([])
-const exceptionList = ref<GenericRow[]>([])
+const recentAbnormal = ref<RecentAbnormalRow[]>([])
+const exceptionList = ref<ExceptionRow[]>([])
+const fetching = ref(false)
+const useMockExceptionData = ref(false)
 
-// --- 焦点系统交互状态 ---
 const activePill = ref<string | null>(null)
 const activePillName = ref<string>('')
 const activeColor = ref<string>('#0ea5e9')
 const trendChartRef = ref<HTMLDivElement | null>(null)
 let trendChartInstance: echarts.ECharts | null = null
 
-// 预定义各指标的色彩字典，用于图表渲染
 const pillColors: Record<string, string> = {
   step: '#0ea5e9',
   fence: '#f59e0b',
@@ -153,16 +177,23 @@ const amapRef = ref<HTMLDivElement | null>(null)
 const mapLoadFailed = ref(false)
 let amapInstance: any = null
 let amapInfoWindow: any = null
-let mapMarkers: any[] = [] 
+let mapMarkers: any[] = []
+let refreshTimer: ReturnType<typeof setInterval> | null = null
 
-const MAP_CENTER = [116.397428, 39.90923] 
+const MAP_CENTER: [number, number] = [116.397428, 39.90923]
+
+const toNumber = (value: unknown, fallback = 0) => {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
 
 const metricValue = (aliases: string[]) => {
   for (const key of aliases) {
-    const value = Number(realTimeData.value[key] || 0)
-    if (!Number.isNaN(value) && value > 0) return value
+    if (Object.prototype.hasOwnProperty.call(realTimeData.value, key)) {
+      return toNumber(realTimeData.value[key], 0)
+    }
   }
-  return Number(realTimeData.value[aliases] || 0)
+  return 0
 }
 
 const topAlertCards = computed(() => [
@@ -182,7 +213,31 @@ const kpiPieRef = ref<HTMLDivElement | null>(null)
 let kpiPieChart: echarts.ECharts | null = null
 
 const allPieCards = computed(() => [...topAlertCards.value, ...kpiCards.value])
+
+const displayRecentAbnormal = computed(() => {
+  if (!activePill.value) return recentAbnormal.value
+  const item = allPieCards.value.find((card) => card.key === activePill.value)
+  if (!item?.keywords?.length) return recentAbnormal.value
+  return recentAbnormal.value.filter(log => 
+    item.keywords.some((kw) => String(log.abnormalType ?? '').includes(kw))
+  )
+})
+
 const pieData = computed(() => {
+  if (activePill.value) {
+    let resolved = 0
+    let pending = 0
+    filteredExceptionList.value.forEach(ex => {
+      if (String(ex.state) === '1') resolved++
+      else pending++
+    })
+    if (resolved === 0 && pending === 0) return [{ name: '暂无记录', value: 1, itemStyle: { color: '#cbd5e1' } }]
+    return [
+      { name: '已解决', value: resolved, itemStyle: { color: '#10b981' } },
+      { name: '待处理', value: pending, itemStyle: { color: '#f59e0b' } }
+    ]
+  }
+
   const source = allPieCards.value.map((item) => ({ name: item.label, value: Math.max(0, item.value) }))
   const total = source.reduce((sum, item) => sum + item.value, 0)
   return total > 0 ? source : source.map((item) => ({ ...item, value: 1 }))
@@ -193,59 +248,67 @@ const pieColors = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6
 const renderKpiPieChart = () => {
   if (!kpiPieChart) return
   kpiPieChart.setOption({
-    tooltip: { trigger: 'item', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'rgba(14, 165, 233, 0.2)', textStyle: { color: '#334155', fontSize: 12 }, formatter: '{b}: <span style="color:#0ea5e9; font-weight:bold;">{c}</span> ({d}%)' },
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: 'rgba(14, 165, 233, 0.2)',
+      textStyle: { color: '#334155', fontSize: 12 },
+      formatter: '{b}: <span style="color:#0ea5e9; font-weight:bold;">{c}</span> ({d}%)'
+    },
     series: [
       {
-        type: 'pie', radius: ['45%', '75%'], center: ['50%', '50%'], roseType: 'area', 
+        type: 'pie',
+        radius: ['45%', '75%'],
+        center: ['50%', '50%'],
+        roseType: 'area',
         itemStyle: { borderRadius: 4, borderColor: 'rgba(255,255,255,1)', borderWidth: 2 },
         label: { color: '#64748b', fontSize: 10, formatter: '{b}\n{d}%' },
         labelLine: { length: 5, length2: 5, lineStyle: { color: '#cbd5e1' } },
-        data: pieData.value.map((item, index) => ({ ...item, itemStyle: { color: pieColors[index % pieColors.length] } }))
+        data: pieData.value.map((item, index) => ({
+          ...item,
+          itemStyle: (item as any).itemStyle ? (item as any).itemStyle : { color: pieColors[index % pieColors.length] }
+        }))
       }
     ]
   })
 }
 
-// ================= 波动图核心引擎 (Trend Chart) =================
 const togglePill = async (item: any) => {
   if (!item) {
     activePill.value = null
-    filterMapMarkers() // 恢复全部
+    filterMapMarkers()
     return
   }
-  
+
   if (activePill.value === item.key) {
-    activePill.value = null // 取消选中
+    activePill.value = null
     filterMapMarkers()
   } else {
     activePill.value = item.key
     activePillName.value = item.label
     activeColor.value = pillColors[item.key] || '#0ea5e9'
-    filterMapMarkers(item.keywords) // 联动地图过滤并缩放
-    
-    // 渲染动态 Echarts 曲线
+    filterMapMarkers(item.keywords)
+
     await nextTick()
     renderTrendChart()
   }
 }
 
-// 模拟生成过去 24 小时的波浪数据
 const generateMockTrendData = () => {
-  const times = []
-  const data = []
+  const times: string[] = []
+  const data: number[] = []
   const now = new Date()
   let baseVal = Math.floor(Math.random() * 50) + 20
-  
+
   for (let i = 24; i >= 0; i--) {
     const t = new Date(now.getTime() - i * 60 * 60 * 1000)
     times.push(`${String(t.getHours()).padStart(2, '0')}:00`)
-    
-    // 模拟曲线波动，越靠近当前时间波动越大，触发异常
-    const volatility = i < 3 ? 30 : 10 
+
+    const volatility = i < 3 ? 30 : 10
     baseVal += (Math.random() - 0.5) * volatility
-    if(baseVal < 0) baseVal = 10
-    
-    if (i === 0) baseVal += 40 // 当前点激增，体现为什么当前报警了
+    if (baseVal < 0) baseVal = 10
+
+    if (i === 0) baseVal += 40
     data.push(Math.round(baseVal))
   }
   return { times, data }
@@ -256,18 +319,18 @@ const renderTrendChart = () => {
   if (!trendChartInstance) {
     trendChartInstance = echarts.init(trendChartRef.value)
   }
-  
+
   const { times, data } = generateMockTrendData()
   const color = activeColor.value
 
   trendChartInstance.setOption({
-    grid: { top: 30, right: 20, bottom: 20, left: 40, containLabel: true },
+    grid: { top: 30, right: 10, bottom: 20, left: 0, containLabel: true },
     tooltip: {
       trigger: 'axis',
       backgroundColor: 'rgba(255, 255, 255, 0.9)',
       borderColor: color,
       textStyle: { color: '#334155' },
-      axisPointer: { type: 'line', lineStyle: { color: color, type: 'dashed' } }
+      axisPointer: { type: 'line', lineStyle: { color, type: 'dashed' } }
     },
     xAxis: {
       type: 'category',
@@ -286,17 +349,17 @@ const renderTrendChart = () => {
       {
         name: activePillName.value,
         type: 'line',
-        data: data,
-        smooth: 0.4, // 平滑曲线
+        data,
+        smooth: 0.4,
         symbol: 'circle',
         symbolSize: 6,
         showSymbol: false,
-        itemStyle: { color: color },
+        itemStyle: { color },
         lineStyle: { width: 3, shadowColor: color, shadowBlur: 10, shadowOffsetY: 3 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: color + '80' }, // 半透明渐变
-            { offset: 1, color: color + '00' }
+            { offset: 0, color: `${color}80` },
+            { offset: 1, color: `${color}00` }
           ])
         }
       }
@@ -304,19 +367,113 @@ const renderTrendChart = () => {
   })
 }
 
-// 计算当前地图/列表中应该展示的异常流
 const filteredExceptionList = computed(() => {
   if (!activePill.value) return exceptionList.value
-  const item = allPieCards.value.find(c => c.key === activePill.value)
-  if (!item || !item.keywords) return exceptionList.value
-  
-  return exceptionList.value.filter(ex => 
-    item.keywords.some(kw => String(ex.type).includes(kw))
+  const item = allPieCards.value.find((card) => card.key === activePill.value)
+  if (!item?.keywords?.length) return exceptionList.value
+
+  return exceptionList.value.filter((ex) =>
+    item.keywords.some((kw) => String(ex.type ?? '').includes(kw))
   )
 })
 
+const normalizeAgeSexTable = (input: unknown) => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return [] as Array<{ label: string; value: number }>
+  }
 
-// ================= 地图核心逻辑 =================
+  const source = input as Record<string, unknown>
+  const schema: Array<{ key: string; label: string }> = [
+    { key: 'a', label: '6-14岁' },
+    { key: 'b', label: '15-19岁' },
+    { key: 'c', label: '20-39岁' },
+    { key: 'd', label: '40-59岁' },
+    { key: 'e', label: '60岁及以上' },
+    { key: 'man', label: '男性' },
+    { key: 'woman', label: '女性' },
+    { key: 'nono', label: '未知性别' }
+  ]
+
+  const rows = schema
+    .filter((item) => Object.prototype.hasOwnProperty.call(source, item.key))
+    .map((item) => ({ label: item.label, value: toNumber(source[item.key], 0) }))
+
+  if (rows.length > 0) return rows
+
+  return Object.entries(source).map(([label, value]) => ({
+    label,
+    value: toNumber(value, 0)
+  }))
+}
+
+const normalizeRecentAbnormal = (input: unknown): RecentAbnormalRow[] => {
+  if (!Array.isArray(input)) return []
+  return input.map((row) => {
+    const item = (row ?? {}) as Record<string, unknown>
+    const patientName = String(item.patientName ?? item.nickName ?? (item.userId ? `用户${item.userId}` : '-'))
+    const abnormalType = String(item.abnormalType ?? item.metricType ?? item.type ?? '-')
+    const riskLevel = String(item.riskLevel ?? item.level ?? '-')
+    return { patientName, abnormalType, riskLevel }
+  })
+}
+
+const parseLngLatFromLocation = (location: unknown): [number, number] | null => {
+  if (typeof location !== 'string') return null
+  const matched = location.match(/(-?\d+(?:\.\d+)?)\s*[,，]\s*(-?\d+(?:\.\d+)?)/)
+  if (!matched) return null
+  const lng = Number(matched[1])
+  const lat = Number(matched[2])
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null
+  return [lng, lat]
+}
+
+const fallbackLngLat = (index: number): [number, number] => {
+  const offsetLng = ((index % 7) - 3) * 0.01
+  const offsetLat = ((Math.floor(index / 7) % 5) - 2) * 0.01
+  return [MAP_CENTER[0] + offsetLng, MAP_CENTER[1] + offsetLat]
+}
+
+const normalizeExceptionList = (input: unknown): ExceptionRow[] => {
+  if (!Array.isArray(input)) return []
+  return input.map((row, index) => {
+    const item = (row ?? {}) as ExceptionRow
+    const fromLocation = parseLngLatFromLocation(item.location)
+    const lng = Number(item.longitude)
+    const lat = Number(item.latitude)
+    const [fallbackLng, fallbackLat] = fallbackLngLat(index)
+
+    return {
+      ...item,
+      state: String(item.state ?? '0'),
+      _lng: Number.isFinite(lng) ? lng : (fromLocation?.[0] ?? fallbackLng),
+      _lat: Number.isFinite(lat) ? lat : (fromLocation?.[1] ?? fallbackLat)
+    }
+  })
+}
+
+const buildMockExceptions = (seedRows: RecentAbnormalRow[]): ExceptionRow[] => {
+  const base = seedRows.length > 0
+    ? seedRows
+    : [
+      { patientName: '演示对象A', abnormalType: '心率异常', riskLevel: 'high' },
+      { patientName: '演示对象B', abnormalType: '围栏越界', riskLevel: 'medium' },
+      { patientName: '演示对象C', abnormalType: 'SOS求救', riskLevel: 'critical' }
+    ]
+
+  return base.slice(0, 8).map((item, index) => {
+    const [lng, lat] = fallbackLngLat(index)
+    return {
+      id: `mock-${index}`,
+      nickName: item.patientName || `演示对象${index + 1}`,
+      type: item.abnormalType || '异常告警',
+      state: index % 3 === 0 ? '1' : '0',
+      location: `演示坐标 ${lng.toFixed(6)}, ${lat.toFixed(6)}`,
+      _lng: lng,
+      _lat: lat
+    }
+  })
+}
+
 const initAmap = async () => {
   if (!amapRef.value) return
 
@@ -331,44 +488,54 @@ const initAmap = async () => {
 
   try {
     const AMap = await AMapLoader.load({
-      key: amapKey, version: '2.0', plugins: ['AMap.Scale', 'AMap.Marker', 'AMap.InfoWindow']
+      key: amapKey,
+      version: '2.0',
+      plugins: ['AMap.Scale', 'AMap.Marker', 'AMap.InfoWindow']
     })
 
     amapInstance = new AMap.Map(amapRef.value, {
-      viewMode: '3D', zoom: 14, center: MAP_CENTER,
-      mapStyle: 'amap://styles/light', pitch: 55, skyColor: '#f1f5f9', showBuildingBlock: true 
+      viewMode: '3D',
+      zoom: 14,
+      center: MAP_CENTER,
+      mapStyle: 'amap://styles/light',
+      pitch: 55,
+      skyColor: '#f1f5f9',
+      showBuildingBlock: true
     })
 
     amapInfoWindow = new AMap.InfoWindow({ isCustom: true, autoMove: true, offset: new AMap.Pixel(0, -25) })
-    amapInstance.addControl(new AMap.Scale({ position: 'RB', offset: new AMap.Pixel(300, 180) })) 
+    amapInstance.addControl(new AMap.Scale({ position: 'RB', offset: new AMap.Pixel(300, 180) }))
     mapLoadFailed.value = false
-    
-    if (exceptionList.value.length > 0) renderAllMapMarkers()
 
+    if (exceptionList.value.length > 0) {
+      renderAllMapMarkers()
+      const active = allPieCards.value.find((card) => card.key === activePill.value)
+      filterMapMarkers(active?.keywords)
+    }
   } catch (error) {
     mapLoadFailed.value = true
     ElMessage.error('地图引擎初始化失败')
   }
 }
 
-// 生成所有 Marker 实例
 const renderAllMapMarkers = () => {
   if (!amapInstance || !window.AMap) return
   amapInstance.remove(mapMarkers)
   mapMarkers = []
 
-  exceptionList.value.forEach(row => {
-    if (row.state === '1' || !row._lng || !row._lat) return
+  exceptionList.value.forEach((row) => {
+    if (!Number.isFinite(row._lng) || !Number.isFinite(row._lat)) return
 
-    const position = [row._lng, row._lat]
-    const isCritical = String(row.type).toUpperCase().includes('SOS') || String(row.type).includes('求救')
-    const markerColorClass = isCritical ? 'pulse-danger' : 'pulse-warning'
+    const position: [number, number] = [row._lng as number, row._lat as number]
+    const isCritical = String(row.type ?? '').toUpperCase().includes('SOS') || String(row.type ?? '').includes('求救')
+    const isResolved = String(row.state) === '1'
+    const markerColorClass = isResolved ? 'pulse-resolved' : (isCritical ? 'pulse-danger' : 'pulse-warning')
 
     const marker = new window.AMap.Marker({
-      position: position,
+      position,
       content: `<div class="holo-marker ${markerColorClass}"><div class="core"></div><div class="ripple"></div></div>`,
       anchor: 'center',
-      extData: row 
+      extData: row
     })
 
     marker.on('click', () => openTechInfoWindow(marker))
@@ -378,16 +545,15 @@ const renderAllMapMarkers = () => {
   amapInstance.add(mapMarkers)
 }
 
-// 地图下钻过滤
 const filterMapMarkers = (keywords?: string[]) => {
   if (!amapInstance || !mapMarkers.length) return
-  
-  amapInfoWindow?.close()
-  let visibleMarkers: any[] = []
 
-  mapMarkers.forEach(marker => {
+  amapInfoWindow?.close()
+  const visibleMarkers: any[] = []
+
+  mapMarkers.forEach((marker) => {
     const data = marker.getExtData()
-    if (!keywords || keywords.some(kw => String(data.type).includes(kw))) {
+    if (!keywords || keywords.some((kw) => String(data.type ?? '').includes(kw))) {
       marker.show()
       visibleMarkers.push(marker)
     } else {
@@ -395,21 +561,21 @@ const filterMapMarkers = (keywords?: string[]) => {
     }
   })
 
-  // 如果有过滤点，自动调整最佳视角 (电影级拉近特效)
   if (visibleMarkers.length > 0 && keywords) {
-    amapInstance.setFitView(visibleMarkers, false,) // 上右下左 Padding
+    amapInstance.setFitView(visibleMarkers, false)
   } else if (!keywords) {
-    amapInstance.setFitView(mapMarkers, false,)
+    amapInstance.setFitView(mapMarkers, false)
   }
 }
 
 const openTechInfoWindow = (marker: any) => {
   const data = marker.getExtData()
-  const isCritical = String(data.type).toUpperCase().includes('SOS')
+  const isCritical = String(data.type ?? '').toUpperCase().includes('SOS')
+  const isResolved = String(data.state) === '1'
   const infoHtml = `
     <div class="holo-info-window ${isCritical ? 'critical' : 'warning'}">
       <div class="info-header">
-        <span class="info-tag">${isCritical ? 'CRITICAL ALERT' : 'WARNING'}</span>
+        <span class="info-tag">${isResolved ? 'RESOLVED' : (isCritical ? 'CRITICAL ALERT' : 'WARNING')}</span>
         <h4 class="info-title">${data.type || '未知异常'}</h4>
       </div>
       <div class="info-body">
@@ -422,41 +588,51 @@ const openTechInfoWindow = (marker: any) => {
   amapInfoWindow.open(amapInstance, marker.getPosition())
 }
 
-const handleRowClick = (row: any) => {
-  if (!amapInstance || row.state === '1' || !row._lng) return
+const handleRowClick = (row: ExceptionRow) => {
+  if (!amapInstance || !Number.isFinite(row._lng) || !Number.isFinite(row._lat)) return
   amapInstance.panTo([row._lng, row._lat])
-  const targetMarker = mapMarkers.find(m => {
-    const pos = m.getPosition()
+  const targetMarker = mapMarkers.find((marker) => {
+    const pos = marker.getPosition()
     return pos.lng === row._lng && pos.lat === row._lat
   })
   if (targetMarker) setTimeout(() => openTechInfoWindow(targetMarker), 300)
 }
 
-const toList = (input: unknown): GenericRow[] => {
-  if (Array.isArray(input)) return input as GenericRow[]
-  if (input && typeof input === 'object') return Object.entries(input as Record<string, unknown>).map(([label, value]) => ({ label, value }))
-  return []
-}
-
 const fetchAll = async () => {
+  if (fetching.value) return
+
+  fetching.value = true
   try {
     const [rtRes, ageRes, recentRes, exceptionRes] = await Promise.all([
-      getRealTimeData(), getAgeSexGroupCount(), getRecentAbnormal(8), getIndexException('all', 1)
+      getRealTimeData(),
+      getAgeSexGroupCount(),
+      getRecentAbnormal(8),
+      getIndexException('all', 1)
     ])
 
-    realTimeData.value = (rtRes.data || {}) as Record<string, unknown>
-    ageSexTable.value = toList(ageRes.data).map((item) => ({ label: String(item.label || '-'), value: Number(item.value || 0) }))
-    recentAbnormal.value = toList(recentRes.data)
-    
-    const rawList = toList(exceptionRes.list || exceptionRes.data || exceptionRes.rows)
-    exceptionList.value = rawList.map(item => ({
-      ...item,
-      _lng: MAP_CENTER + (Math.random() - 0.5) * 0.08,
-      _lat: MAP_CENTER + (Math.random() - 0.5) * 0.06
-    }))
+    realTimeData.value = (rtRes.data ?? {}) as Record<string, unknown>
+    ageSexTable.value = normalizeAgeSexTable(ageRes.data)
+    recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
 
+    const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
+    const normalizedExceptions = normalizeExceptionList(rawExceptions)
+    if (normalizedExceptions.length > 0) {
+      useMockExceptionData.value = false
+      exceptionList.value = normalizedExceptions
+    } else {
+      useMockExceptionData.value = true
+      exceptionList.value = buildMockExceptions(recentAbnormal.value)
+    }
+
+    if (amapInstance) {
+      renderAllMapMarkers()
+      const active = allPieCards.value.find((card) => card.key === activePill.value)
+      filterMapMarkers(active?.keywords)
+    }
   } catch (error) {
     ElMessage.error('系统数据链路中断')
+  } finally {
+    fetching.value = false
   }
 }
 
@@ -470,14 +646,25 @@ const handleResize = () => {
 
 onMounted(async () => {
   await fetchAll()
-  if (!kpiPieChart) kpiPieChart = echarts.init(kpiPieRef.value!)
+  if (!kpiPieChart && kpiPieRef.value) {
+    kpiPieChart = echarts.init(kpiPieRef.value)
+  }
   renderKpiPieChart()
   await initAmap()
+
+  refreshTimer = setInterval(() => {
+    void fetchAll()
+  }, 30000)
+
   window.addEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
   kpiPieChart?.dispose()
   trendChartInstance?.dispose()
   amapInfoWindow?.close()
@@ -497,8 +684,6 @@ onBeforeUnmount(() => {
 .amap-fullscreen-bg {
   position: absolute; inset: 0; z-index: 1; transition: filter 0.5s ease;
 }
-/* 当焦点模式激活时，背景地图变模糊，突出中间的波形图 */
-.map-blur { filter: blur(4px) saturate(0.8); }
 
 .hud-top-center, .hud-side-panel, .hud-bottom-center, .trend-overlay-panel {
   position: absolute; z-index: 10; pointer-events: none; 
@@ -541,6 +726,17 @@ onBeforeUnmount(() => {
 .hud-top-center {
   top: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; pointer-events: auto;
   flex-wrap: wrap; justify-content: center; width: 85%; max-width: 1100px; z-index: 20;
+}
+.mock-data-tip {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: #a16207;
+  background: rgba(254, 243, 199, 0.95);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: 12px;
+  padding: 6px 12px;
+  line-height: 1.2;
 }
 .hud-pill {
   display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
@@ -627,6 +823,7 @@ onBeforeUnmount(() => {
 }
 :deep(.pulse-danger) { color: #ef4444; .core { background: #ef4444; } }
 :deep(.pulse-warning) { color: #f59e0b; .core { background: #f59e0b; } }
+:deep(.pulse-resolved) { color: #10b981; .core { background: #10b981; } .ripple { animation-duration: 2.4s; opacity: 0.45; } }
 
 :deep(.holo-info-window) {
   background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);

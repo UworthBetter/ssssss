@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f8da63e8-d896-4baf-9fa6-979c824eb7f8" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/.env.development" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/.env.development" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/src/layout/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/src/layout/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/src/router/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/src/styles/theme.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/src/styles/theme.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/src/views/DashboardView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/src/views/DashboardView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../qkyd-vue3-new/src/views/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../qkyd-vue3-new/src/views/LoginView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +46,7 @@
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "codex/cleanup",
+    "git-widget-placeholder": "codex/newly",
     "last_directory_selection": "D:/jishe/1.19/backend/qkyd-admin/src/main/java/com",
     "last_opened_file_path": "D:/jishe/1.19/backend",
     "node.js.detected.package.eslint": "true",
@@ -121,7 +128,7 @@
       <workItem from="1774022655606" duration="78000" />
       <workItem from="1774022764936" duration="725000" />
       <workItem from="1774057490603" duration="795000" />
-      <workItem from="1774058938721" duration="1794000" />
+      <workItem from="1774058938721" duration="2183000" />
     </task>
     <servers />
   </component>

@@ -79,5 +79,12 @@ public interface UeitExceptionMapper
      * @return
      */
     List<UeitException> selectUeitExceptionListByUserId(int userId);
+
+    /**
+     * 仪表盘统计口径：查询异常（含已处理与未处理，前后端一致）
+     *
+     * @return 异常列表
+     */
+    List<UeitException> selectExceptionForDashboard();
 }
 
