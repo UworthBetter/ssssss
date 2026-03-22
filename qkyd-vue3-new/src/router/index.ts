@@ -1,36 +1,80 @@
-﻿import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/store/user'
+
+export interface AppRouteMeta {
+  title: string
+  icon: string
+  group: 'workbench' | 'subject' | 'event' | 'device' | 'ai'
+  groupTitle: string
+  groupIcon: string
+  navKey: string
+}
 
 export const appChildrenRoutes: RouteRecordRaw[] = [
   {
-    path: 'dashboard',
-    name: 'Dashboard',
+    path: 'workbench/overview',
+    name: 'WorkbenchOverview',
     component: () => import('@/views/DashboardView.vue'),
-    meta: { title: '健康总览', icon: 'DataBoard' }
+    meta: {
+      title: '平台总览',
+      icon: 'DataBoard',
+      group: 'workbench',
+      groupTitle: '工作台',
+      groupIcon: 'DataBoard',
+      navKey: '/workbench/overview'
+    } satisfies AppRouteMeta
   },
   {
     path: 'subject',
-    name: 'HealthSubject',
+    name: 'SubjectCenter',
     component: () => import('@/views/HealthSubjectView.vue'),
-    meta: { title: '服务对象管理', icon: 'UserFilled' }
+    meta: {
+      title: '对象列表',
+      icon: 'UserFilled',
+      group: 'subject',
+      groupTitle: '对象中心',
+      groupIcon: 'UserFilled',
+      navKey: '/subject'
+    } satisfies AppRouteMeta
+  },
+  {
+    path: 'event',
+    name: 'EventCenter',
+    component: () => import('@/views/ExceptionAlertView.vue'),
+    meta: {
+      title: '事件列表',
+      icon: 'WarningFilled',
+      group: 'event',
+      groupTitle: '事件中心',
+      groupIcon: 'WarningFilled',
+      navKey: '/event'
+    } satisfies AppRouteMeta
   },
   {
     path: 'device',
-    name: 'DeviceInfo',
+    name: 'DeviceCenter',
     component: () => import('@/views/DeviceInfoView.vue'),
-    meta: { title: '设备管理', icon: 'Watch' }
+    meta: {
+      title: '设备列表',
+      icon: 'Watch',
+      group: 'device',
+      groupTitle: '设备中心',
+      groupIcon: 'Watch',
+      navKey: '/device'
+    } satisfies AppRouteMeta
   },
   {
-    path: 'exception',
-    name: 'ExceptionAlert',
-    component: () => import('@/views/ExceptionAlertView.vue'),
-    meta: { title: '异常告警中心', icon: 'WarningFilled' }
-  },
-  {
-    path: 'ai-workbench',
-    name: 'AiWorkbench',
+    path: 'ai/workbench',
+    name: 'AiCenter',
     component: () => import('@/views/AiWorkbenchView.vue'),
-    meta: { title: 'AI 工作台', icon: 'MagicStick' }
+    meta: {
+      title: '分析工作台',
+      icon: 'MagicStick',
+      group: 'ai',
+      groupTitle: 'AI 中心',
+      groupIcon: 'MagicStick',
+      navKey: '/ai/workbench'
+    } satisfies AppRouteMeta
   }
 ]
 
@@ -43,8 +87,20 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/layout/index.vue'),
-    redirect: '/dashboard',
+    redirect: '/workbench/overview',
     children: appChildrenRoutes
+  },
+  {
+    path: '/dashboard',
+    redirect: '/workbench/overview'
+  },
+  {
+    path: '/exception',
+    redirect: '/event'
+  },
+  {
+    path: '/ai-workbench',
+    redirect: '/ai/workbench'
   }
 ]
 

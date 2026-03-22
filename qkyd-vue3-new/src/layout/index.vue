@@ -1,18 +1,24 @@
-﻿<template>
+<template>
   <el-container class="layout-container">
     <el-aside :width="sidebarWidth" class="sidebar panel">
       <div class="brand">
         <img class="brand-logo" src="/logo-qkyd-wide.png" alt="耆康云盾" />
         <div v-show="appStore.sidebar.opened" class="brand-text">
           <p class="brand-title">耆康云盾健康监测平台</p>
-          <p class="brand-sub">智能监测管理端</p>
+          <p class="brand-sub">平台运营工作台</p>
         </div>
       </div>
       <el-menu :default-active="activeMenu" :collapse="!appStore.sidebar.opened" router>
-        <el-menu-item v-for="item in navItems" :key="item.path" :index="item.path">
-          <el-icon><component :is="item.icon" /></el-icon>
-          <span>{{ item.title }}</span>
-        </el-menu-item>
+        <template v-for="group in navGroups" :key="group.key">
+          <div v-show="appStore.sidebar.opened" class="nav-group-title">
+            <el-icon><component :is="resolveIcon(group.icon)" /></el-icon>
+            <span>{{ group.title }}</span>
+          </div>
+          <el-menu-item v-for="item in group.items" :key="item.path" :index="item.path">
+            <el-icon><component :is="resolveIcon(item.icon)" /></el-icon>
+            <span>{{ item.title }}</span>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-aside>
 
@@ -24,7 +30,7 @@
           </el-button>
           <el-breadcrumb separator="/">
             <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path">
-              {{ item.meta?.title }}
+              {{ item.title }}
             </el-breadcrumb-item>
           </el-breadcrumb>
         </div>
@@ -57,13 +63,21 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Menu, DataBoard, UserFilled, Watch, WarningFilled, MagicStick } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
+import { appChildrenRoutes, type AppRouteMeta } from '@/router'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 
 interface NavItem {
   path: string
   title: string
-  icon: typeof DataBoard
+  icon: string
+}
+
+interface NavGroup {
+  key: AppRouteMeta['group']
+  title: string
+  icon: string
+  items: NavItem[]
 }
 
 const router = useRouter()
@@ -73,16 +87,66 @@ const userStore = useUserStore()
 const displayName = '小康'
 const userAvatar = '/avatar-qkyd-2.jpg'
 
-const navItems: NavItem[] = [
-  { path: '/dashboard', title: '健康总览', icon: DataBoard },
-  { path: '/subject', title: '服务对象管理', icon: UserFilled },
-  { path: '/device', title: '设备管理', icon: Watch },
-  { path: '/exception', title: '异常告警中心', icon: WarningFilled },
-  { path: '/ai-workbench', title: 'AI 工作台', icon: MagicStick }
-]
+const iconMap = {
+  DataBoard,
+  UserFilled,
+  Watch,
+  WarningFilled,
+  MagicStick
+} as const
 
-const activeMenu = computed(() => route.path)
-const breadcrumbs = computed(() => route.matched.filter((item) => item.meta?.title))
+const navGroups = computed<NavGroup[]>(() => {
+  const groups = new Map<AppRouteMeta['group'], NavGroup>()
+
+  appChildrenRoutes.forEach((item) => {
+    const meta = item.meta as AppRouteMeta | undefined
+    if (!meta) {
+      return
+    }
+
+    if (!groups.has(meta.group)) {
+      groups.set(meta.group, {
+        key: meta.group,
+        title: meta.groupTitle,
+        icon: meta.groupIcon,
+        items: []
+      })
+    }
+
+    groups.get(meta.group)?.items.push({
+      path: meta.navKey,
+      title: meta.title,
+      icon: meta.icon
+    })
+  })
+
+  return Array.from(groups.values())
+})
+
+const activeRouteMeta = computed(() => route.meta as Partial<AppRouteMeta>)
+const activeMenu = computed(() => activeRouteMeta.value.navKey || route.path)
+const breadcrumbs = computed(() => {
+  const items: Array<{ path: string; title: string }> = []
+
+  if (activeRouteMeta.value.groupTitle) {
+    items.push({
+      path: String(activeMenu.value),
+      title: String(activeRouteMeta.value.groupTitle)
+    })
+  }
+
+  if (activeRouteMeta.value.title) {
+    const title = String(activeRouteMeta.value.title)
+    if (title !== activeRouteMeta.value.groupTitle) {
+      items.push({
+        path: route.path,
+        title
+      })
+    }
+  }
+
+  return items
+})
 const sidebarWidth = computed(() => (appStore.sidebar.opened ? '248px' : '76px'))
 const avatarText = computed(() => {
   const source = displayName || userStore.userInfo.nickName || userStore.userInfo.userName || 'U'
@@ -108,6 +172,8 @@ const onUserCommand = async (command: string | number | object) => {
   await userStore.handleLogout()
   await router.replace('/login')
 }
+
+const resolveIcon = (name: string) => iconMap[name as keyof typeof iconMap] || DataBoard
 
 onMounted(() => {
   updateNowText()
@@ -143,6 +209,17 @@ onBeforeUnmount(() => {
     border-radius: 12px;
     margin-bottom: 6px;
   }
+}
+
+.nav-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px 8px;
+  color: var(--text-sub);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .brand {

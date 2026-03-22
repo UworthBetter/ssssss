@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+﻿import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 
 const service = axios.create({
@@ -20,6 +20,11 @@ service.interceptors.response.use(
     if (res.code !== 200) {
       if (res.code === 401) {
         localStorage.removeItem('token')
+        ElMessage.error('登录状态已失效，请重新登录')
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
+        return Promise.reject(new Error('登录状态已失效，请重新登录'))
       }
       ElMessage.error(res.msg || '请求失败')
       return Promise.reject(new Error(res.msg || '请求失败'))
@@ -29,9 +34,11 @@ service.interceptors.response.use(
   (error: AxiosError<{ msg?: string }>) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
+      ElMessage.error('登录状态已失效，请重新登录')
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
+      return Promise.reject(new Error('登录状态已失效，请重新登录'))
     }
     ElMessage.error(error.response?.data?.msg || error.message || '请求失败')
     return Promise.reject(error)
