@@ -115,14 +115,18 @@ onMounted(refreshCaptcha)
   gap: 28px;
   align-items: center;
   padding: 24px;
-  background: transparent;
+  background-color: #e4eee0; /* 基础深蓝色背景底色 */
 }
 
 .login-page::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.06);
+  background-image: url('/login-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.8; /* 背景透明度，可根据需要调整 */
   z-index: 0;
 }
 

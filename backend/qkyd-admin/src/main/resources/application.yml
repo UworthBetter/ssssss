@@ -74,13 +74,13 @@ spring:
   ai:
     openai:
       # API Key (璇锋浛鎹负瀹為檯鐨凙PI Key锛屾敮鎸丱penAI銆丄zure OpenAI鎴栧吋瀹圭殑API)
-      api-key: ${AI_API_KEY:your-api-key-here}
-      # 鍩虹URL锛屽彲浠ヤ慨鏀逛负鍥藉唴API鏈嶅姟鍟嗭紙濡傞€氫箟鍗冮棶銆佹櫤璋盇I绛夛級
+      api-key: ${AI_API_KEY:}
+      # 鍩虹URL锛屽綋鍓嶉粯璁や负鏅鸿氨 AI OpenAI-compatible gateway
       base-url: ${AI_BASE_URL:https://api.openai.com}
       chat:
         options:
           # 妯″瀷鍚嶇О
-          model: ${AI_MODEL:gpt-3.5-turbo}
+          model: ${AI_MODEL:GLM-4.7}
           # 娓╁害鍙傛暟 (0-2)
           temperature: ${AI_TEMPERATURE:0.7}
 

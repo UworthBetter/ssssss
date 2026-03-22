@@ -3,6 +3,7 @@ package com.qkyd.ai.service.impl;
 import com.qkyd.ai.service.IAiService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class AiServiceImpl implements IAiService {
     @Value("${spring.ai.openai.base-url:https://api.openai.com}")
     private String baseUrl;
 
-    @Value("${spring.ai.openai.chat.options.model:gpt-3.5-turbo}")
+    @Value("${spring.ai.openai.chat.options.model:GLM-4.7}")
     private String model;
 
     @Autowired
@@ -76,17 +77,24 @@ public class AiServiceImpl implements IAiService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(apiKey);
 
-            String body = objectMapper.createObjectNode()
-                    .put("model", model)
-                    .putArray("messages")
+            ObjectNode payload = objectMapper.createObjectNode();
+            payload.put("model", model);
+            payload.putArray("messages")
                     .addObject()
                     .put("role", "user")
-                    .put("content", message)
-                    .toString();
+                    .put("content", message);
 
-            String endpoint = baseUrl.endsWith("/")
-                    ? baseUrl + "chat/completions"
-                    : baseUrl + "/chat/completions";
+            String body = payload.toString();
+
+            String normalizedBaseUrl = baseUrl.endsWith("/")
+                    ? baseUrl.substring(0, baseUrl.length() - 1)
+                    : baseUrl;
+
+            if (!normalizedBaseUrl.endsWith("/v1") && !normalizedBaseUrl.endsWith("/v4")) {
+                normalizedBaseUrl = normalizedBaseUrl + "/v1";
+            }
+
+            String endpoint = normalizedBaseUrl + "/chat/completions";
 
             String response = restTemplate.postForObject(endpoint, new HttpEntity<>(body, headers), String.class);
             if (response == null) {

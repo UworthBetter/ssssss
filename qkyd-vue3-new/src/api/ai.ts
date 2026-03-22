@@ -1,8 +1,88 @@
 import request from '@/utils/request'
 
+export interface EventInsightContext {
+  age?: number | string
+  chronicDiseases?: string[] | string
+  recentTrend?: string
+  recentHealthTrend?: string
+  historyCount?: number | string
+  historicalAbnormalCount?: number | string
+  recentSameTypeCount?: number | string
+  deviceState?: string
+  deviceStatus?: string
+  deviceStatusReason?: string
+  currentDeviceState?: string
+  lastKnownLocation?: string
+  dataConfidence?: string
+  healthTrend?: string
+}
+
+export interface EventInsightRisk {
+  level?: string
+  riskLevel?: string
+  riskScore?: number | string
+  immediateAction?: boolean
+  possibleCauses?: string[] | string
+  possibleReasons?: string[] | string
+  analysisReasons?: string[] | string
+  reasonCodes?: string[] | string
+  ruleHits?: string[] | string
+  confidence?: number | string
+}
+
+export interface EventInsightAdvice {
+  notifyWho?: string[] | string
+  actions?: string[] | string
+  suggestedActions?: string[] | string
+  offlineCheck?: boolean
+  contactFamily?: boolean
+  contactOrg?: boolean
+  contactOrganization?: boolean
+  immediateAction?: boolean
+}
+
+export interface EventInsightTraceStep {
+  agentKey?: string
+  agentName?: string
+  status?: string
+  resolvedCount?: number | string
+  targetCount?: number | string
+  summary?: string
+  detail?: string
+}
+
+export interface EventInsightTrace {
+  orchestratorVersion?: string
+  fallbackUsed?: boolean
+  fallbackReason?: string
+  missingFields?: string[] | string
+  steps?: EventInsightTraceStep[] | unknown
+}
+
+export interface EventInsightPayload {
+  summary?: string
+  abnormalOverview?: string
+  overview?: string
+  parsedEvent?: Record<string, unknown>
+  context?: EventInsightContext
+  risk?: EventInsightRisk
+  advice?: EventInsightAdvice
+  trace?: EventInsightTrace
+  riskLevel?: string
+  analysisReasons?: string[] | string
+  reasons?: string[] | string
+  possibleCauses?: string[] | string
+  possibleReasons?: string[] | string
+  suggestedActions?: string[] | string
+  actions?: string[] | string
+  notifyWho?: string[] | string
+  confidence?: number | string
+  source?: string
+}
+
 export function chatAi(message: string) {
   return request({
-    url: '/ai/chat',
+    url: 'ai/chat',
     method: 'post',
     timeout: 60000,
     headers: {
@@ -15,7 +95,7 @@ export function chatAi(message: string) {
 
 export function detectFall(data: Record<string, unknown>) {
   return request({
-    url: '/ai/fall/detect',
+    url: 'ai/fall/detect',
     method: 'post',
     data
   })
@@ -23,7 +103,7 @@ export function detectFall(data: Record<string, unknown>) {
 
 export function assessRisk(data: Record<string, unknown>) {
   return request({
-    url: '/ai/risk/assess',
+    url: 'ai/risk/assess',
     method: 'post',
     data
   })
@@ -31,7 +111,7 @@ export function assessRisk(data: Record<string, unknown>) {
 
 export function analyzeTrend(data: Record<string, unknown>) {
   return request({
-    url: '/ai/trend/analyze',
+    url: 'ai/trend/analyze',
     method: 'post',
     data
   })
@@ -39,7 +119,7 @@ export function analyzeTrend(data: Record<string, unknown>) {
 
 export function checkQuality(data: Record<string, unknown>) {
   return request({
-    url: '/ai/quality/check',
+    url: 'ai/quality/check',
     method: 'post',
     data
   })
@@ -47,15 +127,25 @@ export function checkQuality(data: Record<string, unknown>) {
 
 export function detectAbnormal(data: Record<string, unknown>) {
   return request({
-    url: '/ai/abnormal/detect',
+    url: 'ai/abnormal/detect',
     method: 'post',
     data
   })
 }
 
+export function getEventInsight(eventId: number | string) {
+  return request({
+    url: `ai/event/insight/${eventId}`,
+    method: 'get',
+    headers: {
+      'X-Skip-Error-Message': 'true'
+    }
+  })
+}
+
 export function getRecentAbnormal(limit = 10) {
   return request({
-    url: '/ai/abnormal/recent',
+    url: 'ai/abnormal/recent',
     method: 'get',
     params: {
       limit

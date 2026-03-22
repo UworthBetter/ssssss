@@ -24,11 +24,6 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_PROXY_TARGET || 'https://api.cecm.site',
           changeOrigin: true,
           secure: false
-        },
-        // Avoid matching frontend route '/ai-workbench'
-        '/ai/': {
-          target: 'http://localhost:8011',
-          changeOrigin: true
         }
       }
     }

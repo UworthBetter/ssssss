@@ -1,6 +1,9 @@
 ﻿import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 
+const shouldSkipErrorMessage = (config?: InternalAxiosRequestConfig) =>
+  String(config?.headers?.['X-Skip-Error-Message'] ?? '').toLowerCase() === 'true'
+
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/dev-api',
   timeout: 15000
@@ -26,7 +29,9 @@ service.interceptors.response.use(
         }
         return Promise.reject(new Error('登录状态已失效，请重新登录'))
       }
-      ElMessage.error(res.msg || '请求失败')
+      if (!shouldSkipErrorMessage(response.config)) {
+        ElMessage.error(res.msg || '请求失败')
+      }
       return Promise.reject(new Error(res.msg || '请求失败'))
     }
     return res
@@ -40,7 +45,9 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error('登录状态已失效，请重新登录'))
     }
-    ElMessage.error(error.response?.data?.msg || error.message || '请求失败')
+    if (!shouldSkipErrorMessage(error.config as InternalAxiosRequestConfig | undefined)) {
+      ElMessage.error(error.response?.data?.msg || error.message || '请求失败')
+    }
     return Promise.reject(error)
   }
 )
