@@ -1,5 +1,5 @@
 <template>
-  <PlatformPageShellV2
+  <PlatformPageShell
     title="对象中心"
     subtitle="统一承载服务对象档案、风险画像、设备绑定和关联事件，为后续对象 360 详情页建立稳定结构。"
     eyebrow="SUBJECT CENTER"
@@ -41,7 +41,7 @@
       </div>
     </template>
 
-    <div class="section">
+    <div class="panel section">
       <el-table v-loading="loading" :data="list" stripe highlight-current-row @current-change="handleCurrentChange" @row-click="handleRowSelect">
         <el-table-column prop="subjectId" label="ID" width="90" />
         <el-table-column prop="subjectName" label="对象账号" min-width="120" />
@@ -78,7 +78,7 @@
 
     <template #aside>
       <div class="aside-stack">
-        <div class="detail-card">
+        <div class="panel aside-card detail-card">
           <div class="detail-head">
             <div>
               <div class="aside-card-title">当前选中对象</div>
@@ -156,7 +156,7 @@
         <el-button type="primary" :loading="saving" @click="submit">保存</el-button>
       </template>
     </el-dialog>
-  </PlatformPageShellV2>
+  </PlatformPageShell>
 </template>
 
 <script setup lang="ts">
@@ -166,7 +166,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   PlatformContextFilterBar,
-  PlatformPageShellV2,
+  PlatformPageShell,
   PlatformSearchEntry,
   dispatchPlatformAction,
   getPlatformSearchPresentation,
@@ -337,9 +337,10 @@ installRouteQuerySync()
 <style scoped lang="scss">
 .toolbar-stack { display: flex; flex-direction: column; gap: 14px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.section { padding: 24px; }
+.section { padding: 16px; }
 .header-actions { width: min(360px, 100%); }
-.aside-stack { display: flex; flex-direction: column; gap: 24px; padding: 0 24px 24px; }
+.aside-stack { display: flex; flex-direction: column; gap: 14px; }
+.aside-card { padding: 16px; border-radius: 18px; }
 .detail-card, .detail-body { display: flex; flex-direction: column; gap: 16px; }
 .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .aside-card-title, .block-title { font-size: 14px; font-weight: 700; color: var(--text-main); }

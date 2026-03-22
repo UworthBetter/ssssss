@@ -10,6 +10,28 @@
       <p>高德地图初始化失败，请检查 Key 配置</p>
     </div>
 
+    <!-- ================= 0.5 顶部左上角：价值卡片 ================= -->
+    <div class="hud-value-container">
+      <div class="hud-value-cards">
+        <div class="value-card">
+          <div class="vc-title">今日识别异常对象数</div>
+          <div class="vc-value digital-font">{{ valueCardsData.abnormalObjects }}<span class="vc-unit">人</span></div>
+        </div>
+        <div class="value-card">
+          <div class="vc-title">今日高风险预警数</div>
+          <div class="vc-value digital-font text-danger">{{ valueCardsData.highRisk }}<span class="vc-unit">次</span></div>
+        </div>
+        <div class="value-card">
+          <div class="vc-title">平均事件响应时长</div>
+          <div class="vc-value digital-font text-warning">{{ valueCardsData.avgResponseTime }}<span class="vc-unit">min</span></div>
+        </div>
+        <div class="value-card">
+          <div class="vc-title">已闭环事件占比</div>
+          <div class="vc-value digital-font text-success">{{ valueCardsData.closedRatio }}<span class="vc-unit">%</span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= 1. 顶部居中：战术胶囊信标 (HUD Pills) ================= -->
     <div class="hud-top-center">
       <div v-if="useMockExceptionData" class="mock-data-tip">当前为演示异常点（后端暂无异常位置数据）</div>
@@ -31,26 +53,6 @@
 
     <!-- ================= 2. 左侧：全息渐变翼 ================= -->
     <div class="hud-side-panel hud-left fade-left">
-      <!-- 价值卡片 (整合进左侧面板避免重叠) -->
-      <div class="hud-value-cards">
-        <div class="value-card">
-          <div class="vc-title" title="今日异常对象">今日异常对象</div>
-          <div class="vc-value digital-font">{{ valueCardsData.abnormalObjects }}<span class="vc-unit">人</span></div>
-        </div>
-        <div class="value-card">
-          <div class="vc-title" title="高风险预警">高风险预警</div>
-          <div class="vc-value digital-font text-danger">{{ valueCardsData.highRisk }}<span class="vc-unit">次</span></div>
-        </div>
-        <div class="value-card">
-          <div class="vc-title" title="平均响应时长">平均响应时长</div>
-          <div class="vc-value digital-font text-warning">{{ valueCardsData.avgResponseTime }}<span class="vc-unit">min</span></div>
-        </div>
-        <div class="value-card">
-          <div class="vc-title" title="已闭环占比">已闭环占比</div>
-          <div class="vc-value digital-font text-success">{{ valueCardsData.closedRatio }}<span class="vc-unit">%</span></div>
-        </div>
-      </div>
-
       <transition name="panel-fade" mode="out-in">
         <div v-if="!activePill" class="hud-content-block flex-fill" key="default">
           <div class="holo-title">DEMOGRAPHICS <span>// 人群画像</span></div>
@@ -924,13 +926,13 @@ onBeforeUnmount(() => {
 .fade-bottom { background: linear-gradient(0deg, rgba(248, 250, 252, 0.95) 0%, rgba(248, 250, 252, 0.7) 40%, transparent 100%); }
 
 .hud-side-panel {
-  top: 0; bottom: 0; width: 320px; display: flex; flex-direction: column; padding: 60px 16px 20px; gap: 24px;
+  top: 0; bottom: 0; width: 280px; display: flex; flex-direction: column; padding: 60px 16px 20px; gap: 24px;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
-.hud-left { left: 0; padding-right: 20px; } 
-.hud-right { right: 0; padding-left: 20px; }
+.hud-left { left: 0; padding-right: 40px; } 
+.hud-right { right: 0; padding-left: 40px; }
 .hud-bottom-center {
-  bottom: 0; left: 320px; right: 320px; height: 160px; padding: 20px 40px 10px;
+  bottom: 0; left: 280px; right: 280px; height: 160px; padding: 20px 40px 10px;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
@@ -951,34 +953,41 @@ onBeforeUnmount(() => {
   span { font-size: 10px; color: #94a3b8; font-family: sans-serif; font-weight: normal; }
 }
 
-/* 价值大屏卡片 (改为侧边栏内部网格布局) */
+/* 顶部左侧：价值卡片容器 */
+.hud-value-container {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  z-index: 25;
+  pointer-events: none;
+}
+
+/* 价值大屏卡片 */
 .hud-value-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column; /* 纵向排列，贴合左侧 */
   gap: 12px;
   pointer-events: auto;
-  flex-shrink: 0;
-  margin-bottom: 24px;
 }
 .value-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 14px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  width: 100%;
+  min-width: 150px;
   transition: all 0.3s;
 }
 .value-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.98);
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
 }
-.vc-title { font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.vc-value { font-size: 20px; font-weight: bold; color: #0ea5e9; display: flex; align-items: baseline; gap: 4px; line-height: 1; }
+.vc-title { font-size: 11px; color: #64748b; margin-bottom: 2px; font-weight: bold; }
+.vc-value { font-size: 24px; font-weight: bold; color: #0ea5e9; display: flex; align-items: baseline; gap: 4px; line-height: 1; }
 .vc-unit { font-size: 11px; font-weight: normal; color: #94a3b8; font-family: sans-serif; }
 .text-danger { color: #ef4444 !important; }
 .text-warning { color: #f59e0b !important; }
@@ -1122,7 +1131,9 @@ onBeforeUnmount(() => {
 @media (max-width: 1199px) {
   .page-shell { overflow: auto; height: auto; display: flex; flex-direction: column; background: #f8fafc; }
   .amap-fullscreen-bg { position: relative; height: 400px; order: 1; z-index: 1; }
-  .hud-value-cards { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+  
+  .hud-value-container { position: relative; inset: auto; transform: none; order: 2; margin: 16px; width: auto; }
+  .hud-value-cards { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   
   .hud-top-center { position: relative; inset: auto; transform: none; order: 3; margin: 0 auto 16px; width: 100%; max-width: none; flex-wrap: wrap; }
   

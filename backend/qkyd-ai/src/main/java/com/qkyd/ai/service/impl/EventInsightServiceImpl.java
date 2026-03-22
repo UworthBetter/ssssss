@@ -1,11 +1,18 @@
 package com.qkyd.ai.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qkyd.ai.mapper.EventInsightSnapshotMapper;
 import com.qkyd.ai.model.dto.EventInsightResultDTO;
+import com.qkyd.ai.model.dto.EventInsightSnapshotSummaryDTO;
+import com.qkyd.ai.model.entity.EventInsightSnapshotRecord;
 import com.qkyd.ai.service.IEventInsightService;
 import com.qkyd.health.domain.HealthSubject;
 import com.qkyd.health.domain.UeitException;
+import com.qkyd.health.domain.dto.ai.EventInsightHealthContext;
 import com.qkyd.health.service.IHealthSubjectService;
 import com.qkyd.health.service.IUeitExceptionService;
+import com.qkyd.health.service.ai.IEventInsightHealthContextService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +28,9 @@ import java.util.List;
  */
 @Service
 public class EventInsightServiceImpl implements IEventInsightService {
+    private static final long SNAPSHOT_MAX_AGE_MILLIS = 12L * 60L * 60L * 1000L;
+    private static final long FRESHNESS_WARNING_AGE_MILLIS = 6L * 60L * 60L * 1000L;
+
     private static final List<String> FALLBACK_TYPES = Arrays.asList(
             "心率异常",
             "血氧偏低",
@@ -35,23 +45,50 @@ public class EventInsightServiceImpl implements IEventInsightService {
     @Autowired
     private IHealthSubjectService healthSubjectService;
 
+    @Autowired
+    private EventInsightSnapshotMapper eventInsightSnapshotMapper;
+
+    @Autowired
+    private IEventInsightHealthContextService eventInsightHealthContextService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     public EventInsightResultDTO buildInsight(Long eventId) {
+        return buildInsight(eventId, false);
+    }
+
+    @Override
+    public EventInsightResultDTO buildInsight(Long eventId, boolean refresh) {
         UeitException source = loadException(eventId);
         boolean fallbackEvent = source == null;
         if (fallbackEvent) {
             source = createFallbackException(eventId);
         }
 
+        EventInsightResultDTO.ParsedEvent parsedEvent = buildParsedEvent(eventId, source);
+        EventInsightHealthContext realContext = loadRealContext(
+                parsedEvent.getUserId(),
+                parsedEvent.getDeviceId(),
+                parsedEvent.getAbnormalType()
+        );
+        EventInsightSnapshotRecord snapshot = loadSnapshotRecord(eventId);
+        EventInsightResultDTO cachedInsight = readSnapshot(snapshot);
+        if (cachedInsight != null
+                && !shouldRefreshSnapshot(snapshot, cachedInsight, realContext, refresh, fallbackEvent)) {
+            return enrichFreshness(cachedInsight);
+        }
+
         HealthSubject subject = loadSubject(source.getUserId());
         List<UeitException> history = loadHistory(source.getUserId());
 
-        EventInsightResultDTO.ParsedEvent parsedEvent = buildParsedEvent(eventId, source);
         EventInsightResultDTO.ContextSnapshot context = buildContext(
                 source,
                 subject,
                 history,
                 parsedEvent,
+                realContext,
                 fallbackEvent
         );
         EventInsightResultDTO.RiskAssessment risk = buildRisk(parsedEvent, context, history);
@@ -73,7 +110,212 @@ public class EventInsightServiceImpl implements IEventInsightService {
         result.setAdvice(advice);
         result.setTrace(trace);
         result.setSummary(buildSummary(source, subject, parsedEvent, risk));
+        enrichFreshness(result);
+        saveSnapshot(result);
         return result;
+    }
+
+    @Override
+    public List<EventInsightSnapshotSummaryDTO> listInsightSnapshots(Long eventId, int limit) {
+        if (eventId == null) {
+            return Collections.emptyList();
+        }
+        int resolvedLimit = limit <= 0 ? 10 : Math.min(limit, 20);
+        try {
+            List<EventInsightSnapshotSummaryDTO> rows =
+                    eventInsightSnapshotMapper.selectRecentByEventId(eventId, resolvedLimit);
+            if (rows == null || rows.isEmpty()) {
+                return Collections.emptyList();
+            }
+            for (EventInsightSnapshotSummaryDTO row : rows) {
+                enrichSnapshotSummaryFreshness(row);
+            }
+            return rows;
+        } catch (Exception ignored) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public EventInsightResultDTO getInsightSnapshot(Long eventId, Long snapshotId) {
+        if (eventId == null || snapshotId == null) {
+            return null;
+        }
+        try {
+            EventInsightSnapshotRecord snapshot =
+                    eventInsightSnapshotMapper.selectByIdAndEventId(eventId, snapshotId);
+            return enrichFreshness(readSnapshot(snapshot));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private EventInsightSnapshotRecord loadSnapshotRecord(Long eventId) {
+        if (eventId == null) {
+            return null;
+        }
+        try {
+            return eventInsightSnapshotMapper.selectLatestByEventId(eventId);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private EventInsightResultDTO readSnapshot(EventInsightSnapshotRecord snapshot) {
+        if (snapshot == null || isBlank(snapshot.getPayloadJson())) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(snapshot.getPayloadJson(), EventInsightResultDTO.class);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private EventInsightResultDTO enrichFreshness(EventInsightResultDTO result) {
+        if (result == null) {
+            return null;
+        }
+        result.setFreshness(buildFreshness(result));
+        return result;
+    }
+
+    private EventInsightSnapshotSummaryDTO enrichSnapshotSummaryFreshness(EventInsightSnapshotSummaryDTO summary) {
+        if (summary == null) {
+            return null;
+        }
+        EventInsightResultDTO.Freshness freshness = buildFreshness(summary.getGeneratedAt(), false);
+        summary.setFreshnessState(freshness.getState());
+        summary.setFreshnessTone(freshness.getTone());
+        summary.setFreshnessNote(freshness.getNote());
+        return summary;
+    }
+
+    private EventInsightResultDTO.Freshness buildFreshness(EventInsightResultDTO result) {
+        boolean fallbackUsed = result.getTrace() != null && Boolean.TRUE.equals(result.getTrace().getFallbackUsed());
+        return buildFreshness(result.getGeneratedAt(), fallbackUsed);
+    }
+
+    private EventInsightResultDTO.Freshness buildFreshness(Date generatedAt, boolean fallbackUsed) {
+        EventInsightResultDTO.Freshness freshness = new EventInsightResultDTO.Freshness();
+        if (fallbackUsed) {
+            freshness.setState("fallback");
+            freshness.setTone("warning");
+            freshness.setNote("当前为兜底研判结果，建议在后端可用时重新刷新。");
+            return freshness;
+        }
+        if (generatedAt == null) {
+            freshness.setState("unknown");
+            freshness.setTone("neutral");
+            freshness.setNote("");
+            return freshness;
+        }
+
+        long ageMillis = Math.max(0L, System.currentTimeMillis() - generatedAt.getTime());
+        String ageLabel = formatAgeLabel(ageMillis);
+        if (ageMillis >= FRESHNESS_WARNING_AGE_MILLIS) {
+            freshness.setState("aging");
+            freshness.setTone("warning");
+            freshness.setNote("当前研判生成于 " + ageLabel + "，如果事件上下文刚发生变化，建议手动刷新。");
+            return freshness;
+        }
+
+        freshness.setState("fresh");
+        freshness.setTone("neutral");
+        freshness.setNote("当前研判生成于 " + ageLabel + "。");
+        return freshness;
+    }
+
+    private String formatAgeLabel(long ageMillis) {
+        long minutes = Math.max(1L, ageMillis / (60L * 1000L));
+        if (minutes < 60L) {
+            return minutes + " 分钟前";
+        }
+        long hours = minutes / 60L;
+        if (hours < 24L) {
+            return hours + " 小时前";
+        }
+        long days = hours / 24L;
+        return days + " 天前";
+    }
+
+    private boolean shouldRefreshSnapshot(
+            EventInsightSnapshotRecord snapshot,
+            EventInsightResultDTO cachedInsight,
+            EventInsightHealthContext realContext,
+            boolean refresh,
+            boolean fallbackEvent) {
+        if (refresh) {
+            return true;
+        }
+        if (snapshot == null || cachedInsight == null) {
+            return true;
+        }
+        Date snapshotGeneratedAt = snapshot.getGeneratedAt() != null
+                ? snapshot.getGeneratedAt()
+                : cachedInsight.getGeneratedAt();
+        if (snapshotGeneratedAt == null) {
+            return true;
+        }
+        if (isSnapshotExpired(snapshotGeneratedAt)) {
+            return true;
+        }
+        if (Boolean.TRUE.equals(snapshot.getFallbackUsed()) && !fallbackEvent && realContext != null) {
+            return true;
+        }
+        return hasNewerRealContext(realContext, snapshotGeneratedAt);
+    }
+
+    private boolean isSnapshotExpired(Date snapshotGeneratedAt) {
+        return snapshotGeneratedAt != null
+                && System.currentTimeMillis() - snapshotGeneratedAt.getTime() >= SNAPSHOT_MAX_AGE_MILLIS;
+    }
+
+    private boolean hasNewerRealContext(
+            EventInsightHealthContext realContext,
+            Date snapshotGeneratedAt) {
+        if (realContext == null || snapshotGeneratedAt == null) {
+            return false;
+        }
+        if (realContext.getLastLocationTime() != null
+                && realContext.getLastLocationTime().after(snapshotGeneratedAt)) {
+            return true;
+        }
+        if (realContext.getBindingTime() != null
+                && realContext.getBindingTime().after(snapshotGeneratedAt)) {
+            return true;
+        }
+        return realContext.getLatestReportDate() != null
+                && realContext.getLatestReportDate().after(snapshotGeneratedAt);
+    }
+
+    private void saveSnapshot(EventInsightResultDTO result) {
+        if (result == null || result.getEventId() == null) {
+            return;
+        }
+        try {
+            EventInsightSnapshotRecord snapshot = new EventInsightSnapshotRecord();
+            snapshot.setEventId(result.getEventId());
+            snapshot.setSummary(result.getSummary());
+            snapshot.setRiskLevel(result.getRisk() != null ? result.getRisk().getRiskLevel() : null);
+            snapshot.setRiskScore(result.getRisk() != null ? result.getRisk().getRiskScore() : null);
+            snapshot.setOrchestratorVersion(result.getTrace() != null
+                    ? result.getTrace().getOrchestratorVersion()
+                    : null);
+            snapshot.setFallbackUsed(result.getTrace() != null
+                    ? result.getTrace().getFallbackUsed()
+                    : null);
+            snapshot.setPayloadJson(writePayload(result));
+            snapshot.setGeneratedAt(result.getGeneratedAt());
+            snapshot.setCreateTime(new Date());
+            eventInsightSnapshotMapper.insert(snapshot);
+        } catch (Exception ignored) {
+            // Keep the operator flow available even if snapshot persistence fails.
+        }
+    }
+
+    private String writePayload(EventInsightResultDTO result) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(result);
     }
 
     private UeitException loadException(Long eventId) {
@@ -111,6 +353,17 @@ public class EventInsightServiceImpl implements IEventInsightService {
         }
     }
 
+    private EventInsightHealthContext loadRealContext(
+            Long userId,
+            Long deviceId,
+            String abnormalType) {
+        try {
+            return eventInsightHealthContextService.loadContext(userId, deviceId, abnormalType);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private EventInsightResultDTO.ParsedEvent buildParsedEvent(Long eventId, UeitException source) {
         EventInsightResultDTO.ParsedEvent parsedEvent = new EventInsightResultDTO.ParsedEvent();
         parsedEvent.setUserId(source.getUserId());
@@ -134,26 +387,129 @@ public class EventInsightServiceImpl implements IEventInsightService {
             HealthSubject subject,
             List<UeitException> history,
             EventInsightResultDTO.ParsedEvent parsedEvent,
+            EventInsightHealthContext realContext,
             boolean fallbackEvent) {
         EventInsightResultDTO.ContextSnapshot context =
                 new EventInsightResultDTO.ContextSnapshot();
-        int age = source.getAge() > 0
+        int age = realContext != null && realContext.getAge() != null
+                ? realContext.getAge()
+                : source.getAge() > 0
                 ? source.getAge()
                 : subject != null && subject.getAge() != null
                 ? subject.getAge()
                 : deriveAge(source.getUserId());
         context.setAge(age);
         context.setChronicDiseases(inferChronicDiseases(source, subject, parsedEvent));
-        context.setRecentHealthTrend(inferTrend(history, parsedEvent));
-        context.setHistoricalAbnormalCount(history.size());
-        context.setRecentSameTypeCount(countSameType(history, parsedEvent.getAbnormalType()));
-        context.setDeviceStatus(inferDeviceStatus(source, history, parsedEvent));
-        context.setDeviceStatusReason(
-                inferDeviceStatusReason(source, history, parsedEvent, fallbackEvent)
-        );
-        context.setLastKnownLocation(defaultString(source.getLocation(), "暂无定位信息"));
-        context.setDataConfidence(fallbackEvent ? "derived_fallback" : "real_event");
+        context.setRecentHealthTrend(resolveRecentHealthTrend(realContext, history, parsedEvent));
+        context.setHistoricalAbnormalCount(resolveHistoricalAbnormalCount(realContext, history));
+        context.setRecentSameTypeCount(resolveRecentSameTypeCount(realContext, history, parsedEvent));
+        context.setDeviceStatus(resolveDeviceStatus(realContext, source, history, parsedEvent));
+        context.setDeviceStatusReason(resolveDeviceStatusReason(
+                realContext,
+                source,
+                history,
+                parsedEvent,
+                fallbackEvent
+        ));
+        context.setLastKnownLocation(resolveLastKnownLocation(realContext, source));
+        context.setDataConfidence(resolveDataConfidence(realContext, fallbackEvent));
         return context;
+    }
+
+    private String resolveRecentHealthTrend(
+            EventInsightHealthContext realContext,
+            List<UeitException> history,
+            EventInsightResultDTO.ParsedEvent parsedEvent) {
+        if (realContext != null) {
+            if (!isBlank(realContext.getLatestReportSummary())) {
+                return realContext.getLatestReportSummary();
+            }
+            if (!isBlank(realContext.getLatestReportRiskLevel())) {
+                return "latest report risk level: " + realContext.getLatestReportRiskLevel();
+            }
+        }
+        return inferTrend(history, parsedEvent);
+    }
+
+    private Integer resolveHistoricalAbnormalCount(
+            EventInsightHealthContext realContext,
+            List<UeitException> history) {
+        if (realContext != null && realContext.getHistoricalAbnormalCount() != null) {
+            return realContext.getHistoricalAbnormalCount();
+        }
+        return history.size();
+    }
+
+    private Integer resolveRecentSameTypeCount(
+            EventInsightHealthContext realContext,
+            List<UeitException> history,
+            EventInsightResultDTO.ParsedEvent parsedEvent) {
+        if (realContext != null && realContext.getRecentSameTypeCount() != null) {
+            return realContext.getRecentSameTypeCount();
+        }
+        return countSameType(history, parsedEvent.getAbnormalType());
+    }
+
+    private String resolveDeviceStatus(
+            EventInsightHealthContext realContext,
+            UeitException source,
+            List<UeitException> history,
+            EventInsightResultDTO.ParsedEvent parsedEvent) {
+        if (realContext != null && !isBlank(realContext.getDeviceSignalStatus())) {
+            return mapDeviceSignalStatus(realContext.getDeviceSignalStatus());
+        }
+        return inferDeviceStatus(source, history, parsedEvent);
+    }
+
+    private String resolveDeviceStatusReason(
+            EventInsightHealthContext realContext,
+            UeitException source,
+            List<UeitException> history,
+            EventInsightResultDTO.ParsedEvent parsedEvent,
+            boolean fallbackEvent) {
+        if (realContext != null && !isBlank(realContext.getDeviceSignalReason())) {
+            return realContext.getDeviceSignalReason();
+        }
+        return inferDeviceStatusReason(source, history, parsedEvent, fallbackEvent);
+    }
+
+    private String resolveLastKnownLocation(
+            EventInsightHealthContext realContext,
+            UeitException source) {
+        if (realContext != null && !isBlank(realContext.getLastKnownLocation())) {
+            return realContext.getLastKnownLocation();
+        }
+        return defaultString(source.getLocation(), "暂无定位信息");
+    }
+
+    private String resolveDataConfidence(
+            EventInsightHealthContext realContext,
+            boolean fallbackEvent) {
+        if (realContext != null && hasAnyRealContext(realContext)) {
+            return "real_context";
+        }
+        return fallbackEvent ? "derived_fallback" : "real_event";
+    }
+
+    private boolean hasAnyRealContext(EventInsightHealthContext realContext) {
+        return realContext.getAge() != null
+                || !isBlank(realContext.getLastKnownLocation())
+                || realContext.getHistoricalAbnormalCount() != null
+                || !isBlank(realContext.getLatestReportSummary())
+                || !isBlank(realContext.getDeviceSignalStatus());
+    }
+
+    private String mapDeviceSignalStatus(String signalStatus) {
+        if ("active".equals(signalStatus)) {
+            return "normal";
+        }
+        if ("stale".equals(signalStatus) || "bound_without_signal".equals(signalStatus)) {
+            return "unstable";
+        }
+        if ("offline".equals(signalStatus) || "unbound".equals(signalStatus)) {
+            return "offline";
+        }
+        return "unstable";
     }
 
     private EventInsightResultDTO.RiskAssessment buildRisk(
@@ -801,5 +1157,9 @@ public class EventInsightServiceImpl implements IEventInsightService {
 
     private String defaultString(String primary, String fallback) {
         return primary != null && !primary.isBlank() ? primary : fallback;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

@@ -26,6 +26,19 @@ export interface PlatformSearchResult {
 const SEARCH_PAGE_SIZE = 8
 const PLATFORM_SEARCH_LIMIT = 10
 
+const resolveRequestErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const response = (error as { response?: { data?: { msg?: string } } }).response
+    return String(response?.data?.msg || '')
+  }
+
+  return ''
+}
+
 const containsKeyword = (value: unknown, keyword: string) =>
   String(value || '').toLowerCase().includes(keyword.toLowerCase())
 
@@ -155,6 +168,9 @@ const searchViaPlatformEndpoint = async (keyword: string, preferredCenter: Platf
   const response = await request({
     url: '/platform/search',
     method: 'get',
+    headers: {
+      'X-Skip-Error-Message': 'true'
+    },
     params: {
       keyword,
       center: preferredCenter,
@@ -251,7 +267,7 @@ export const searchPlatformEntities = async (
   try {
     return await searchViaPlatformEndpoint(keyword.trim(), preferredCenter)
   } catch (error) {
-    const message = error instanceof Error ? error.message : ''
+    const message = resolveRequestErrorMessage(error)
     if (message.includes('登录状态已失效')) {
       throw error
     }

@@ -15,6 +15,8 @@ public class EventInsightResultDTO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date generatedAt;
 
+    private Freshness freshness;
+
     private String summary;
     private ParsedEvent parsedEvent;
     private ContextSnapshot context;
@@ -36,6 +38,14 @@ public class EventInsightResultDTO implements Serializable {
 
     public void setGeneratedAt(Date generatedAt) {
         this.generatedAt = generatedAt;
+    }
+
+    public Freshness getFreshness() {
+        return freshness;
+    }
+
+    public void setFreshness(Freshness freshness) {
+        this.freshness = freshness;
     }
 
     public String getSummary() {
@@ -245,6 +255,36 @@ public class EventInsightResultDTO implements Serializable {
 
         public void setDataConfidence(String dataConfidence) {
             this.dataConfidence = dataConfidence;
+        }
+    }
+
+    public static class Freshness implements Serializable {
+        private String state;
+        private String tone;
+        private String note;
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+
+        public String getTone() {
+            return tone;
+        }
+
+        public void setTone(String tone) {
+            this.tone = tone;
+        }
+
+        public String getNote() {
+            return note;
+        }
+
+        public void setNote(String note) {
+            this.note = note;
         }
     }
 

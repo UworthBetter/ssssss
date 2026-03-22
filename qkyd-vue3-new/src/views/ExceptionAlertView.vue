@@ -90,11 +90,31 @@
               <div class="aside-card-title">AI 研判卡</div>
               <p class="detail-subtitle">多 Agent 先解析事件，再补充上下文并生成处置建议。</p>
             </div>
-            <el-tag v-if="selectedEvent && eventInsight" :type="riskTagType(eventInsight.riskLevel)" effect="light">
-              {{ eventInsight.riskLabel }}
-            </el-tag>
-            <el-tag v-else-if="insightLoading" type="info" effect="light">研判中</el-tag>
-            <el-tag v-else type="info" effect="light">待生成</el-tag>
+            <div class="insight-head-actions">
+              <el-button
+                v-if="selectedEvent"
+                text
+                type="primary"
+                :loading="insightRefreshing"
+                :disabled="insightLoading"
+                @click="handleRefreshInsight"
+              >
+                刷新研判
+              </el-button>
+              <el-button
+                v-if="selectedEvent"
+                text
+                :disabled="snapshotHistoryLoading"
+                @click="openSnapshotHistory"
+              >
+                查看历史
+              </el-button>
+              <el-tag v-if="selectedEvent && eventInsight" :type="riskTagType(eventInsight.riskLevel)" effect="light">
+                {{ eventInsight.riskLabel }}
+              </el-tag>
+              <el-tag v-else-if="insightLoading" type="info" effect="light">研判中</el-tag>
+              <el-tag v-else type="info" effect="light">待生成</el-tag>
+            </div>
           </div>
 
           <div v-if="selectedEvent" class="detail-body">
@@ -109,6 +129,13 @@
               <div class="insight-overview">
                 <div class="insight-label">异常概述</div>
                 <p class="insight-text">{{ eventInsight.overview }}</p>
+              </div>
+
+              <div
+                v-if="eventInsight.freshnessNote"
+                :class="['insight-freshness', `insight-freshness-${eventInsight.freshnessTone}`]"
+              >
+                {{ eventInsight.freshnessNote }}
               </div>
 
               <div class="insight-section">
@@ -171,6 +198,9 @@
 
               <p class="insight-footnote">
                 {{ insightError ? `兜底显示：${insightError}` : eventInsight.sourceLabel }}
+              </p>
+              <p v-if="eventInsight.latestSnapshotNote" class="insight-scope-note">
+                {{ eventInsight.latestSnapshotNote }}
               </p>
             </template>
 
@@ -271,6 +301,123 @@
     <el-dialog v-model="detailVisible" title="异常详情" width="760px">
       <pre class="json-block">{{ JSON.stringify(detailData, null, 2) }}</pre>
     </el-dialog>
+
+    <el-dialog v-model="snapshotHistoryVisible" title="研判历史" width="1040px">
+      <div v-if="snapshotHistoryLoading" class="empty-detail">
+        正在加载历史快照...
+      </div>
+      <div v-else-if="snapshotHistoryItems.length" class="snapshot-viewer">
+        <div class="snapshot-history">
+          <button
+            v-for="item in snapshotHistoryItems"
+            :key="item.id || item.generatedAt || item.summary"
+            type="button"
+            :class="['snapshot-history-item', { 'snapshot-history-item-active': selectedSnapshotId === item.id }]"
+            @click="openSnapshotDetail(item)"
+          >
+            <div class="snapshot-history-head">
+              <div class="snapshot-history-meta">
+                <span class="snapshot-history-time">{{ item.generatedAt || '生成时间待补充' }}</span>
+                <span v-if="item.orchestratorVersion" class="snapshot-history-version">{{ item.orchestratorVersion }}</span>
+              </div>
+              <div class="snapshot-history-tags">
+                <el-tag :type="riskTagType(normalizeRiskLevel(item.riskLevel))" effect="light">
+                  {{ riskLabelFromSnapshot(item.riskLevel) }}
+                </el-tag>
+                <el-tag
+                  :type="freshnessTagType(resolveSnapshotSummaryFreshness(item).state)"
+                  effect="light"
+                  :title="resolveSnapshotSummaryFreshness(item).note || undefined"
+                >
+                  {{ freshnessLabelFromState(resolveSnapshotSummaryFreshness(item).state) }}
+                </el-tag>
+                <el-tag v-if="item.fallbackUsed" type="info" effect="light">
+                  兜底
+                </el-tag>
+              </div>
+            </div>
+            <p class="snapshot-history-summary">{{ item.summary || '暂无摘要' }}</p>
+            <p class="snapshot-history-footnote">
+              {{ item.riskScore != null ? `风险分 ${item.riskScore}` : '风险分待补充' }}
+            </p>
+          </button>
+        </div>
+
+        <div class="snapshot-detail-panel">
+          <div v-if="snapshotDetailLoading" class="empty-detail">
+            正在加载历史研判详情...
+          </div>
+          <div v-else-if="snapshotDetailInsight" class="snapshot-detail">
+            <div class="snapshot-detail-head">
+              <div>
+                <div class="aside-card-title">历史研判摘要</div>
+                <p class="detail-subtitle">
+                  {{ snapshotDetailMeta?.generatedAt || '生成时间待补充' }}
+                </p>
+              </div>
+              <el-tag :type="riskTagType(snapshotDetailInsight.riskLevel)" effect="light">
+                {{ snapshotDetailInsight.riskLabel }}
+              </el-tag>
+            </div>
+
+            <div class="insight-overview">
+              <div class="insight-label">异常概述</div>
+              <p class="insight-text">{{ snapshotDetailInsight.overview }}</p>
+            </div>
+
+            <div
+              v-if="snapshotDetailInsight.freshnessNote"
+              :class="['insight-freshness', `insight-freshness-${snapshotDetailInsight.freshnessTone}`]"
+            >
+              {{ snapshotDetailInsight.freshnessNote }}
+            </div>
+
+            <div class="insight-section">
+              <div class="insight-label">多 Agent 处理过程</div>
+              <div class="process-list">
+                <div v-for="(step, index) in snapshotDetailInsight.processSteps" :key="step.key" class="process-item">
+                  <div class="process-index">{{ index + 1 }}</div>
+                  <div class="process-content">
+                    <div class="process-head">
+                      <span class="process-title">{{ step.title }}</span>
+                      <el-tag size="small" :type="processTagType(step.status)" effect="light">
+                        {{ processStatusLabel(step.status) }}
+                      </el-tag>
+                    </div>
+                    <p class="process-summary">{{ step.summary }}</p>
+                    <p class="process-detail">{{ step.detail }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="insight-section">
+              <div class="insight-label">分析理由</div>
+              <div class="insight-chips">
+                <span v-for="reason in snapshotDetailInsight.reasons.slice(0, 6)" :key="reason" class="insight-chip">
+                  {{ reason }}
+                </span>
+              </div>
+            </div>
+
+            <div class="insight-section">
+              <div class="insight-label">建议动作</div>
+              <div class="insight-chips">
+                <span v-for="action in snapshotDetailInsight.suggestedActions.slice(0, 6)" :key="action" class="insight-chip insight-chip-action">
+                  {{ action }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-detail">
+            选择一条历史快照后，这里会展示对应的研判详情。
+          </div>
+        </div>
+      </div>
+      <div v-else class="empty-detail">
+        当前事件还没有可查看的历史快照。
+      </div>
+    </el-dialog>
   </PlatformPageShell>
 </template>
 
@@ -294,7 +441,11 @@ import {
 } from '@/components/platform'
 import {
   getEventInsight,
+  getEventInsightSnapshot,
+  getEventInsightSnapshots,
+  type EventInsightFreshness,
   type EventInsightPayload,
+  type EventInsightSnapshotSummary,
   type EventInsightTrace,
   type EventInsightTraceStep
 } from '@/api/ai'
@@ -324,6 +475,9 @@ interface NormalizedInsight {
   sourceLabel: string
   usesFallback: boolean
   processSteps: InsightProcessStep[]
+  freshnessNote: string
+  freshnessTone: 'neutral' | 'warning'
+  latestSnapshotNote: string
 }
 
 const workflowLabelMap: Record<WorkflowState, string> = { new: '新告警', triage: '待研判', in_progress: '处理中', closed: '已关闭' }
@@ -352,6 +506,13 @@ const searchPresentation = getPlatformSearchPresentation('event')
 const handleDialogVisible = ref(false)
 const detailVisible = ref(false)
 const detailData = ref<Record<string, unknown>>({})
+const snapshotHistoryVisible = ref(false)
+const snapshotHistoryLoading = ref(false)
+const snapshotHistoryItems = ref<EventInsightSnapshotSummary[]>([])
+const selectedSnapshotId = ref<number | string | undefined>(undefined)
+const snapshotDetailLoading = ref(false)
+const snapshotDetailInsight = ref<NormalizedInsight | null>(null)
+const snapshotDetailMeta = ref<EventInsightSnapshotSummary | null>(null)
 const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
 const query = reactive({ pageNum: 1, pageSize: 10, type: '', state: '' })
 const routeDeviceId = ref('')
@@ -371,6 +532,7 @@ const ownerDraft = ref('平台运营')
 const slaDraft = ref('2h')
 const notificationItems = ref<PlatformNotificationRecord[]>([])
 const insightLoading = ref(false)
+const insightRefreshing = ref(false)
 const insightError = ref('')
 const eventInsight = ref<NormalizedInsight | null>(null)
 let insightRequestSeq = 0
@@ -413,6 +575,112 @@ const getRecordList = (value: unknown): Record<string, unknown>[] => {
 }
 
 const uniqueTextList = (items: string[]) => Array.from(new Set(items.map((item) => item.trim()).filter(Boolean)))
+
+const parseDateValue = (value: unknown) => {
+  const text = getText(value)
+  if (!text) return null
+  const normalized = text.replace(' ', 'T')
+  const parsed = new Date(normalized)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+const formatAgeLabel = (milliseconds: number) => {
+  const minutes = Math.max(1, Math.floor(milliseconds / (60 * 1000)))
+  if (minutes < 60) return `${minutes} 分钟前`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} 小时前`
+  const days = Math.floor(hours / 24)
+  return `${days} 天前`
+}
+
+const buildFreshnessNote = (generatedAt: Date | null, usesFallback: boolean) => {
+  if (usesFallback) {
+    return {
+      note: '当前为兜底研判结果，建议在后端可用时重新刷新。',
+      tone: 'warning' as const
+    }
+  }
+
+  if (!generatedAt) {
+    return {
+      note: '',
+      tone: 'neutral' as const
+    }
+  }
+
+  const age = Date.now() - generatedAt.getTime()
+  const ageLabel = formatAgeLabel(age)
+  if (age >= 6 * 60 * 60 * 1000) {
+    return {
+      note: `当前研判生成于 ${ageLabel}，如果事件上下文刚发生变化，建议手动刷新。`,
+      tone: 'warning' as const
+    }
+  }
+
+  return {
+    note: `当前研判生成于 ${ageLabel}。`,
+    tone: 'neutral' as const
+  }
+}
+
+const normalizeFreshnessTone = (value: unknown): 'neutral' | 'warning' => {
+  const text = getText(value).toLowerCase()
+  return text === 'warning' ? 'warning' : 'neutral'
+}
+
+const freshnessTagType = (value: unknown) => {
+  const text = getText(value).toLowerCase()
+  if (text === 'aging' || text === 'fallback') return 'warning'
+  if (text === 'fresh') return 'success'
+  return 'info'
+}
+
+const freshnessLabelFromState = (value: unknown) => {
+  const text = getText(value).toLowerCase()
+  if (text === 'aging') return '需刷新'
+  if (text === 'fresh') return '较新'
+  return '状态未知'
+}
+
+const resolveSnapshotSummaryFreshness = (item: EventInsightSnapshotSummary) => {
+  const backendState = getText(item.freshnessState)
+  if (backendState) {
+    return {
+      state: backendState,
+      tone: getText(item.freshnessTone),
+      note: getText(item.freshnessNote)
+    }
+  }
+
+  const generatedAt = parseDateValue(item.generatedAt)
+  const fallback = buildFreshnessNote(generatedAt, false)
+  return {
+    state: fallback.tone === 'warning' ? 'aging' : generatedAt ? 'fresh' : 'unknown',
+    tone: fallback.tone,
+    note: fallback.note
+  }
+}
+
+const resolveFreshness = (
+  freshness: EventInsightFreshness | Record<string, unknown> | undefined,
+  generatedAt: Date | null,
+  usesFallback: boolean
+) => {
+  const fallback = buildFreshnessNote(generatedAt, usesFallback)
+  if (!freshness || !isRecord(freshness)) {
+    return fallback
+  }
+
+  const note = getText(freshness.note)
+  if (!note) {
+    return fallback
+  }
+
+  return {
+    note,
+    tone: normalizeFreshnessTone(freshness.tone)
+  }
+}
 
 const pickFromPaths = (source: unknown, paths: string[][]) => {
   for (const path of paths) {
@@ -641,7 +909,10 @@ const buildFallbackInsight = (row: ExceptionAlert): NormalizedInsight => {
       riskLevel,
       notifyWho,
       suggestedActions
-    )
+    ),
+    freshnessNote: '当前为本地兜底研判结果，建议在后端恢复后手动刷新。',
+    freshnessTone: 'warning',
+    latestSnapshotNote: '默认展示当前最新一次研判，可通过“查看历史”浏览旧快照。'
   }
 }
 
@@ -715,13 +986,19 @@ const normalizeInsight = (payload: EventInsightPayload | Record<string, unknown>
     ...getTextList(advice.suggestedActions),
     ...getTextList(advice.actions)
   ])
-  const generatedAt = getText(source.generatedAt)
+  const generatedAtText = getText(source.generatedAt)
+  const generatedAt = parseDateValue(source.generatedAt)
   const traceSteps = buildProcessStepsFromTrace(trace)
   const usesFallback =
     Boolean(trace.fallbackUsed) ||
     !hasBackendPayload ||
     getText(parsed.source).includes('fallback') ||
     getText(context.dataConfidence).includes('fallback')
+  const freshness = resolveFreshness(
+    isRecord(source.freshness) ? (source.freshness as EventInsightFreshness) : undefined,
+    generatedAt,
+    usesFallback
+  )
 
   const fallback = buildFallbackInsight(row)
 
@@ -737,7 +1014,9 @@ const normalizeInsight = (payload: EventInsightPayload | Record<string, unknown>
     reasons: reasons.length ? reasons : fallback.reasons,
     notifyWho: notifyWho.length ? notifyWho : fallback.notifyWho,
     suggestedActions: suggestedActions.length ? suggestedActions : fallback.suggestedActions,
-    sourceLabel: hasBackendPayload ? getText(source.source, parsed.source) || (generatedAt ? `生成于 ${generatedAt}` : '后端研判') : fallback.sourceLabel,
+    sourceLabel: hasBackendPayload
+      ? getText(source.source, parsed.source) || (generatedAtText ? `生成于 ${generatedAtText}` : '后端研判')
+      : fallback.sourceLabel,
     usesFallback,
     processSteps: traceSteps.length
       ? traceSteps
@@ -751,7 +1030,10 @@ const normalizeInsight = (payload: EventInsightPayload | Record<string, unknown>
           riskLevel,
           notifyWho.length ? notifyWho : fallback.notifyWho,
           suggestedActions.length ? suggestedActions : fallback.suggestedActions
-        )
+        ),
+    freshnessNote: freshness.note,
+    freshnessTone: freshness.tone,
+    latestSnapshotNote: usesFallback ? '' : '默认展示当前最新一次研判，可通过“查看历史”浏览旧快照。'
   }
 }
 
@@ -784,6 +1066,8 @@ const processStatusLabel = (status: AgentStepStatus) => {
   return '待处理'
 }
 
+const riskLabelFromSnapshot = (value: unknown) => insightRiskLabelMap[normalizeRiskLevel(value)]
+
 const syncSelectedEventDrafts = (row: ExceptionAlert | null) => {
   if (!row) {
     workflowDraft.value = 'triage'
@@ -808,23 +1092,32 @@ const refreshNotifications = async (row: ExceptionAlert | null = selectedEvent.v
   }
 }
 
-const loadEventInsight = async (row: ExceptionAlert | null) => {
+const loadEventInsight = async (
+  row: ExceptionAlert | null,
+  options: { refresh?: boolean; notifyOnRefresh?: boolean } = {}
+) => {
   const requestId = ++insightRequestSeq
+  const forceRefresh = Boolean(options.refresh)
 
   if (!row?.id) {
     eventInsight.value = null
     insightError.value = ''
     insightLoading.value = false
+    insightRefreshing.value = false
     return
   }
 
   insightLoading.value = true
+  insightRefreshing.value = forceRefresh
   insightError.value = ''
 
   try {
-    const response = await getEventInsight(row.id)
+    const response = await getEventInsight(row.id, { refresh: forceRefresh })
     if (requestId !== insightRequestSeq) return
     eventInsight.value = normalizeInsight(response, row)
+    if (forceRefresh && options.notifyOnRefresh) {
+      ElMessage.success('AI 研判已刷新')
+    }
   } catch (error) {
     if (requestId !== insightRequestSeq) return
     eventInsight.value = buildFallbackInsight(row)
@@ -832,10 +1125,65 @@ const loadEventInsight = async (row: ExceptionAlert | null) => {
     insightError.value = /No static resource|404/i.test(rawMessage)
       ? 'lighthouse 暂未部署事件研判接口，当前显示本地兜底研判'
       : rawMessage
+    if (forceRefresh && options.notifyOnRefresh) {
+      ElMessage.warning('刷新失败，当前显示兜底研判')
+    }
   } finally {
     if (requestId === insightRequestSeq) {
       insightLoading.value = false
+      insightRefreshing.value = false
     }
+  }
+}
+
+const handleRefreshInsight = async () => {
+  if (!selectedEvent.value) return
+  await loadEventInsight(selectedEvent.value, {
+    refresh: true,
+    notifyOnRefresh: true
+  })
+}
+
+const openSnapshotHistory = async () => {
+  if (!selectedEvent.value?.id) return
+  snapshotHistoryVisible.value = true
+  snapshotHistoryLoading.value = true
+  selectedSnapshotId.value = undefined
+  snapshotDetailInsight.value = null
+  snapshotDetailMeta.value = null
+  try {
+    const response = await getEventInsightSnapshots(selectedEvent.value.id, { limit: 10 })
+    snapshotHistoryItems.value = Array.isArray(response?.data)
+      ? response.data as EventInsightSnapshotSummary[]
+      : Array.isArray(response)
+        ? response as EventInsightSnapshotSummary[]
+        : []
+    if (snapshotHistoryItems.value.length) {
+      await openSnapshotDetail(snapshotHistoryItems.value[0])
+    }
+  } catch (error) {
+    snapshotHistoryItems.value = []
+    const rawMessage = error instanceof Error ? error.message : '历史快照暂不可用'
+    ElMessage.warning(/No static resource|404/i.test(rawMessage) ? '当前环境暂未开放研判历史接口' : rawMessage)
+  } finally {
+    snapshotHistoryLoading.value = false
+  }
+}
+
+const openSnapshotDetail = async (item: EventInsightSnapshotSummary) => {
+  if (!selectedEvent.value?.id || !item.id) return
+  selectedSnapshotId.value = item.id
+  snapshotDetailLoading.value = true
+  snapshotDetailMeta.value = item
+  try {
+    const response = await getEventInsightSnapshot(selectedEvent.value.id, item.id)
+    snapshotDetailInsight.value = normalizeInsight(response, selectedEvent.value)
+  } catch (error) {
+    snapshotDetailInsight.value = null
+    const rawMessage = error instanceof Error ? error.message : '历史研判详情暂不可用'
+    ElMessage.warning(/No static resource|404/i.test(rawMessage) ? '当前环境暂未开放历史研判详情接口' : rawMessage)
+  } finally {
+    snapshotDetailLoading.value = false
   }
 }
 
@@ -923,6 +1271,13 @@ const handleContextConfirm = () => ElMessage.success('上下文筛选已记录')
 const handleContextReset = () => ElMessage.info('上下文筛选已重置')
 
 watch(selectedEvent, (row) => {
+  snapshotHistoryVisible.value = false
+  snapshotHistoryItems.value = []
+  snapshotHistoryLoading.value = false
+  selectedSnapshotId.value = undefined
+  snapshotDetailLoading.value = false
+  snapshotDetailInsight.value = null
+  snapshotDetailMeta.value = null
   syncSelectedEventDrafts(row)
   void refreshNotifications(row)
   void loadEventInsight(row)
@@ -962,6 +1317,7 @@ installRouteQuerySync()
 .insight-card { display: flex; flex-direction: column; gap: 14px; }
 .detail-card, .detail-body, .workflow-block, .workflow-form { display: flex; flex-direction: column; gap: 16px; }
 .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.insight-head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .aside-card-title, .block-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .detail-subtitle { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-sub); }
 .workflow-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -983,6 +1339,22 @@ installRouteQuerySync()
   font-size: 13px;
   line-height: 1.7;
   color: var(--text-main);
+}
+.insight-freshness {
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.insight-freshness-neutral {
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+}
+.insight-freshness-warning {
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.16);
+  color: #b45309;
 }
 .insight-section { display: flex; flex-direction: column; gap: 8px; }
 .insight-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -1032,6 +1404,59 @@ installRouteQuerySync()
   border-color: rgba(63, 60, 187, 0.12);
 }
 .insight-footnote { margin: 0; font-size: 12px; color: var(--text-sub); }
+.insight-scope-note { margin: 0; font-size: 12px; color: var(--text-sub); }
+.snapshot-viewer {
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.snapshot-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 66vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+.snapshot-history-item {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(221, 227, 233, 0.92);
+  background: rgba(255, 255, 255, 0.92);
+  text-align: left;
+  cursor: pointer;
+}
+.snapshot-history-item-active {
+  border-color: rgba(63, 60, 187, 0.24);
+  box-shadow: 0 10px 24px rgba(63, 60, 187, 0.08);
+}
+.snapshot-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.snapshot-history-meta { display: flex; flex-direction: column; gap: 4px; }
+.snapshot-history-time { font-size: 13px; font-weight: 700; color: var(--text-main); }
+.snapshot-history-version { font-size: 12px; color: var(--text-sub); }
+.snapshot-history-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.snapshot-history-summary {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+.snapshot-history-footnote { margin: 8px 0 0; font-size: 12px; color: var(--text-sub); }
+.snapshot-detail-panel {
+  min-height: 320px;
+  max-height: 66vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+.snapshot-detail { display: flex; flex-direction: column; gap: 14px; }
+.snapshot-detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .insight-loading { display: flex; flex-direction: column; gap: 10px; }
 .loading-line {
   height: 12px;
@@ -1054,6 +1479,17 @@ installRouteQuerySync()
 
   100% {
     background-position: -200% 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .snapshot-viewer {
+    grid-template-columns: 1fr;
+  }
+
+  .snapshot-history,
+  .snapshot-detail-panel {
+    max-height: none;
   }
 }
 </style>

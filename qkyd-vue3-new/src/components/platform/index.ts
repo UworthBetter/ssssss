@@ -1,4 +1,5 @@
-﻿export { default as PlatformPageShell } from './PlatformPageShell.vue'
+export { default as PlatformPageShell } from './PlatformPageShell.vue'
+export { default as PlatformPageShellV2 } from './PlatformPageShellV2.vue'
 export { default as PlatformSearchEntry } from './PlatformSearchEntry.vue'
 export { default as PlatformNotificationEntry } from './PlatformNotificationEntry.vue'
 export { default as PlatformContextFilterBar } from './PlatformContextFilterBar.vue'

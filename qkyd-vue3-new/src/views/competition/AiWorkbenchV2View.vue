@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div :class="['ai-command-center', `theme-${settingsForm.theme}`]">
     <PlatformPageShell
       title="AI 决策工作台"
@@ -47,62 +47,69 @@
         </div>
       </template>
 
-      <div class="workbench-split-layout">
-        <aside class="workbench-left-pane">
-          <div class="metrics-panel">
-            <div class="metric-item panel">
-              <div class="metric-info">
-                <span class="metric-label">分析轮次</span>
-                <strong class="metric-value">{{ aiMessageCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><ChatDotRound /></el-icon></div>
+      <div class="summary-grid">
+        <div class="summary-card panel">
+          <span class="summary-label">分析轮次</span>
+          <strong class="summary-value">{{ aiMessageCount }}</strong>
+          <span class="summary-tip">基于当前会话累计生成。</span>
+        </div>
+        <div class="summary-card panel">
+          <span class="summary-label">结构化结果</span>
+          <strong class="summary-value">{{ structuredInsightCount }}</strong>
+          <span class="summary-tip">AI 输出已关联证据与建议动作。</span>
+        </div>
+        <div class="summary-card panel danger-soft">
+          <span class="summary-label">高风险判断</span>
+          <strong class="summary-value">{{ highRiskCount }}</strong>
+          <span class="summary-tip">建议优先复核并进入事件流程。</span>
+        </div>
+        <div class="summary-card panel success-soft">
+          <span class="summary-label">待执行动作</span>
+          <strong class="summary-value">{{ pendingActionCount }}</strong>
+          <span class="summary-tip">可直接联动对象、事件、设备中心。</span>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <section class="task-rail panel">
+          <div class="section-head">
+            <div>
+              <p class="section-eyebrow">分析任务</p>
+              <h3>分析场景</h3>
             </div>
-            <div class="metric-item panel">
-              <div class="metric-info">
-                <span class="metric-label">结构化结果</span>
-                <strong class="metric-value">{{ structuredInsightCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><Grid /></el-icon></div>
-            </div>
-            <div class="metric-item panel danger-soft">
-              <div class="metric-info">
-                <span class="metric-label">高风险判断</span>
-                <strong class="metric-value">{{ highRiskCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><Warning /></el-icon></div>
-            </div>
-            <div class="metric-item panel success-soft">
-              <div class="metric-info">
-                <span class="metric-label">待执行动作</span>
-                <strong class="metric-value">{{ pendingActionCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><VideoPlay /></el-icon></div>
-            </div>
+            <el-tag type="info" effect="light">工作台入口</el-tag>
           </div>
 
-          <div class="chart-panel panel">
-            <div class="panel-header">
+          <button
+            v-for="task in quickTasks"
+            :key="`${task.label}-rail`"
+            type="button"
+            class="task-card"
+            @click="runQuickTask(task)"
+          >
+            <div class="task-card-top">
+              <strong>{{ task.label }}</strong>
+              <span>{{ task.tag }}</span>
+            </div>
+            <p>{{ task.description }}</p>
+          </button>
+
+          <div class="panel note-card inner-panel">
+            <div class="section-head compact">
               <div>
-                <p class="section-eyebrow">风险结构监控</p>
-                <h4>风险等级分布</h4>
+                <p class="section-eyebrow">输出结构</p>
+                <h4>这一阶段的升级重点</h4>
               </div>
             </div>
-            <div id="riskChart" class="dashboard-chart"></div>
+            <ul class="note-list">
+              <li>结论必须可复核，而不只停留在聊天回复。</li>
+              <li>证据、关联实体、建议动作需要一起呈现。</li>
+              <li>现在已经支持跳转到对象中心、事件中心、设备中心。</li>
+            </ul>
           </div>
+        </section>
 
-          <div class="chart-panel panel">
-            <div class="panel-header">
-              <div>
-                <p class="section-eyebrow">分析效能趋势</p>
-                <h4>今日处理量趋势</h4>
-              </div>
-            </div>
-            <div id="trendChart" class="dashboard-chart"></div>
-          </div>
-        </aside>
-
-        <main class="workbench-center-pane">
-          <section class="conversation-panel panel">
+        <section class="conversation-panel panel">
           <header class="conversation-header">
             <div>
               <p class="section-eyebrow">分析线程</p>
@@ -276,7 +283,6 @@
             </div>
           </div>
         </section>
-        </main>
       </div>
 
       <template #aside>
@@ -338,6 +344,28 @@
             <p v-else class="empty-copy">执行一次分析后，这里会展示最新的证据、关联实体和建议动作。</p>
           </div>
 
+          <div class="panel aside-card">
+            <div class="section-head compact">
+              <div>
+                <p class="section-eyebrow">偏好设置</p>
+                <h4>助理配置</h4>
+              </div>
+            </div>
+            <ul class="preference-list">
+              <li>
+                <span>助理名称</span>
+                <strong>{{ settingsForm.botName }}</strong>
+              </li>
+              <li>
+                <span>输出语气</span>
+                <strong>{{ toneLabelMap[settingsForm.tone] }}</strong>
+              </li>
+              <li>
+                <span>自动朗读</span>
+                <strong>{{ settingsForm.autoSpeak ? '开启' : '关闭' }}</strong>
+              </li>
+            </ul>
+          </div>
         </div>
       </template>
     </PlatformPageShell>
@@ -396,10 +424,8 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   Avatar,
-  ChatDotRound,
   Delete,
   Document,
-  Grid,
   List,
   Loading,
   Lock,
@@ -408,9 +434,7 @@ import {
   Position,
   Service,
   Setting,
-  TrendCharts,
-  VideoPlay,
-  Warning
+  TrendCharts
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
@@ -844,70 +868,12 @@ const handleContextReset = () => {
   contextFilters.value = { timeRange: 'today', region: 'all', riskLevel: 'all', status: 'processing' }
 }
 
-const renderDashboardCharts = () => {
-  const riskDom = document.getElementById('riskChart')
-  const trendDom = document.getElementById('trendChart')
-  
-  if (riskDom) {
-    const riskChart = echarts.init(riskDom)
-    riskChart.setOption({
-      tooltip: { trigger: 'item' },
-      legend: { bottom: '0%', left: 'center', itemStyle: { borderWidth: 0 } },
-      series: [
-        {
-          name: '风险分布',
-          type: 'pie',
-          radius: ['45%', '75%'],
-          center: ['50%', '45%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 6,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          label: { show: false, position: 'center' },
-          labelLine: { show: false },
-          data: [
-            { value: highRiskCount.value || 3, name: '高风险', itemStyle: { color: '#d14d72' } },
-            { value: 12, name: '中风险', itemStyle: { color: '#fbbf24' } },
-            { value: structuredInsightCount.value || 45, name: '低风险', itemStyle: { color: '#10b981' } }
-          ]
-        }
-      ]
-    })
-  }
-
-  if (trendDom) {
-    const trendChart = echarts.init(trendDom)
-    const chartColor = settingsForm.value.theme === 'purple' ? '#4f46e5' : settingsForm.value.theme === 'pink' ? '#e11d48' : settingsForm.value.theme === 'green' ? '#059669' : '#2563eb'
-
-    trendChart.setOption({
-      grid: { left: '2%', right: '5%', bottom: '5%', top: '15%', containLabel: true },
-      tooltip: { trigger: 'axis' },
-      xAxis: { type: 'category', data: ['8:00', '10:00', '12:00', '14:00', '16:00', '18:00'], axisLine: { show: false }, axisTick: { show: false } },
-      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } } },
-      series: [
-        { 
-          name: '解析量', 
-          type: 'bar', 
-          barWidth: '20px',
-          itemStyle: { color: chartColor, borderRadius: [4, 4, 0, 0] },
-          data: [12, 34, 45, 23, 56, 18] 
-        }
-      ]
-    })
-  }
-}
-
 watch(() => latestInsight.value, () => {
   refreshNotifications()
 }, { immediate: true })
 
 onMounted(() => {
   refreshNotifications()
-  nextTick(() => {
-    renderDashboardCharts()
-  })
 })
 </script>
 <style scoped lang="scss">
@@ -959,123 +925,78 @@ onMounted(() => {
   gap: 12px;
 }
 
-.workbench-split-layout {
+.summary-grid {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 16px;
-  align-items: stretch;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.workbench-left-pane {
+.summary-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--ai-card);
+  border: 1px solid var(--ai-border);
 }
 
-.workbench-center-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.summary-card.danger-soft {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), var(--ai-danger-soft));
 }
 
-.metrics-panel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+.summary-card.success-soft {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), var(--ai-success-soft));
 }
 
-.metric-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.metric-item.danger-soft {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--ai-danger-soft));
-  border-color: rgba(209, 77, 114, 0.3);
-}
-
-.metric-item.danger-soft .metric-icon {
-  background: rgba(209, 77, 114, 0.1);
-  color: #d14d72;
-}
-
-.metric-item.success-soft {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--ai-success-soft));
-  border-color: rgba(28, 126, 96, 0.3);
-}
-
-.metric-item.success-soft .metric-icon {
-  background: rgba(28, 126, 96, 0.1);
-  color: #1c7e60;
-}
-
-.metric-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metric-label {
-  font-size: 11px;
-  font-weight: 700;
+.summary-label,
+.summary-tip,
+.section-eyebrow,
+.block-label,
+.conversation-subtitle,
+.aside-summary,
+.form-tip,
+.setting-inline-tip,
+.empty-copy {
   color: #667085;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.metric-value {
-  font-size: 18px;
-  line-height: 1.1;
+.summary-label,
+.section-eyebrow,
+.block-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summary-value {
+  font-size: 28px;
+  line-height: 1;
   color: #14213d;
 }
 
-.metric-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ai-primary-soft);
-  color: var(--ai-primary);
-  font-size: 16px;
-}
-
-.chart-panel {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  min-height: 240px;
-}.workbench-split-layout {
+.summary-tip,
+.conversation-subtitle,
+.aside-summary,
+.form-tip,
+.setting-inline-tip,
+.empty-copy {
+  font-size: 13px;
+  line-height: 1.6;
+}.workbench-grid {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 16px;
-  align-items: stretch;
-}
-
-.workbench-left-pane {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.workbench-center-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+  align-items: start;
 }
 
 .panel,
 .inner-panel {
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--ai-border);
+  background: var(--ai-card);
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 }
 
 .task-rail,
@@ -1115,11 +1036,10 @@ onMounted(() => {
 .entity-chip,
 .action-tile,
 .chip-btn {
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid var(--ai-border);
   background: #fff;
-  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .mode-chip:hover,
@@ -1128,9 +1048,8 @@ onMounted(() => {
 .action-tile:hover,
 .chip-btn:hover {
   transform: translateY(-1px);
-  border-color: var(--ai-primary);
-  background: #fdfdfd;
-  box-shadow: 0 4px 12px rgba(63, 60, 187, 0.04);
+  border-color: rgba(63, 60, 187, 0.28);
+  box-shadow: 0 12px 24px rgba(63, 60, 187, 0.08);
 }
 
 .mode-chip {
@@ -1139,7 +1058,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 4px;
   padding: 12px 14px;
-  border-radius: 6px;
+  border-radius: 16px;
   text-align: left;
 }
 
@@ -1276,11 +1195,10 @@ onMounted(() => {
 
 .msg-bubble {
   padding: 16px;
-  border-radius: 6px;
+  border-radius: 18px;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--ai-border);
   min-width: 220px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .message-box.user .msg-bubble {
@@ -1432,10 +1350,9 @@ onMounted(() => {
   gap: 12px;
   align-items: end;
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  border: 1px solid var(--ai-border);
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .pill-input-box.focused {
@@ -1539,22 +1456,18 @@ onMounted(() => {
 }
 
 @media (max-width: 1280px) {
-  .workbench-split-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .metrics-panel {
-    grid-template-rows: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
+  .summary-grid,
   .mode-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workbench-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .metrics-panel,
+  .summary-grid,
   .mode-row,
   .insight-grid {
     grid-template-columns: minmax(0, 1fr);

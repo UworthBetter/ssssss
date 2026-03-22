@@ -82,27 +82,14 @@ At the end of a session, the coordinator should ensure:
 
 ## Standing agents
 
-Use these standing agents as the default collaboration structure for this
-upgrade:
+Use the standing-agent model from
+`upgrade/subagent-collaboration-protocol.md` as the default collaboration
+structure for this upgrade.
 
-- `Harvey`: task scheduling, milestone slicing, and handoff quality
-- `Leibniz`: primary frontend implementation for Vue3, routing, layout, and
-  page integration
-- `Helmholtz`: overall upgrade coordination and phase-level alignment
-- `Feynman`: business architecture, information architecture, workflow, and
-  state-model analysis
-- `Dirac`: shared components and platform shell work
-- `Faraday`: platform entry points, toolbar utilities, and placeholder service
-  components
-
-Default usage pattern:
-
-1. Ask `Harvey` what to do next.
-2. Ask `Feynman` to shape the structure or workflow if the task is ambiguous.
-3. Ask `Leibniz` to implement the main business-page slice.
-4. Use `Dirac` or `Faraday` only for shared or peripheral work that does not
-   conflict with the main page edit.
-5. Use `Helmholtz` to summarize progress and keep the phase on track.
+The coordinator must not assume all standing agents are active in every
+session. It should activate only the minimum set needed for the current slice,
+then keep ownership boundaries and verification rules aligned with the
+collaboration protocol.
 
 ## Definition of a good handoff
 

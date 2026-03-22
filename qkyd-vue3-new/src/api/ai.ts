@@ -59,6 +59,12 @@ export interface EventInsightTrace {
   steps?: EventInsightTraceStep[] | unknown
 }
 
+export interface EventInsightFreshness {
+  state?: string
+  tone?: string
+  note?: string
+}
+
 export interface EventInsightPayload {
   summary?: string
   abnormalOverview?: string
@@ -68,6 +74,7 @@ export interface EventInsightPayload {
   risk?: EventInsightRisk
   advice?: EventInsightAdvice
   trace?: EventInsightTrace
+  freshness?: EventInsightFreshness
   riskLevel?: string
   analysisReasons?: string[] | string
   reasons?: string[] | string
@@ -78,6 +85,21 @@ export interface EventInsightPayload {
   notifyWho?: string[] | string
   confidence?: number | string
   source?: string
+}
+
+export interface EventInsightSnapshotSummary {
+  id?: number | string
+  eventId?: number | string
+  summary?: string
+  riskLevel?: string
+  riskScore?: number | string
+  orchestratorVersion?: string
+  fallbackUsed?: boolean
+  freshnessState?: string
+  freshnessTone?: string
+  freshnessNote?: string
+  generatedAt?: string
+  createTime?: string
 }
 
 export function chatAi(message: string) {
@@ -133,9 +155,44 @@ export function detectAbnormal(data: Record<string, unknown>) {
   })
 }
 
-export function getEventInsight(eventId: number | string) {
+export function getEventInsight(
+  eventId: number | string,
+  options: { refresh?: boolean } = {}
+) {
   return request({
     url: `ai/event/insight/${eventId}`,
+    method: 'get',
+    params: {
+      refresh: options.refresh ? 'true' : undefined
+    },
+    headers: {
+      'X-Skip-Error-Message': 'true'
+    }
+  })
+}
+
+export function getEventInsightSnapshots(
+  eventId: number | string,
+  options: { limit?: number } = {}
+) {
+  return request({
+    url: `ai/event/insight/${eventId}/snapshots`,
+    method: 'get',
+    params: {
+      limit: options.limit ?? 10
+    },
+    headers: {
+      'X-Skip-Error-Message': 'true'
+    }
+  })
+}
+
+export function getEventInsightSnapshot(
+  eventId: number | string,
+  snapshotId: number | string
+) {
+  return request({
+    url: `ai/event/insight/${eventId}/snapshots/${snapshotId}`,
     method: 'get',
     headers: {
       'X-Skip-Error-Message': 'true'
