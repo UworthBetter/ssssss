@@ -75,6 +75,32 @@ export const appChildrenRoutes: RouteRecordRaw[] = [
       groupIcon: 'MagicStick',
       navKey: '/ai/workbench'
     } satisfies AppRouteMeta
+  },
+  {
+    path: 'workbench/example',
+    name: 'DashboardExample',
+    component: () => import('@/views/DashboardExampleView.vue'),
+    meta: {
+      title: '处理链总览',
+      icon: 'Promotion',
+      group: 'workbench',
+      groupTitle: '工作台',
+      groupIcon: 'DataBoard',
+      navKey: '/workbench/example'
+    } satisfies AppRouteMeta
+  },
+  {
+    path: 'event/processing-chain',
+    name: 'ProcessingChain',
+    component: () => import('@/views/ProcessingChainView.vue'),
+    meta: {
+      title: '处理链追踪',
+      icon: 'DataAnalysis',
+      group: 'event',
+      groupTitle: '事件中心',
+      groupIcon: 'WarningFilled',
+      navKey: '/event/processing-chain'
+    } satisfies AppRouteMeta
   }
 ]
 

@@ -64,6 +64,16 @@ public class AiHealthCheckResponse implements Serializable {
     @JsonProperty("data_points_analyzed")
     private Integer dataPointsAnalyzed;
 
+    /**
+     * 后端根据异常自动生成的事件 ID
+     */
+    private Long generatedEventId;
+
+    /**
+     * 自动生成事件的类型
+     */
+    private String generatedEventType;
+
     public AiHealthCheckResponse() {
     }
 
@@ -131,6 +141,22 @@ public class AiHealthCheckResponse implements Serializable {
         this.dataPointsAnalyzed = dataPointsAnalyzed;
     }
 
+    public Long getGeneratedEventId() {
+        return generatedEventId;
+    }
+
+    public void setGeneratedEventId(Long generatedEventId) {
+        this.generatedEventId = generatedEventId;
+    }
+
+    public String getGeneratedEventType() {
+        return generatedEventType;
+    }
+
+    public void setGeneratedEventType(String generatedEventType) {
+        this.generatedEventType = generatedEventType;
+    }
+
     /**
      * 判断响应是否成功
      */
@@ -148,6 +174,8 @@ public class AiHealthCheckResponse implements Serializable {
                 ", riskScore=" + riskScore +
                 ", riskFactors=" + riskFactors +
                 ", dataPointsAnalyzed=" + dataPointsAnalyzed +
+                ", generatedEventId=" + generatedEventId +
+                ", generatedEventType='" + generatedEventType + '\'' +
                 '}';
     }
 }

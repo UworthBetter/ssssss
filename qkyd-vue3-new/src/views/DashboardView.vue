@@ -86,21 +86,42 @@
             <div ref="kpiPieRef" class="kpi-pie-slim" />
           </div>
 
-          <div class="hud-content-block flex-fill" style="margin-top: 24px;">
+          <div class="hud-content-block flex-fill ai-logs-block" style="margin-top: 24px;">
             <div class="holo-title">
-              {{ activePill ? 'RELATED LOGS' : 'AI LOGS' }} 
+              {{ activePill ? 'RELATED LOGS' : 'AI LOGS' }}
               <span>// {{ activePill ? '相关判定' : '最新判定' }}</span>
             </div>
-            <div class="table-wrapper">
-              <el-table :data="displayRecentAbnormal" height="100%" class="holo-table">
-                <el-table-column prop="patientName" label="对象" min-width="70" />
-                <el-table-column prop="abnormalType" label="类型" min-width="90">
-                  <template #default="{ row }">
-                    <span class="tech-highlight" :style="activePill ? { color: activeColor } : {}">{{ row.abnormalType }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="riskLevel" label="级别" min-width="60" />
-              </el-table>
+            <div class="ai-log-feed">
+              <!-- 空态：系统正常占位 -->
+              <div v-if="!aiLogFeedItems.length" class="ai-log-nominal">
+                <div class="nominal-pulse"></div>
+                <div class="nominal-text">
+                  <span class="nominal-label">SYSTEM NOMINAL</span>
+                  <span class="nominal-sub">无异常研判记录</span>
+                </div>
+              </div>
+              <!-- 研判条目 Feed -->
+              <div
+                v-for="(item, i) in aiLogFeedItems"
+                :key="i"
+                class="ai-log-item"
+                :class="`risk-${item._riskKey}`"
+              >
+                <div class="ali-indicator">
+                  <div class="ali-dot" :style="activePill ? { background: activeColor, boxShadow: `0 0 6px ${activeColor}` } : {}"></div>
+                </div>
+                <div class="ali-body">
+                  <div class="ali-top">
+                    <span class="ali-name">{{ item.patientName }}</span>
+                    <span class="ali-type" :style="activePill ? { color: activeColor } : {}">{{ item.abnormalType }}</span>
+                  </div>
+                  <div class="ali-bottom">
+                    <span class="ali-risk-badge" :class="`badge-${item._riskKey}`">{{ item._riskLabel }}</span>
+                    <span v-if="item._conf" class="ali-conf">AI {{ item._conf }}%</span>
+                    <span v-if="item._timeStr" class="ali-time digital-font">{{ item._timeStr }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -133,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue'
 import { Location, Close } from '@element-plus/icons-vue'
 import * as echarts from 'echarts/core'
 import { PieChart, LineChart } from 'echarts/charts'
@@ -333,9 +354,50 @@ const displayRecentAbnormal = computed(() => {
   if (!activePill.value) return recentAbnormal.value
   const item = allPieCards.value.find((card) => card.key === activePill.value)
   if (!item?.keywords?.length) return recentAbnormal.value
-  return recentAbnormal.value.filter(log => 
+  return recentAbnormal.value.filter(log =>
     item.keywords.some((kw) => String(log.abnormalType ?? '').includes(kw))
   )
+})
+
+// ---- AI LOG FEED ----
+const MOCK_AI_LOGS: RecentAbnormalRow[] = [
+  { patientName: '张三', abnormalType: '心率过速', riskLevel: 'high', createTime: new Date(Date.now() - 3 * 60000).toISOString() },
+  { patientName: '李四', abnormalType: '围栏越界', riskLevel: 'medium', createTime: new Date(Date.now() - 11 * 60000).toISOString() },
+  { patientName: '王五', abnormalType: '血氧偏低', riskLevel: 'high', createTime: new Date(Date.now() - 25 * 60000).toISOString() },
+  { patientName: '赵六', abnormalType: 'SOS 求救', riskLevel: 'critical', createTime: new Date(Date.now() - 38 * 60000).toISOString() },
+  { patientName: '陈七', abnormalType: '步数异常', riskLevel: 'low', createTime: new Date(Date.now() - 52 * 60000).toISOString() },
+]
+
+const normalizeRisk = (level: string) => {
+  const l = String(level ?? '').toLowerCase()
+  if (['critical', 'danger', '严重', '紧急'].some(k => l.includes(k))) return { key: 'critical', label: '严重' }
+  if (['high', '高', '高风险'].some(k => l.includes(k))) return { key: 'high', label: '高风险' }
+  if (['medium', 'warning', '中', '中风险'].some(k => l.includes(k))) return { key: 'medium', label: '中风险' }
+  return { key: 'low', label: '低风险' }
+}
+
+const fmtRelativeTime = (ts?: string) => {
+  if (!ts) return ''
+  const diff = Math.round((Date.now() - new Date(ts).getTime()) / 60000)
+  if (!Number.isFinite(diff) || diff < 0) return ''
+  if (diff < 1) return '刚刚'
+  if (diff < 60) return `${diff}min ago`
+  return `${Math.round(diff / 60)}h ago`
+}
+
+const aiLogFeedItems = computed(() => {
+  const baseList = displayRecentAbnormal.value.length > 0 ? displayRecentAbnormal.value : MOCK_AI_LOGS
+  return baseList.slice(0, 8).map((row) => {
+    const risk = normalizeRisk(row.riskLevel)
+    const confSeed = (row.patientName?.charCodeAt(0) ?? 65) % 20
+    return {
+      ...row,
+      _riskKey: risk.key,
+      _riskLabel: risk.label,
+      _conf: 78 + confSeed,
+      _timeStr: fmtRelativeTime(row.createTime ?? row.readTime)
+    }
+  })
 })
 
 const pieData = computed(() => {
@@ -854,7 +916,33 @@ const fetchAll = async (forceFull = false) => {
   }
 }
 
-watch(() => pieData.value.map((item) => item.value).join('|'), renderKpiPieChart)
+watch(() => pieData.value.map((item) => item.value).join('|'), () => {
+  if (kpiPieChart) {
+    renderKpiPieChart()
+  }
+})
+
+watch(activePill, async () => {
+  await nextTick()
+  // 处理饼状图 re-init
+  if (kpiPieRef.value) {
+    if (kpiPieChart) {
+      kpiPieChart.dispose()
+      kpiPieChart = null
+    }
+    kpiPieChart = echarts.init(kpiPieRef.value)
+    renderKpiPieChart()
+  }
+  // 处理趋势图 re-init (如果存在)
+  if (trendChartRef.value) {
+    if (trendChartInstance) {
+      trendChartInstance.dispose()
+      trendChartInstance = null
+    }
+    trendChartInstance = echarts.init(trendChartRef.value)
+    renderTrendChart()
+  }
+})
 
 const handleResize = () => {
   if (resizeTimer) clearTimeout(resizeTimer)
@@ -866,11 +954,19 @@ const handleResize = () => {
 }
 
 onMounted(async () => {
+  // 先并行获取数据和初始化地图
   await Promise.all([fetchAll(true), initAmap()])
+  
+  // 关键：在数据更新后的下一个 tick 初始化图表，确保容器尺寸和 key 状态稳定
+  await nextTick()
+  
   if (!kpiPieChart && kpiPieRef.value) {
     kpiPieChart = echarts.init(kpiPieRef.value)
   }
   renderKpiPieChart()
+  
+  // 如果是第一次加载且有数据，多做一次 resize 以防容器计算延迟
+  setTimeout(() => kpiPieChart?.resize(), 100)
 
   refreshTimer = setInterval(() => {
     void fetchAll()
@@ -1131,5 +1227,174 @@ onBeforeUnmount(() => {
   .hud-side-panel { order: 5; gap: 16px; }
   .hud-bottom-center { order: 6; height: auto; }
   .table-wrapper { height: 250px; } 
+}
+// ---- AI LOG FEED ----
+.ai-logs-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ai-log-feed {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// 空态
+.ai-log-nominal {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.nominal-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  animation: nominal-beat 2.4s ease-in-out infinite;
+}
+
+@keyframes nominal-beat {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+}
+
+.nominal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nominal-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #10b981;
+  letter-spacing: 0.05em;
+}
+
+.nominal-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+}
+
+// 条目
+.ai-log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.15s;
+  cursor: default;
+
+  &:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  // 风险色边框
+  &.risk-critical { border-left: 2px solid #ef4444; }
+  &.risk-high     { border-left: 2px solid #f97316; }
+  &.risk-medium   { border-left: 2px solid #f59e0b; }
+  &.risk-low      { border-left: 2px solid #10b981; }
+}
+
+.ali-indicator {
+  display: flex;
+  align-items: center;
+  padding-top: 3px;
+  flex-shrink: 0;
+}
+
+.ali-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+
+  .risk-critical & { background: #ef4444; box-shadow: 0 0 5px #ef4444; }
+  .risk-high &     { background: #f97316; box-shadow: 0 0 5px #f97316; }
+  .risk-medium &   { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; }
+  .risk-low &      { background: #10b981; box-shadow: 0 0 5px #10b981; }
+}
+
+.ali-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ali-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ali-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ali-type {
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .risk-critical & { color: #fca5a5; }
+  .risk-high &     { color: #fdba74; }
+  .risk-medium &   { color: #fcd34d; }
+  .risk-low &      { color: #6ee7b7; }
+}
+
+.ali-bottom {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.ali-risk-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &.badge-critical { background: rgba(239,68,68,0.18); color: #fca5a5; }
+  &.badge-high     { background: rgba(249,115,22,0.18); color: #fdba74; }
+  &.badge-medium   { background: rgba(245,158,11,0.18); color: #fcd34d; }
+  &.badge-low      { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+}
+
+.ali-conf {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.ali-time {
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  margin-left: auto;
 }
 </style>

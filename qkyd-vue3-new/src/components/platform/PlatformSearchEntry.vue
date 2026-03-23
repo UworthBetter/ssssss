@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <button class="search-entry panel" type="button" @click="$emit('click')">
     <span class="search-icon-wrap">
       <el-icon><Search /></el-icon>
@@ -37,62 +37,60 @@ const displayText = computed(() => props.placeholder)
 <style scoped lang="scss">
 .search-entry {
   width: 100%;
-  min-height: 60px;
+  min-width: 280px;
+  min-height: 44px; /* Touch friendly >= 44px */
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid rgba(219, 228, 235, 0.95);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(244, 248, 250, 0.78));
-  box-shadow: var(--shadow-soft);
-  color: var(--text-main);
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px; /* Sharper corners */
+  background: #ffffff;
+  color: #334155;
   cursor: pointer;
   text-align: left;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  outline: none;
 
   &:hover {
-    transform: translateY(-1px);
-    border-color: rgba(111, 155, 160, 0.35);
-    box-shadow: 0 16px 34px rgba(65, 86, 102, 0.12);
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  &:focus-visible {
+    border-color: var(--brand, #0ea5e9);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
   }
 }
 
 .search-icon-wrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
   display: grid;
   place-items: center;
-  background: var(--brand-soft);
-  color: var(--brand);
+  color: #94a3b8;
   flex: 0 0 auto;
+  font-size: 16px;
 }
 
 .search-copy {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .search-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-sub);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  display: none; /* Hide label in normal command bar, only show placeholder */
 }
 
 .search-placeholder {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--text-main);
+  font-weight: 400;
+  color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,11 +98,13 @@ const displayText = computed(() => props.placeholder)
 
 .search-hint {
   flex: 0 0 auto;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: rgba(111, 155, 160, 0.12);
-  color: var(--brand);
-  font-size: 12px;
-  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 </style>

@@ -61,14 +61,15 @@ const asideStyle = computed(() => ({
 .platform-page-shell {
   width: 100%;
   min-height: 100%;
+  background-color: #f8fafc;
 }
 
 .platform-page-card {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: calc(100vh - 100px);
-  padding: 22px;
+  gap: 20px;
+  min-height: calc(100vh - 80px); /* Clean canvas, more usable space */
+  padding: 24px;
 }
 
 .platform-page-header {
@@ -76,55 +77,59 @@ const asideStyle = computed(() => ({
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .platform-page-heading {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .platform-page-eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: var(--brand);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  opacity: 0.8;
 }
 
 .platform-page-title {
   margin: 0;
-  color: var(--text-main);
-  font-size: 22px;
-  line-height: 1.2;
-  font-weight: 800;
+  color: #0f172a;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 600; /* Crisper, semibold vs black weight */
+  letter-spacing: -0.01em;
 }
 
 .platform-page-subtitle {
-  margin: 8px 0 0;
-  color: var(--text-sub);
-  font-size: 13px;
-  line-height: 1.6;
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .platform-page-header-extra {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .platform-page-toolbar {
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.52);
-  border: 1px solid rgba(217, 225, 232, 0.88);
+  padding: 12px 0;
+  margin-bottom: 4px; /* Flatter approach, integrated rather than boxed */
 }
 
 .platform-page-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
+  gap: 24px;
   align-items: start;
 }
 
@@ -136,31 +141,30 @@ const asideStyle = computed(() => ({
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .platform-page-aside {
   min-width: 0;
-  padding: 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(217, 225, 232, 0.88);
-  background: rgba(255, 255, 255, 0.54);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-soft);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .platform-page-aside-title {
-  margin: 0 0 12px;
-  color: var(--text-main);
-  font-size: 14px;
-  font-weight: 700;
+  margin: 0 0 16px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 1024px) {
   .platform-page-card {
     min-height: auto;
-    padding: 18px;
+    padding: 16px;
   }
 
   .platform-page-header {

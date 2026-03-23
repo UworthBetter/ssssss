@@ -160,11 +160,14 @@ const summaryValue = computed(() => props.summaryValue)
 <style scoped lang="scss">
 .context-filter-bar {
   width: 100%;
-  padding: 14px;
-  border-radius: 18px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
 }
@@ -172,48 +175,58 @@ const summaryValue = computed(() => props.summaryValue)
 .filter-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
 .filter-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.66);
-  border: 1px solid rgba(221, 227, 233, 0.84);
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+  }
 }
 
 .chip-label {
   font-size: 12px;
-  font-weight: 700;
-  color: var(--text-sub);
+  font-weight: 600;
+  color: #64748b;
   white-space: nowrap;
 }
 
 .action-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   margin-left: auto;
 }
 
 .context-summary {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 
   span {
-    font-size: 12px;
-    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   strong {
-    font-size: 14px;
-    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -226,6 +239,8 @@ const summaryValue = computed(() => props.summaryValue)
 @media (max-width: 960px) {
   .context-filter-bar {
     align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .action-row {

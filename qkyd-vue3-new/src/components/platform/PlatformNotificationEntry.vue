@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="notification-entry panel">
     <div class="notification-head">
       <div class="notification-title">
@@ -71,20 +71,21 @@ const previewItems = computed(() => props.items.slice(0, 3))
 <style scoped lang="scss">
 .notification-entry {
   width: 100%;
-  padding: 14px;
-  border-radius: 18px;
+  padding: 0;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 249, 251, 0.82));
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .notification-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .notification-title {
@@ -92,64 +93,72 @@ const previewItems = computed(() => props.items.slice(0, 3))
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  font-weight: 700;
-  color: var(--text-main);
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .notification-count {
-  min-width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  padding: 0 8px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  padding: 0 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(197, 127, 134, 0.14);
-  color: var(--danger);
+  background: #fee2e2;
+  color: #ef4444;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .notification-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .notification-item {
   display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: start;
-  padding: 10px 10px 10px 8px;
-  border-radius: 14px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  border-bottom: 1px solid #f8fafc;
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
-    background: rgba(111, 155, 160, 0.08);
-    transform: translateY(-1px);
+    background: #f8fafc;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--brand, #0ea5e9);
+    outline-offset: -2px;
   }
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
-  margin-top: 5px;
-  border-radius: 999px;
-  background: var(--text-sub);
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
 }
 
 .dot-info {
-  background: var(--brand);
+  background: #3b82f6;
 }
 
 .dot-warning {
-  background: var(--warn);
+  background: #f59e0b;
 }
 
 .dot-danger {
-  background: var(--danger);
+  background: #ef4444;
 }
 
 .notification-copy {
@@ -160,40 +169,54 @@ const previewItems = computed(() => props.items.slice(0, 3))
 
   strong {
     font-size: 13px;
-    color: var(--text-main);
+    font-weight: 600;
+    color: #1e293b;
   }
 
   span {
     font-size: 12px;
-    color: var(--text-sub);
-    line-height: 1.4;
+    color: #64748b;
+    line-height: 1.5;
   }
 }
 
 .notification-time {
-  font-size: 12px;
-  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .notification-footer {
   border: none;
+  border-top: 1px solid #f1f5f9;
   background: transparent;
-  color: var(--brand);
+  color: var(--brand, #0ea5e9);
   font-size: 13px;
-  font-weight: 700;
-  text-align: left;
-  padding: 2px 4px 0;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  
+  &:hover {
+    background-color: #f8fafc;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand, #0ea5e9);
+    outline-offset: -2px;
+  }
 }
 
 .notification-empty {
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px dashed rgba(221, 227, 233, 0.88);
-  background: rgba(255, 255, 255, 0.56);
-  font-size: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
   line-height: 1.6;
-  color: var(--text-sub);
+  color: #94a3b8;
 }
 </style>
