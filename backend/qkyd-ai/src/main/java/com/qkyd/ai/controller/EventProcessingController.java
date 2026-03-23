@@ -3,6 +3,8 @@ package com.qkyd.ai.controller;
 import com.qkyd.ai.service.IEventProcessingPipelineService;
 import com.qkyd.ai.service.IOperationAuditService;
 import com.qkyd.common.core.domain.AjaxResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,11 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/ai/event-processing")
 public class EventProcessingController {
+
+    private static final Logger log = LoggerFactory.getLogger(EventProcessingController.class);
 
     @Autowired
     private IEventProcessingPipelineService pipelineService;
@@ -32,19 +38,16 @@ public class EventProcessingController {
 
     @GetMapping("/status/{eventId}")
     public AjaxResult getStatus(@PathVariable Long eventId) {
-        Map<String, Object> status = pipelineService.getPipelineStatus(eventId);
-        if (status == null || status.isEmpty()) {
-            try {
-                pipelineService.startPipeline(eventId, null);
-                status = pipelineService.getPipelineStatus(eventId);
-            } catch (Exception e) {
-                return AjaxResult.error("事件流水线初始化失败: " + e.getMessage());
+        try {
+            Map<String, Object> status = pipelineService.getPipelineStatus(eventId);
+            if (status == null || status.isEmpty()) {
+                return AjaxResult.success(emptyStatus(eventId));
             }
+            return AjaxResult.success(status);
+        } catch (Exception e) {
+            log.warn("failed to fetch processing status for event {}", eventId, e);
+            return AjaxResult.success(emptyStatus(eventId));
         }
-        if (status == null || status.isEmpty()) {
-            return AjaxResult.error("未找到对应事件流水线");
-        }
-        return AjaxResult.success(status);
     }
 
     @GetMapping("/audit-trail/{eventId}")
@@ -59,5 +62,16 @@ public class EventProcessingController {
         Integer feedbackScore = (Integer) feedback.get("feedbackScore");
         pipelineService.recordFeedback(eventId, actualOutcome, feedbackScore);
         return AjaxResult.success("反馈已记录");
+    }
+
+    private Map<String, Object> emptyStatus(Long eventId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("event_id", eventId);
+        payload.put("auditTrail", List.of());
+        payload.put("recentInsightSnapshots", List.of());
+        payload.put("agentTrace", List.of());
+        payload.put("stages", List.of());
+        payload.put("totalDuration", 0);
+        return payload;
     }
 }

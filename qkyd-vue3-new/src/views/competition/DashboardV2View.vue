@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Location, Close } from '@element-plus/icons-vue'
 import * as echarts from 'echarts/core'
 import { PieChart, LineChart } from 'echarts/charts'
@@ -144,8 +144,9 @@ import { LabelLayout } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { ElMessage } from 'element-plus'
-import { getRecentAbnormal } from '@/api/ai'
+import { getAbnormalTrend, getRecentAbnormal } from '@/api/ai'
 import { getAgeSexGroupCount, getIndexException, getRealTimeData } from '@/api/index'
+import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
 
 echarts.use([PieChart, LineChart, TooltipComponent, GridComponent, LabelLayout, CanvasRenderer])
 
@@ -178,6 +179,11 @@ interface RecentAbnormalRow {
   readTime?: string
 }
 
+interface TrendPoint {
+  label: string
+  value: number
+}
+
 declare global {
   interface Window {
     _AMapSecurityConfig?: { securityJsCode?: string }
@@ -195,6 +201,7 @@ const useMockExceptionData = ref(false)
 const activePill = ref<string | null>(null)
 const activePillName = ref<string>('')
 const activeColor = ref<string>('#0ea5e9')
+const trendData = ref<TrendPoint[]>([])
 const trendChartRef = ref<HTMLDivElement | null>(null)
 let trendChartInstance: echarts.ECharts | null = null
 
@@ -208,6 +215,16 @@ const pillColors: Record<string, string> = {
   pressure: '#8b5cf6'
 }
 
+const trendMetricTypeMap: Record<string, string> = {
+  step: 'step',
+  fence: 'fence',
+  sos: 'sos',
+  temperature: 'temperature',
+  heart: 'heart_rate',
+  oxygen: 'spo2',
+  pressure: 'blood_pressure'
+}
+
 const amapRef = ref<HTMLDivElement | null>(null)
 const mapLoadFailed = ref(false)
 let amapInstance: any = null
@@ -219,12 +236,39 @@ let lastFitSignature = ''
 let fitViewTimer: ReturnType<typeof setTimeout> | null = null
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
+let realtimeRefreshTimer: ReturnType<typeof setTimeout> | null = null
 let pollRound = 0
 let amapLoaderPromise: Promise<any> | null = null
 
 const MAP_CENTER: [number, number] = [116.397428, 39.90923]
 const POLL_INTERVAL = 30000
 const DETAIL_REFRESH_EVERY_ROUNDS = 2
+
+const clearRealtimeRefresh = () => {
+  if (realtimeRefreshTimer) {
+    clearTimeout(realtimeRefreshTimer)
+    realtimeRefreshTimer = null
+  }
+}
+
+const scheduleRealtimeRefresh = () => {
+  clearRealtimeRefresh()
+  realtimeRefreshTimer = setTimeout(() => {
+    void fetchAll(true)
+  }, 400)
+}
+
+const realtimeStream = useHealthRealtimeStream({
+  onAbnormalAlert() {
+    scheduleRealtimeRefresh()
+  },
+  onHealthData() {
+    scheduleRealtimeRefresh()
+  },
+  onRiskScore() {
+    scheduleRealtimeRefresh()
+  }
+})
 
 const toNumber = (value: unknown, fallback = 0) => {
   const num = Number(value)
@@ -329,7 +373,17 @@ const kpiCards = computed(() => [
 const kpiPieRef = ref<HTMLDivElement | null>(null)
 let kpiPieChart: echarts.ECharts | null = null
 
-const allPieCards = computed(() => [...topAlertCards.value, ...kpiCards.value])
+const stablePieCards = computed(() => [
+  { key: 'step', label: '步数异常', keywords: ['step', 'Step', '步', '活动'], value: metricValue(['stepExceptionCount', 'stepAbnormalCount', 'stepAlertCount']) },
+  { key: 'fence', label: '围栏预警', keywords: ['fence', 'Fence', 'geofence', '围栏', '越界'], value: metricValue(['fenceExceptionCount', 'geofenceExceptionCount', 'fenceAlertCount']) },
+  { key: 'sos', label: 'SOS 呼救', keywords: ['sos', 'SOS', '求助'], value: metricValue(['sosHelpCount', 'sosCount', 'sosExceptionCount']) },
+  { key: 'temperature', label: '体温', keywords: ['temperature', 'Temperature', '体温'], value: metricValue(['temperatureExceptionCount', 'tempExceptionCount']) },
+  { key: 'heart', label: '心率', keywords: ['heart', 'Heart', 'pulse', '心率', '心跳'], value: metricValue(['heartRateExceptionCount', 'hrExceptionCount']) },
+  { key: 'oxygen', label: '血氧', keywords: ['oxygen', 'Oxygen', 'spo2', 'SpO2', '血氧'], value: metricValue(['spo2ExceptionCount', 'bloodOxygenExceptionCount']) },
+  { key: 'pressure', label: '血压', keywords: ['pressure', 'Pressure', 'blood pressure', '血压'], value: metricValue(['bloodPressureExceptionCount', 'bpExceptionCount']) }
+])
+
+const allPieCards = computed(() => stablePieCards.value)
 
 const displayRecentAbnormal = computed(() => {
   if (!activePill.value) return recentAbnormal.value
@@ -393,46 +447,60 @@ const renderKpiPieChart = () => {
 const togglePill = async (item: any) => {
   if (!item) {
     activePill.value = null
+    trendData.value = []
     setTimeout(() => filterMapMarkers(), 50)
     return
   }
 
   if (activePill.value === item.key) {
     activePill.value = null
+    trendData.value = []
     setTimeout(() => filterMapMarkers(), 50)
   } else {
     activePill.value = item.key
     activePillName.value = item.label
     activeColor.value = pillColors[item.key] || '#0ea5e9'
-    
-    // Defer heavy map updates so Vue reactivity handles the sidebar transition first
     setTimeout(() => filterMapMarkers(item.keywords), 50)
-
-    // With out-in transition, the new node appears after the leave transition (~150ms)
-    setTimeout(() => {
-      renderTrendChart()
-    }, 200)
   }
 }
 
-const generateMockTrendData = () => {
+const buildFallbackTrendData = () => {
   const times: string[] = []
   const data: number[] = []
   const now = new Date()
-  let baseVal = Math.floor(Math.random() * 50) + 20
 
   for (let i = 24; i >= 0; i--) {
     const t = new Date(now.getTime() - i * 60 * 60 * 1000)
     times.push(`${String(t.getHours()).padStart(2, '0')}:00`)
-
-    const volatility = i < 3 ? 30 : 10
-    baseVal += (Math.random() - 0.5) * volatility
-    if (baseVal < 0) baseVal = 10
-
-    if (i === 0) baseVal += 40
-    data.push(Math.round(baseVal))
+    data.push(0)
   }
   return { times, data }
+}
+
+const normalizeTrendData = (input: unknown) => {
+  if (!Array.isArray(input)) return [] as TrendPoint[]
+  return input.map((item) => {
+    const row = (item ?? {}) as Record<string, unknown>
+    return {
+      label: String(row.label ?? row.time ?? ''),
+      value: toNumber(row.value, 0)
+    }
+  }).filter((item) => item.label)
+}
+
+const loadTrendData = async (pillKey: string) => {
+  const metricType = trendMetricTypeMap[pillKey]
+  if (!metricType) {
+    trendData.value = []
+    return
+  }
+
+  try {
+    const response = await getAbnormalTrend(metricType, 25)
+    trendData.value = normalizeTrendData(response.data)
+  } catch (error) {
+    trendData.value = []
+  }
 }
 
 const renderTrendChart = () => {
@@ -441,7 +509,12 @@ const renderTrendChart = () => {
     trendChartInstance = echarts.init(trendChartRef.value)
   }
 
-  const { times, data } = generateMockTrendData()
+  const { times, data } = trendData.value.length > 0
+    ? {
+        times: trendData.value.map((item) => item.label),
+        data: trendData.value.map((item) => item.value)
+      }
+    : buildFallbackTrendData()
   const color = activeColor.value
 
   trendChartInstance.setOption({
@@ -825,6 +898,7 @@ const fetchAll = async (forceFull = false) => {
 
       ageSexTable.value = normalizeAgeSexTable(ageRes.data)
       recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
+      realtimeStream.subscribePatient(recentAbnormal.value[0]?.userId)
 
       const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
       const normalizedExceptions = normalizeExceptionList(rawExceptions)
@@ -848,6 +922,10 @@ const fetchAll = async (forceFull = false) => {
         filterMapMarkers(active?.keywords)
       }
     }
+    if (activePill.value) {
+      await loadTrendData(activePill.value)
+      renderTrendChart()
+    }
     pollRound += 1
   } catch (error) {
     ElMessage.error('系统数据链路中断')
@@ -857,6 +935,21 @@ const fetchAll = async (forceFull = false) => {
 }
 
 watch(() => pieData.value.map((item) => item.value).join('|'), renderKpiPieChart)
+
+watch(activePill, async () => {
+  if (trendChartRef.value) {
+    await nextTick()
+    if (trendChartInstance) {
+      trendChartInstance.dispose()
+      trendChartInstance = null
+    }
+    trendChartInstance = echarts.init(trendChartRef.value)
+    if (activePill.value) {
+      await loadTrendData(activePill.value)
+    }
+    renderTrendChart()
+  }
+})
 
 const handleResize = () => {
   if (resizeTimer) clearTimeout(resizeTimer)
@@ -895,6 +988,7 @@ onBeforeUnmount(() => {
     clearTimeout(resizeTimer)
     resizeTimer = null
   }
+  clearRealtimeRefresh()
   markerMap.clear()
   kpiPieChart?.dispose()
   trendChartInstance?.dispose()

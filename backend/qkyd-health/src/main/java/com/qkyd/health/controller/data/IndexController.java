@@ -32,7 +32,9 @@ public class IndexController extends BaseController {
      * 异常数据
      */
     @GetMapping(value = "/exception")
-    public JSONObject exception(@RequestParam("type") String type, @RequestParam("pageNum") int pageNum) {
+    public JSONObject exception(
+            @RequestParam(value = "type", required = false, defaultValue = "all") String type,
+            @RequestParam(value = "pageNum", required = false, defaultValue = "1") int pageNum) {
         return indexService.getExceptionData(type, pageNum);
     }
 

@@ -11,12 +11,14 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.CorsFilter;
 import com.qkyd.framework.config.properties.PermitAllUrlProperties;
 import com.qkyd.framework.security.filter.JwtAuthenticationTokenFilter;
@@ -112,6 +114,7 @@ public class SecurityConfig {
                         .requestMatchers("/watch/push").permitAll()
                         .requestMatchers("/ai/chat").permitAll()
                         .requestMatchers("/watch/require").permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         // 鍋ュ悍鏁版嵁妯℃嫙涓婁紶鎺ュ彛锛屽厑璁稿尶鍚嶈闂紙璁惧閴存潈锛?
                         .requestMatchers("/health/mock/**").permitAll()
                         // 闈欐€佽祫婧愶紝鍙尶鍚嶈闂?
@@ -136,6 +139,11 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(corsFilter, LogoutFilter.class);
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/ws/**"));
     }
 
     /**

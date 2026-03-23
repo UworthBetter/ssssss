@@ -86,9 +86,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectExceptionForDashboard" resultType="com.qkyd.health.domain.UeitException">
-        select id, user_id, device_id, type, value, longitude, latitude, state, create_time as readTime, location
-        from qkyd_exception
-        order by id desc
+        select q.id,
+               q.user_id,
+               q.device_id,
+               q.type,
+               q.value,
+               q.longitude,
+               q.latitude,
+               q.state,
+               q.create_time as readTime,
+               q.create_time as createTime,
+               q.update_time as updateTime,
+               q.location,
+               su.nick_name as nickName
+        from qkyd_exception q
+        left join sys_user su on su.user_id = q.user_id
+        where q.user_id is not null
+        order by q.id desc
+        limit 240
     </select>
 
     <insert id="insertUeitException" parameterType="UeitException" useGeneratedKeys="true" keyProperty="id">

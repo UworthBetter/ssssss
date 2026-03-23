@@ -209,3 +209,19 @@ export function getRecentAbnormal(limit = 10) {
     }
   })
 }
+
+export interface AbnormalTrendPoint {
+  label: string
+  value: number | string
+}
+
+export function getAbnormalTrend(metricType?: string, hours = 24) {
+  return request({
+    url: 'ai/abnormal/trend',
+    method: 'get',
+    params: {
+      metricType,
+      hours
+    }
+  })
+}

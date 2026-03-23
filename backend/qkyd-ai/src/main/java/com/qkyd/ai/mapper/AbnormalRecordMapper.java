@@ -49,6 +49,21 @@ public interface AbnormalRecordMapper {
         List<AbnormalRecord> selectRecent(int limit);
 
         /**
+         * Select records since a start time, optionally filtered by metric type.
+         */
+        @Select({
+                        "<script>",
+                        "SELECT * FROM ai_abnormal_record",
+                        "WHERE detected_time &gt;= #{start}",
+                        "<if test='metricType != null and metricType != \"\"'>",
+                        "AND metric_type = #{metricType}",
+                        "</if>",
+                        "ORDER BY detected_time DESC",
+                        "</script>"
+        })
+        List<AbnormalRecord> selectSince(@Param("start") Date start, @Param("metricType") String metricType);
+
+        /**
          * Delete by ID
          */
         @Delete("DELETE FROM ai_abnormal_record WHERE id = #{id}")

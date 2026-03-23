@@ -12,6 +12,12 @@ qkyd:
   addressEnabled: false
   # 楠岃瘉鐮佺被鍨?math 鏁板瓧璁＄畻 char 瀛楃楠岃瘉
   captchaType: math
+  demo:
+    engine:
+      enabled: true
+      interval-ms: 10000
+      initial-delay-ms: 5000
+      subject-count: 6
 
 # 寮€鍙戠幆澧冮厤缃?
 server:

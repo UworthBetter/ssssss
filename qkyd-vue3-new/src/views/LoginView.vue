@@ -1,8 +1,18 @@
 ﻿<template>
   <div class="login-page">
+    <img class="login-bg-media" src="/login-bg.webp" alt="" aria-hidden="true" decoding="async" fetchpriority="low" />
     <div class="login-art">
       <h1 class="brand-title">
-        <img src="/logo-qkyd-wide.png" alt="耆康云盾健康监测平台" class="brand-logo" />
+        <picture class="brand-logo-wrap">
+          <source srcset="/logo-qkyd-wide.webp" type="image/webp" />
+          <img
+            src="/logo-qkyd-wide.png"
+            alt="耆康云盾健康监测平台"
+            class="brand-logo"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </picture>
         <span class="brand-text">耆康云盾健康监测平台</span>
       </h1>
       <p>整合设备数据、AI 风险识别与告警处置，帮助照护团队更快发现问题。</p>
@@ -115,19 +125,30 @@ onMounted(refreshCaptcha)
   gap: 28px;
   align-items: center;
   padding: 24px;
-  background-color: #e4eee0; /* 基础深蓝色背景底色 */
+  background-color: #ffffff; /* 基础深蓝色背景底色 */
 }
 
 .login-page::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/login-bg.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.8; /* 背景透明度，可根据需要调整 */
+  background:
+    radial-gradient(circle at top left, rgba(80, 127, 92, 0.28), transparent 38%),
+    linear-gradient(135deg, rgba(12, 36, 44, 0.72), rgba(54, 96, 78, 0.4));
   z-index: 0;
+}
+
+.login-bg-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  transform: scale(1.02);
 }
 
 .login-art {
@@ -157,21 +178,22 @@ onMounted(refreshCaptcha)
     gap: 10px;
   }
 
+  .brand-logo-wrap {
+    display: flex;
+    flex: 0 0 auto;
+  }
+
   .brand-logo {
-    width: clamp(64px, 8vw, 88px);
-    height: clamp(64px, 8vw, 88px);
+    width: clamp(180px, 21vw, 280px);
+    height: auto;
     max-width: 100%;
     object-fit: contain;
-    flex: 0 0 auto;
     display: block;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.28));
   }
 
   .brand-text {
-    font-size: clamp(24px, 2.7vw, 38px);
-    line-height: 1.2;
-    font-weight: 700;
-    color: #f4f9ff;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    display: none;
   }
 
   p {

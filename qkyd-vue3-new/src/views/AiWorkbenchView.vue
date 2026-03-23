@@ -392,7 +392,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   Avatar,
@@ -414,7 +414,8 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { chatAi } from '@/api/ai'
+import { chatAi, getAbnormalTrend, getRecentAbnormal, type AbnormalTrendPoint } from '@/api/ai'
+import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
 import {
   PlatformContextFilterBar,
   dispatchPlatformAction,
@@ -471,6 +472,20 @@ interface QuickTask {
   description: string
   prompt: string
   tag: string
+}
+
+interface RecentAbnormalItem {
+  id?: number | string
+  userId?: number | string
+  patientName?: string
+  abnormalType?: string
+  riskLevel?: string
+  abnormalValue?: string
+  confidence?: number | string
+  deviceName?: string
+  source?: string
+  detectedTime?: string
+  createTime?: string
 }
 
 const router = useRouter()
@@ -549,12 +564,37 @@ const getInitialMessage = (): ChatMessage => ({
 })
 
 const messages = ref<ChatMessage[]>([getInitialMessage()])
+const recentAbnormalRows = ref<RecentAbnormalItem[]>([])
+const abnormalTrend = ref<AbnormalTrendPoint[]>([])
+const dashboardRefreshTimer = ref<number | null>(null)
+const riskChartInstance = ref<echarts.ECharts | null>(null)
+const trendChartInstance = ref<echarts.ECharts | null>(null)
+const realtimeRefreshTimer = ref<number | null>(null)
 
-const aiMessageCount = computed(() => messages.value.filter((msg) => msg.role === 'ai').length)
-const structuredInsightCount = computed(() => messages.value.filter((msg) => Boolean(msg.insight)).length)
-const highRiskCount = computed(() => messages.value.filter((msg) => msg.insight?.riskLevel === 'high').length)
+const normalizedRiskLevel = (riskLevel: unknown): RiskLevel => {
+  const value = String(riskLevel ?? '').trim().toLowerCase()
+  if (['critical', 'high', 'danger'].includes(value)) return 'high'
+  if (['medium', 'warning'].includes(value)) return 'medium'
+  return 'low'
+}
+
+const recentRiskSummary = computed(() => recentAbnormalRows.value.reduce((summary, row) => {
+  const level = normalizedRiskLevel(row.riskLevel)
+  summary[level] += 1
+  return summary
+}, { high: 0, medium: 0, low: 0 } as Record<RiskLevel, number>))
+
+const aiMessageCount = computed(() => {
+  const trendTotal = abnormalTrend.value.reduce((sum, point) => sum + Number(point.value || 0), 0)
+  return trendTotal || messages.value.filter((msg) => msg.role === 'ai').length
+})
+const structuredInsightCount = computed(() => recentAbnormalRows.value.length || messages.value.filter((msg) => Boolean(msg.insight)).length)
+const highRiskCount = computed(() => recentRiskSummary.value.high || messages.value.filter((msg) => msg.insight?.riskLevel === 'high').length)
 const latestInsight = computed(() => [...messages.value].reverse().find((msg) => msg.insight)?.insight ?? null)
-const pendingActionCount = computed(() => latestInsight.value?.recommendedActions.length ?? 0)
+const pendingActionCount = computed(() => {
+  const backendPending = recentRiskSummary.value.high + recentRiskSummary.value.medium
+  return backendPending || latestInsight.value?.recommendedActions.length || 0
+})
 const notificationItems = ref<PlatformNotificationRecord[]>([])
 
 const refreshNotifications = async () => {
@@ -567,7 +607,144 @@ const refreshNotifications = async () => {
     deviceName: deviceEntity?.name,
     eventType: eventEntity?.query?.type || eventEntity?.name
   })
+  /*
+  myChart.setOption({
+    legend: { data: ['异常事件'], top: 0, right: 0 },
+    xAxis: { data: trendPoints.map(point => point.label) },
+    series: [
+      {
+        name: '异常事件',
+        type: 'line',
+        data: trendPoints.map(point => Number(point.value || 0)),
+        smooth: true,
+        lineStyle: { color: chartColor, width: 3 },
+        itemStyle: { color: chartColor },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: `${chartColor}33` },
+            { offset: 1, color: `${chartColor}00` }
+          ])
+        }
+      }
+    ]
+  }) */
 }
+
+const getThemeChartColor = () => (
+  settingsForm.value.theme === 'purple'
+    ? '#4f46e5'
+    : settingsForm.value.theme === 'pink'
+      ? '#e11d48'
+      : settingsForm.value.theme === 'green'
+        ? '#059669'
+        : '#2563eb'
+)
+
+const normalizeRecentAbnormalRows = (rows: unknown): RecentAbnormalItem[] => {
+  if (!Array.isArray(rows)) return []
+  return rows.map((item) => {
+    const row = (item || {}) as Record<string, unknown>
+    return {
+      id: row.id as number | string | undefined,
+      userId: row.userId as number | string | undefined,
+      patientName: typeof row.patientName === 'string' ? row.patientName : '',
+      abnormalType: typeof row.abnormalType === 'string' ? row.abnormalType : '',
+      riskLevel: typeof row.riskLevel === 'string' ? row.riskLevel : '',
+      abnormalValue: typeof row.abnormalValue === 'string' ? row.abnormalValue : '',
+      confidence: row.confidence as number | string | undefined,
+      deviceName: typeof row.deviceName === 'string' ? row.deviceName : '',
+      source: typeof row.source === 'string' ? row.source : '',
+      detectedTime: typeof row.detectedTime === 'string' ? row.detectedTime : '',
+      createTime: typeof row.createTime === 'string' ? row.createTime : ''
+    }
+  })
+}
+
+const normalizeTrendRows = (rows: unknown): AbnormalTrendPoint[] => {
+  if (!Array.isArray(rows)) return []
+  return rows.map((item) => {
+    const point = (item || {}) as Record<string, unknown>
+    return {
+      label: String(point.label ?? ''),
+      value: Number(point.value ?? 0)
+    }
+  }).filter(point => point.label)
+}
+
+const fetchWorkbenchDashboardData = async () => {
+  try {
+    const [recentRes, trendRes] = await Promise.all([
+      getRecentAbnormal(60),
+      getAbnormalTrend(undefined, 12)
+    ])
+    recentAbnormalRows.value = normalizeRecentAbnormalRows(recentRes?.data)
+    abnormalTrend.value = normalizeTrendRows(trendRes?.data)
+  } catch {
+    recentAbnormalRows.value = []
+    abnormalTrend.value = []
+  }
+}
+
+const buildRecentTableRows = () => {
+  if (!recentAbnormalRows.value.length) {
+    return [
+      { name: '暂无数据', room: '-', issue: '等待后端异常流', time: '-' }
+    ]
+  }
+
+  return recentAbnormalRows.value.slice(0, 6).map((row, index) => ({
+    name: row.patientName || `对象-${row.userId || index + 1}`,
+    room: row.deviceName || '-',
+    issue: [row.abnormalType, row.abnormalValue].filter(Boolean).join(' / ') || '-',
+    time: row.detectedTime || row.createTime || '-'
+  }))
+}
+
+const clearRealtimeRefreshTimer = () => {
+  if (realtimeRefreshTimer.value !== null) {
+    window.clearTimeout(realtimeRefreshTimer.value)
+    realtimeRefreshTimer.value = null
+  }
+}
+
+const scheduleWorkbenchRefresh = () => {
+  clearRealtimeRefreshTimer()
+  realtimeRefreshTimer.value = window.setTimeout(async () => {
+    await fetchWorkbenchDashboardData()
+    nextTick(() => {
+      renderDashboardCharts()
+    })
+    realtimeRefreshTimer.value = null
+  }, 400)
+}
+
+const pushRealtimeAlertMessage = (payload: Record<string, unknown>) => {
+  const patientName = typeof payload.patientName === 'string' && payload.patientName ? payload.patientName : '监测对象'
+  const abnormalType = typeof payload.abnormalType === 'string' && payload.abnormalType ? payload.abnormalType : '异常事件'
+  const abnormalValue = typeof payload.abnormalValue === 'string' && payload.abnormalValue ? payload.abnormalValue : ''
+  const summary = [patientName, abnormalType, abnormalValue].filter(Boolean).join(' / ')
+
+  messages.value.push({
+    id: Date.now(),
+    role: 'ai',
+    type: 'text',
+    content: `实时更新：${summary}`
+  })
+  scrollToBottom()
+}
+
+const realtimeStream = useHealthRealtimeStream({
+  onAbnormalAlert(payload) {
+    pushRealtimeAlertMessage(payload)
+    scheduleWorkbenchRefresh()
+  },
+  onHealthData() {
+    scheduleWorkbenchRefresh()
+  },
+  onRiskScore() {
+    scheduleWorkbenchRefresh()
+  }
+})
 
 const speakText = (text: string) => {
   if (!settingsForm.value.autoSpeak || !('speechSynthesis' in window)) return
@@ -701,6 +878,10 @@ const sendMessage = async () => {
       actions = ['创建事件', '加入重点关注']
     }
 
+    if (type === 'table') {
+      data = buildRecentTableRows()
+    }
+
     pushAiResponse(text, replyText, type, data, actions)
   } catch (error: any) {
     messages.value.push({ id: Date.now(), role: 'ai', type: 'text', content: `服务暂时不可用，请稍后重试。<br/><span style="color:#d14d72;font-size:13px;">(${error.message || '网络错误'})</span>` })
@@ -798,7 +979,10 @@ const renderChart = (domId: string) => {
   const dom = document.getElementById(domId)
   if (!dom) return
   const myChart = echarts.init(dom)
-  const chartColor = settingsForm.value.theme === 'purple' ? '#4f46e5' : settingsForm.value.theme === 'pink' ? '#e11d48' : settingsForm.value.theme === 'green' ? '#059669' : '#2563eb'
+  const chartColor = getThemeChartColor()
+  const trendPoints = abnormalTrend.value.length
+    ? abnormalTrend.value
+    : Array.from({ length: 6 }, (_, index) => ({ label: `${index + 1}`, value: 0 }))
 
   myChart.setOption({
     grid: { left: '2%', right: '2%', bottom: '5%', top: '15%', containLabel: true },
@@ -809,6 +993,26 @@ const renderChart = (domId: string) => {
     series: [
       { name: '收缩压', type: 'line', data: [120, 122, 145, 125, 118, 121, 120], smooth: true, lineStyle: { color: '#d14d72', width: 3 }, itemStyle: { color: '#d14d72' } },
       { name: '舒张压', type: 'line', data: [80, 82, 95, 85, 78, 80, 81], smooth: true, lineStyle: { color: chartColor, width: 3 }, itemStyle: { color: chartColor }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [ { offset: 0, color: `${chartColor}33` }, { offset: 1, color: `${chartColor}00` } ]) } }
+    ]
+  })
+  myChart.setOption({
+    legend: { data: ['异常事件'], top: 0, right: 0 },
+    xAxis: { data: trendPoints.map(point => point.label) },
+    series: [
+      {
+        name: '异常事件',
+        type: 'line',
+        data: trendPoints.map(point => Number(point.value || 0)),
+        smooth: true,
+        lineStyle: { color: chartColor, width: 3 },
+        itemStyle: { color: chartColor },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: `${chartColor}33` },
+            { offset: 1, color: `${chartColor}00` }
+          ])
+        }
+      }
     ]
   })
 }
@@ -847,9 +1051,16 @@ const handleContextReset = () => {
 const renderDashboardCharts = () => {
   const riskDom = document.getElementById('riskChart')
   const trendDom = document.getElementById('trendChart')
+  const chartColor = getThemeChartColor()
+  const riskSummary = recentRiskSummary.value
+  const trendPoints = abnormalTrend.value.length
+    ? abnormalTrend.value
+    : Array.from({ length: 6 }, (_, index) => ({ label: `${index + 1}`, value: 0 }))
   
   if (riskDom) {
+    riskChartInstance.value?.dispose()
     const riskChart = echarts.init(riskDom)
+    riskChartInstance.value = riskChart
     riskChart.setOption({
       tooltip: { trigger: 'item' },
       legend: { bottom: '0%', left: 'center', itemStyle: { borderWidth: 0 } },
@@ -875,11 +1086,23 @@ const renderDashboardCharts = () => {
         }
       ]
     })
+    riskChart.setOption({
+      series: [
+        {
+          data: [
+            { value: riskSummary.high, name: '高风险', itemStyle: { color: '#d14d72' } },
+            { value: riskSummary.medium, name: '中风险', itemStyle: { color: '#fbbf24' } },
+            { value: riskSummary.low, name: '低风险', itemStyle: { color: '#10b981' } }
+          ]
+        }
+      ]
+    })
   }
 
   if (trendDom) {
+    trendChartInstance.value?.dispose()
     const trendChart = echarts.init(trendDom)
-    const chartColor = settingsForm.value.theme === 'purple' ? '#4f46e5' : settingsForm.value.theme === 'pink' ? '#e11d48' : settingsForm.value.theme === 'green' ? '#059669' : '#2563eb'
+    trendChartInstance.value = trendChart
 
     trendChart.setOption({
       grid: { left: '2%', right: '5%', bottom: '5%', top: '15%', containLabel: true },
@@ -896,6 +1119,17 @@ const renderDashboardCharts = () => {
         }
       ]
     })
+    trendChart.setOption({
+      xAxis: { data: trendPoints.map(point => point.label) },
+      series: [
+        {
+          name: '分析量',
+          type: 'bar',
+          data: trendPoints.map(point => Number(point.value || 0)),
+          itemStyle: { color: chartColor, borderRadius: [4, 4, 0, 0] }
+        }
+      ]
+    })
   }
 }
 
@@ -903,11 +1137,47 @@ watch(() => latestInsight.value, () => {
   refreshNotifications()
 }, { immediate: true })
 
-onMounted(() => {
+watch(
+  () => [settingsForm.value.theme, abnormalTrend.value, recentAbnormalRows.value],
+  () => {
+    nextTick(() => {
+      renderDashboardCharts()
+    })
+  },
+  { deep: true }
+)
+
+watch(
+  () => recentAbnormalRows.value[0]?.userId,
+  (patientId) => {
+    realtimeStream.subscribePatient(patientId ?? null)
+  }
+)
+
+onMounted(async () => {
   refreshNotifications()
+  await fetchWorkbenchDashboardData()
   nextTick(() => {
     renderDashboardCharts()
   })
+  dashboardRefreshTimer.value = window.setInterval(async () => {
+    await fetchWorkbenchDashboardData()
+    nextTick(() => {
+      renderDashboardCharts()
+    })
+  }, 30000)
+})
+
+onUnmounted(() => {
+  if (dashboardRefreshTimer.value !== null) {
+    window.clearInterval(dashboardRefreshTimer.value)
+    dashboardRefreshTimer.value = null
+  }
+  clearRealtimeRefreshTimer()
+  riskChartInstance.value?.dispose()
+  trendChartInstance.value?.dispose()
+  riskChartInstance.value = null
+  trendChartInstance.value = null
 })
 </script>
 <style scoped lang="scss">

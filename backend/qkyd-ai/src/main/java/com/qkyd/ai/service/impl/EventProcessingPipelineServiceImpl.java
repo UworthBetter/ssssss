@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qkyd.ai.mapper.EventInsightSnapshotMapper;
 import com.qkyd.ai.model.dto.EventInsightResultDTO;
+import com.qkyd.ai.model.entity.EventInsightSnapshotRecord;
 import com.qkyd.ai.service.IDispositionRuleEngine;
 import com.qkyd.ai.service.IEventInsightService;
 import com.qkyd.ai.service.IEventProcessingPipelineService;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +28,8 @@ import java.util.Map;
 
 @Service
 public class EventProcessingPipelineServiceImpl implements IEventProcessingPipelineService {
+
+    private static final Logger log = LoggerFactory.getLogger(EventProcessingPipelineServiceImpl.class);
 
     @Autowired
     private IEventInsightService eventInsightService;
@@ -109,36 +114,39 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
 
     @Override
     public Map<String, Object> getPipelineStatus(Long eventId) {
-        String sql = "SELECT id, event_id, abnormal_type, abnormal_value, stage, priority, risk_score, risk_level, "
-                + "disposition_suggestion, notification_level, auto_execute, execution_status, execution_result, "
-                + "actual_outcome, feedback_score, created_at, updated_at "
-                + "FROM ai_event_processing_pipeline WHERE event_id = ? ORDER BY id DESC LIMIT 1";
-
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, eventId);
-        if (rows.isEmpty()) {
-            return Map.of();
-        }
-
-        Map<String, Object> result = new LinkedHashMap<>(rows.get(0));
-        List<Map<String, Object>> auditTrail = auditService.getEventAuditTrail(eventId);
-        result.put("auditTrail", auditTrail);
-
         try {
+            String sql = "SELECT id, event_id, abnormal_type, abnormal_value, stage, priority, risk_score, risk_level, "
+                    + "disposition_suggestion, notification_level, auto_execute, execution_status, execution_result, "
+                    + "actual_outcome, feedback_score, created_at, updated_at "
+                    + "FROM ai_event_processing_pipeline WHERE event_id = ? ORDER BY id DESC LIMIT 1";
+
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, eventId);
+            if (rows.isEmpty()) {
+                return Map.of();
+            }
+
+            Map<String, Object> result = new LinkedHashMap<>(rows.get(0));
+            List<Map<String, Object>> auditTrail = auditService.getEventAuditTrail(eventId);
+            result.put("auditTrail", auditTrail);
+
             List<Map<String, Object>> snapshots = jdbcTemplate.queryForList(
                     "SELECT id, summary, risk_level, risk_score, generated_at "
                             + "FROM ai_event_insight_snapshot WHERE event_id = ? ORDER BY id DESC LIMIT 3",
                     eventId
             );
             result.put("recentInsightSnapshots", snapshots);
-            result.put("stages", buildStages(result, auditTrail, snapshots));
-        } catch (Exception ignored) {
-            result.put("recentInsightSnapshots", List.of());
-            result.put("stages", buildStages(result, auditTrail, List.of()));
+            result.put("agentTrace", List.of());
+            if (!snapshots.isEmpty()) {
+                result.put("insightSummary", stringValue(snapshots.get(0).get("summary")));
+            }
+            result.put("stages", buildStages(result, auditTrail, snapshots, null));
+            result.put("totalDuration", calculateDurationMinutes(result));
+
+            return result;
+        } catch (Exception e) {
+            log.warn("failed to load pipeline status for event {}, fallback to minimal status", eventId, e);
+            return loadMinimalPipelineStatus(eventId);
         }
-
-        result.put("totalDuration", calculateDurationMinutes(result));
-
-        return result;
     }
 
     @Override
@@ -336,7 +344,24 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
 
     private List<Map<String, Object>> buildStages(Map<String, Object> pipeline,
                                                   List<Map<String, Object>> auditTrail,
-                                                  List<Map<String, Object>> snapshots) {
+                                                  List<Map<String, Object>> snapshots,
+                                                  EventInsightResultDTO latestInsight) {
+        List<Map<String, Object>> agentStages = buildAgentStages(latestInsight, pipeline, snapshots);
+        if (!agentStages.isEmpty()) {
+            agentStages.add(stageItem(
+                    "处置执行与闭环",
+                    resolveExecutionStatus(stringValue(pipeline.get("stage")), stringValue(pipeline.get("execution_status"))),
+                    pipeline.get("updated_at"),
+                    Map.of(
+                            "executionStatus", stringValue(pipeline.get("execution_status")),
+                            "executionResult", stringValue(pipeline.get("execution_result")),
+                            "actualOutcome", stringValue(pipeline.get("actual_outcome")),
+                            "feedbackScore", stringValue(pipeline.get("feedback_score")),
+                            "auditCount", auditTrail.size()
+                    )));
+            return agentStages;
+        }
+
         List<Map<String, Object>> stages = new ArrayList<>();
         String currentStage = stringValue(pipeline.get("stage"));
 
@@ -392,6 +417,111 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
                 )));
 
         return stages;
+    }
+
+    private List<Map<String, Object>> buildAgentStages(EventInsightResultDTO latestInsight,
+                                                       Map<String, Object> pipeline,
+                                                       List<Map<String, Object>> snapshots) {
+        if (latestInsight == null
+                || latestInsight.getTrace() == null
+                || latestInsight.getTrace().getSteps() == null
+                || latestInsight.getTrace().getSteps().isEmpty()) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> stages = new ArrayList<>();
+        Object insightTimestamp = latestSnapshotTime(snapshots, pipeline.get("updated_at"));
+        for (EventInsightResultDTO.TraceStep step : latestInsight.getTrace().getSteps()) {
+            Map<String, Object> details = new LinkedHashMap<>();
+            details.put("agentKey", stringValue(step.getAgentKey()));
+            details.put("summary", stringValue(step.getSummary()));
+            details.put("detail", stringValue(step.getDetail()));
+            if (step.getResolvedCount() != null || step.getTargetCount() != null) {
+                details.put("progress", String.format("%s/%s",
+                        step.getResolvedCount() == null ? 0 : step.getResolvedCount(),
+                        step.getTargetCount() == null ? 0 : step.getTargetCount()));
+            }
+            stages.add(stageItem(
+                    stringValue(step.getAgentName()),
+                    normalizeAgentStageStatus(step.getStatus()),
+                    insightTimestamp,
+                    details
+            ));
+        }
+        return stages;
+    }
+
+    private List<Map<String, Object>> extractAgentTrace(EventInsightResultDTO latestInsight) {
+        if (latestInsight == null
+                || latestInsight.getTrace() == null
+                || latestInsight.getTrace().getSteps() == null) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> trace = new ArrayList<>();
+        for (EventInsightResultDTO.TraceStep step : latestInsight.getTrace().getSteps()) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("agentKey", stringValue(step.getAgentKey()));
+            item.put("agentName", stringValue(step.getAgentName()));
+            item.put("status", normalizeAgentStageStatus(step.getStatus()));
+            item.put("resolvedCount", step.getResolvedCount());
+            item.put("targetCount", step.getTargetCount());
+            item.put("summary", stringValue(step.getSummary()));
+            item.put("detail", stringValue(step.getDetail()));
+            trace.add(item);
+        }
+        return trace;
+    }
+
+    private EventInsightResultDTO parseInsight(EventInsightSnapshotRecord snapshot) {
+        if (snapshot == null || isBlank(snapshot.getPayloadJson())) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(snapshot.getPayloadJson(), EventInsightResultDTO.class);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private String normalizeAgentStageStatus(String status) {
+        String normalized = stringValue(status).trim().toLowerCase();
+        if (normalized.isEmpty()) {
+            return "pending";
+        }
+        if (List.of("done", "completed", "success", "resolved", "finished").contains(normalized)) {
+            return "completed";
+        }
+        if (List.of("running", "processing", "in_progress", "active").contains(normalized)) {
+            return "processing";
+        }
+        return "pending";
+    }
+
+    private Map<String, Object> loadMinimalPipelineStatus(Long eventId) {
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+                    "SELECT id, event_id, abnormal_type, abnormal_value, stage, priority, risk_score, risk_level, "
+                            + "disposition_suggestion, notification_level, auto_execute, execution_status, execution_result, "
+                            + "actual_outcome, feedback_score, created_at, updated_at "
+                            + "FROM ai_event_processing_pipeline WHERE event_id = ? ORDER BY id DESC LIMIT 1",
+                    eventId
+            );
+            if (rows.isEmpty()) {
+                return Map.of();
+            }
+
+            Map<String, Object> result = new LinkedHashMap<>(rows.get(0));
+            result.put("auditTrail", List.of());
+            result.put("recentInsightSnapshots", List.of());
+            result.put("agentTrace", List.of());
+            result.put("stages", List.of());
+            result.put("totalDuration", calculateDurationMinutes(result));
+            return result;
+        } catch (Exception inner) {
+            log.error("failed to load minimal pipeline status for event {}", eventId, inner);
+            return Map.of();
+        }
     }
 
     private Map<String, Object> stageItem(String name, String status, Object timestamp, Map<String, Object> details) {

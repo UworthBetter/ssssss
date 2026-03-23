@@ -163,8 +163,9 @@ import { LabelLayout } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { ElMessage } from 'element-plus'
-import { getRecentAbnormal } from '@/api/ai'
+import { getAbnormalTrend, getRecentAbnormal } from '@/api/ai'
 import { getAgeSexGroupCount, getIndexException, getRealTimeData } from '@/api/index'
+import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
 
 echarts.use([PieChart, LineChart, TooltipComponent, GridComponent, LabelLayout, CanvasRenderer])
 
@@ -193,8 +194,19 @@ interface RecentAbnormalRow {
   abnormalType: string
   riskLevel: string
   userId?: number | string
+  eventId?: number | string
+  abnormalValue?: string
   createTime?: string
   readTime?: string
+  detectedTime?: string
+  confidence?: number | string
+  state?: string
+  location?: string
+}
+
+interface TrendPoint {
+  label: string
+  value: number
 }
 
 declare global {
@@ -214,6 +226,7 @@ const useMockExceptionData = ref(false)
 const activePill = ref<string | null>(null)
 const activePillName = ref<string>('')
 const activeColor = ref<string>('#0ea5e9')
+const trendData = ref<TrendPoint[]>([])
 const trendChartRef = ref<HTMLDivElement | null>(null)
 let trendChartInstance: echarts.ECharts | null = null
 
@@ -227,6 +240,16 @@ const pillColors: Record<string, string> = {
   pressure: '#8b5cf6'
 }
 
+const trendMetricTypeMap: Record<string, string> = {
+  step: 'step',
+  fence: 'fence',
+  sos: 'sos',
+  temperature: 'temperature',
+  heart: 'heart_rate',
+  oxygen: 'spo2',
+  pressure: 'blood_pressure'
+}
+
 const amapRef = ref<HTMLDivElement | null>(null)
 const mapLoadFailed = ref(false)
 let amapInstance: any = null
@@ -238,12 +261,39 @@ let lastFitSignature = ''
 let fitViewTimer: ReturnType<typeof setTimeout> | null = null
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
+let realtimeRefreshTimer: ReturnType<typeof setTimeout> | null = null
 let pollRound = 0
 let amapLoaderPromise: Promise<any> | null = null
 
 const MAP_CENTER: [number, number] = [116.397428, 39.90923]
 const POLL_INTERVAL = 30000
 const DETAIL_REFRESH_EVERY_ROUNDS = 2
+
+const clearRealtimeRefresh = () => {
+  if (realtimeRefreshTimer) {
+    clearTimeout(realtimeRefreshTimer)
+    realtimeRefreshTimer = null
+  }
+}
+
+const scheduleRealtimeRefresh = () => {
+  clearRealtimeRefresh()
+  realtimeRefreshTimer = setTimeout(() => {
+    void fetchAll(true)
+  }, 400)
+}
+
+const realtimeStream = useHealthRealtimeStream({
+  onAbnormalAlert() {
+    scheduleRealtimeRefresh()
+  },
+  onHealthData() {
+    scheduleRealtimeRefresh()
+  },
+  onRiskScore() {
+    scheduleRealtimeRefresh()
+  }
+})
 
 const toNumber = (value: unknown, fallback = 0) => {
   const num = Number(value)
@@ -348,15 +398,159 @@ const kpiCards = computed(() => [
 const kpiPieRef = ref<HTMLDivElement | null>(null)
 let kpiPieChart: echarts.ECharts | null = null
 
-const allPieCards = computed(() => [...topAlertCards.value, ...kpiCards.value])
+const stablePieCards = computed(() => [
+  { key: 'step', label: '步数异常', keywords: ['step', 'Step', '步', '活动'], value: metricValue(['stepExceptionCount', 'stepAbnormalCount', 'stepAlertCount']) },
+  { key: 'fence', label: '围栏预警', keywords: ['fence', 'Fence', 'geofence', '围栏', '越界'], value: metricValue(['fenceExceptionCount', 'geofenceExceptionCount', 'fenceAlertCount']) },
+  { key: 'sos', label: 'SOS 呼救', keywords: ['sos', 'SOS', '求助'], value: metricValue(['sosHelpCount', 'sosCount', 'sosExceptionCount']) },
+  { key: 'temperature', label: '体温', keywords: ['temperature', 'Temperature', '体温'], value: metricValue(['temperatureExceptionCount', 'tempExceptionCount']) },
+  { key: 'heart', label: '心率', keywords: ['heart', 'Heart', 'pulse', '心率', '心跳'], value: metricValue(['heartRateExceptionCount', 'hrExceptionCount']) },
+  { key: 'oxygen', label: '血氧', keywords: ['oxygen', 'Oxygen', 'spo2', 'SpO2', '血氧'], value: metricValue(['spo2ExceptionCount', 'bloodOxygenExceptionCount']) },
+  { key: 'pressure', label: '血压', keywords: ['pressure', 'Pressure', 'blood pressure', '血压'], value: metricValue(['bloodPressureExceptionCount', 'bpExceptionCount']) }
+])
+
+const allPieCards = computed(() => stablePieCards.value)
 
 const displayRecentAbnormal = computed(() => {
   if (!activePill.value) return recentAbnormal.value
   const item = allPieCards.value.find((card) => card.key === activePill.value)
   if (!item?.keywords?.length) return recentAbnormal.value
-  return recentAbnormal.value.filter(log =>
-    item.keywords.some((kw) => String(log.abnormalType ?? '').includes(kw))
-  )
+  return recentAbnormal.value.filter((log) => matchesKeywords(log.abnormalType, item.keywords))
+})
+
+const normalizeKeywordText = (value: unknown) => String(value ?? '')
+  .trim()
+  .toLowerCase()
+  .replaceAll('_', ' ')
+  .replaceAll('-', ' ')
+
+const matchesKeywords = (value: unknown, keywords?: string[]) => {
+  const normalizedValue = normalizeKeywordText(value)
+  if (!normalizedValue || !keywords?.length) return false
+  return keywords.some((keyword) => {
+    const normalizedKeyword = normalizeKeywordText(keyword)
+    return normalizedKeyword ? normalizedValue.includes(normalizedKeyword) : false
+  })
+}
+
+const resolveAlertKeywords = (value: unknown) => {
+  const matchedCard = allPieCards.value.find((card) => matchesKeywords(value, card.keywords))
+  return matchedCard?.keywords ?? [String(value ?? '')]
+}
+
+const resolveRecentTime = (row: Pick<RecentAbnormalRow, 'detectedTime' | 'createTime' | 'readTime'>) => {
+  const raw = row.detectedTime ?? row.createTime ?? row.readTime
+  const timestamp = raw ? new Date(String(raw)).getTime() : NaN
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+const resolveExceptionTime = (row: Pick<ExceptionRow, 'readTime' | 'createTime'>) => {
+  const raw = row.readTime ?? row.createTime
+  const timestamp = raw ? new Date(String(raw)).getTime() : NaN
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+const inferRiskLevelFromException = (row: Pick<ExceptionRow, 'type' | 'state'>) => {
+  return isHighRiskException(row) ? 'high' : String(row.state ?? '0') === '1' ? 'low' : 'medium'
+}
+
+const buildDetailKey = (row: Partial<RecentAbnormalRow>) => {
+  return String(row.eventId ?? `${row.userId ?? row.patientName ?? 'unknown'}|${row.abnormalType ?? 'unknown'}|${resolveRecentTime(row as RecentAbnormalRow)}`)
+}
+
+const findMatchedException = (row: RecentAbnormalRow, source: ExceptionRow[]) => {
+  const rowKeywords = resolveAlertKeywords(row.abnormalType)
+  const rowUserId = row.userId != null ? String(row.userId) : ''
+  const rowTime = resolveRecentTime(row)
+  const candidates = source.filter((item) => {
+    if (rowUserId && item.userId != null && String(item.userId) !== rowUserId) {
+      return false
+    }
+    return matchesKeywords(item.type, rowKeywords)
+  })
+
+  if (!candidates.length) return null
+
+  return candidates.reduce<ExceptionRow | null>((best, current) => {
+    if (!best) return current
+    if (rowTime <= 0) {
+      return resolveExceptionTime(current) > resolveExceptionTime(best) ? current : best
+    }
+
+    const currentDiff = Math.abs(resolveExceptionTime(current) - rowTime)
+    const bestDiff = Math.abs(resolveExceptionTime(best) - rowTime)
+    if (currentDiff !== bestDiff) {
+      return currentDiff < bestDiff ? current : best
+    }
+    return resolveExceptionTime(current) > resolveExceptionTime(best) ? current : best
+  }, null)
+}
+
+const detailRowsForPanel = computed(() => {
+  const exceptionCandidates = activePill.value ? filteredExceptionList.value : exceptionList.value
+  const matchedExceptionKeys = new Set<string>()
+
+  const mergedFromRecent = displayRecentAbnormal.value.map((row) => {
+    const matched = findMatchedException(row, exceptionCandidates)
+    if (matched?._markerKey) {
+      matchedExceptionKeys.add(String(matched._markerKey))
+    }
+
+    const detectedTime = row.detectedTime ?? matched?.readTime ?? matched?.createTime
+    return {
+      ...row,
+      eventId: row.eventId ?? matched?.id,
+      location: row.location ?? matched?.location,
+      state: String(matched?.state ?? row.state ?? '0'),
+      detectedTime,
+      riskLevel: row.riskLevel || inferRiskLevelFromException(matched ?? {}),
+      _detailKey: buildDetailKey({
+        ...row,
+        eventId: row.eventId ?? matched?.id,
+        detectedTime
+      }),
+      _eventTime: resolveRecentTime({
+        ...row,
+        detectedTime
+      })
+    }
+  })
+
+  const fallbackFromExceptions = exceptionCandidates
+    .filter((row) => !matchedExceptionKeys.has(String(row._markerKey ?? '')))
+    .map((row) => ({
+      patientName: String(row.nickName ?? (row.userId ? `用户${row.userId}` : '-')),
+      abnormalType: String(row.type ?? '-'),
+      riskLevel: inferRiskLevelFromException(row),
+      userId: row.userId,
+      eventId: row.id,
+      abnormalValue: undefined,
+      createTime: row.createTime,
+      readTime: row.readTime,
+      detectedTime: row.readTime ?? row.createTime,
+      confidence: undefined,
+      state: String(row.state ?? '0'),
+      location: row.location,
+      _detailKey: buildDetailKey({
+        patientName: row.nickName,
+        abnormalType: row.type,
+        userId: row.userId,
+        eventId: row.id,
+        detectedTime: row.readTime ?? row.createTime
+      }),
+      _eventTime: resolveExceptionTime(row)
+    }))
+
+  const deduped = new Map<string, (typeof mergedFromRecent)[number]>()
+  ;[...mergedFromRecent, ...fallbackFromExceptions]
+    .sort((a, b) => Number(b._eventTime ?? 0) - Number(a._eventTime ?? 0))
+    .forEach((row) => {
+      const key = String(row.eventId ?? row._detailKey)
+      if (!deduped.has(key)) {
+        deduped.set(key, row)
+      }
+    })
+
+  return Array.from(deduped.values()).slice(0, 8)
 })
 
 // ---- AI LOG FEED ----
@@ -386,16 +580,18 @@ const fmtRelativeTime = (ts?: string) => {
 }
 
 const aiLogFeedItems = computed(() => {
-  const baseList = displayRecentAbnormal.value.length > 0 ? displayRecentAbnormal.value : MOCK_AI_LOGS
-  return baseList.slice(0, 8).map((row) => {
+  return detailRowsForPanel.value.map((row) => {
     const risk = normalizeRisk(row.riskLevel)
-    const confSeed = (row.patientName?.charCodeAt(0) ?? 65) % 20
+    const confidenceValue = Number(row.confidence)
+    const confidence = Number.isFinite(confidenceValue)
+      ? Math.max(0, Math.min(100, Math.round(confidenceValue)))
+      : null
     return {
       ...row,
       _riskKey: risk.key,
       _riskLabel: risk.label,
-      _conf: 78 + confSeed,
-      _timeStr: fmtRelativeTime(row.createTime ?? row.readTime)
+      _conf: confidence,
+      _timeStr: fmtRelativeTime(row.detectedTime ?? row.createTime ?? row.readTime)
     }
   })
 })
@@ -404,8 +600,8 @@ const pieData = computed(() => {
   if (activePill.value) {
     let resolved = 0
     let pending = 0
-    filteredExceptionList.value.forEach(ex => {
-      if (String(ex.state) === '1') resolved++
+    detailRowsForPanel.value.forEach((row) => {
+      if (String(row.state ?? '0') === '1') resolved++
       else pending++
     })
     if (resolved === 0 && pending === 0) return [{ name: '暂无记录', value: 1, itemStyle: { color: '#cbd5e1' } }]
@@ -453,46 +649,60 @@ const renderKpiPieChart = () => {
 const togglePill = async (item: any) => {
   if (!item) {
     activePill.value = null
+    trendData.value = []
     setTimeout(() => filterMapMarkers(), 50)
     return
   }
 
   if (activePill.value === item.key) {
     activePill.value = null
+    trendData.value = []
     setTimeout(() => filterMapMarkers(), 50)
   } else {
     activePill.value = item.key
     activePillName.value = item.label
     activeColor.value = pillColors[item.key] || '#0ea5e9'
-    
-    // Defer heavy map updates so Vue reactivity handles the sidebar transition first
     setTimeout(() => filterMapMarkers(item.keywords), 50)
-
-    // With out-in transition, the new node appears after the leave transition (~150ms)
-    setTimeout(() => {
-      renderTrendChart()
-    }, 200)
   }
 }
 
-const generateMockTrendData = () => {
+const buildFallbackTrendData = () => {
   const times: string[] = []
   const data: number[] = []
   const now = new Date()
-  let baseVal = Math.floor(Math.random() * 50) + 20
 
   for (let i = 24; i >= 0; i--) {
     const t = new Date(now.getTime() - i * 60 * 60 * 1000)
     times.push(`${String(t.getHours()).padStart(2, '0')}:00`)
-
-    const volatility = i < 3 ? 30 : 10
-    baseVal += (Math.random() - 0.5) * volatility
-    if (baseVal < 0) baseVal = 10
-
-    if (i === 0) baseVal += 40
-    data.push(Math.round(baseVal))
+    data.push(0)
   }
   return { times, data }
+}
+
+const normalizeTrendData = (input: unknown) => {
+  if (!Array.isArray(input)) return [] as TrendPoint[]
+  return input.map((item) => {
+    const row = (item ?? {}) as Record<string, unknown>
+    return {
+      label: String(row.label ?? row.time ?? ''),
+      value: toNumber(row.value, 0)
+    }
+  }).filter((item) => item.label)
+}
+
+const loadTrendData = async (pillKey: string) => {
+  const metricType = trendMetricTypeMap[pillKey]
+  if (!metricType) {
+    trendData.value = []
+    return
+  }
+
+  try {
+    const response = await getAbnormalTrend(metricType, 25)
+    trendData.value = normalizeTrendData(response.data)
+  } catch (error) {
+    trendData.value = []
+  }
 }
 
 const renderTrendChart = () => {
@@ -501,7 +711,12 @@ const renderTrendChart = () => {
     trendChartInstance = echarts.init(trendChartRef.value)
   }
 
-  const { times, data } = generateMockTrendData()
+  const { times, data } = trendData.value.length > 0
+    ? {
+        times: trendData.value.map((item) => item.label),
+        data: trendData.value.map((item) => item.value)
+      }
+    : buildFallbackTrendData()
   const color = activeColor.value
 
   trendChartInstance.setOption({
@@ -594,13 +809,20 @@ const normalizeRecentAbnormal = (input: unknown): RecentAbnormalRow[] => {
     const patientName = String(item.patientName ?? item.nickName ?? (item.userId ? `用户${item.userId}` : '-'))
     const abnormalType = String(item.abnormalType ?? item.metricType ?? item.type ?? '-')
     const riskLevel = String(item.riskLevel ?? item.level ?? '-')
+    const abnormalValue = item.abnormalValue != null ? String(item.abnormalValue) : undefined
     return {
       patientName,
       abnormalType,
       riskLevel,
       userId: item.userId as number | string | undefined,
+      eventId: item.eventId as number | string | undefined ?? item.id as number | string | undefined,
+      abnormalValue,
       createTime: item.createTime ? String(item.createTime) : undefined,
-      readTime: item.readTime ? String(item.readTime) : undefined
+      readTime: item.readTime ? String(item.readTime) : undefined,
+      detectedTime: item.detectedTime ? String(item.detectedTime) : undefined,
+      confidence: item.confidence as number | string | undefined,
+      state: item.state != null ? String(item.state) : undefined,
+      location: item.location ? String(item.location) : undefined
     }
   })
 }
@@ -885,6 +1107,7 @@ const fetchAll = async (forceFull = false) => {
 
       ageSexTable.value = normalizeAgeSexTable(ageRes.data)
       recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
+      realtimeStream.subscribePatient(recentAbnormal.value[0]?.userId)
 
       const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
       const normalizedExceptions = normalizeExceptionList(rawExceptions)
@@ -907,6 +1130,10 @@ const fetchAll = async (forceFull = false) => {
         const active = allPieCards.value.find((card) => card.key === activePill.value)
         filterMapMarkers(active?.keywords)
       }
+    }
+    if (activePill.value) {
+      await loadTrendData(activePill.value)
+      renderTrendChart()
     }
     pollRound += 1
   } catch (error) {
@@ -940,6 +1167,9 @@ watch(activePill, async () => {
       trendChartInstance = null
     }
     trendChartInstance = echarts.init(trendChartRef.value)
+    if (activePill.value) {
+      await loadTrendData(activePill.value)
+    }
     renderTrendChart()
   }
 })
@@ -989,6 +1219,7 @@ onBeforeUnmount(() => {
     clearTimeout(resizeTimer)
     resizeTimer = null
   }
+  clearRealtimeRefresh()
   markerMap.clear()
   kpiPieChart?.dispose()
   trendChartInstance?.dispose()
@@ -1286,7 +1517,7 @@ onBeforeUnmount(() => {
 
 .nominal-sub {
   font-size: 10px;
-  color: rgba(255,255,255,0.35);
+  color: #64748b;
 }
 
 // 条目
@@ -1296,13 +1527,13 @@ onBeforeUnmount(() => {
   gap: 8px;
   padding: 7px 10px;
   border-radius: 6px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(0,0,0,0.06);
   transition: background 0.15s;
   cursor: default;
 
   &:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.95);
   }
 
   // 风险色边框
@@ -1347,22 +1578,22 @@ onBeforeUnmount(() => {
 .ali-name {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255,255,255,0.9);
+  color: #1e293b;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .ali-type {
   font-size: 11px;
-  color: #94a3b8;
+  color: #475569;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  .risk-critical & { color: #fca5a5; }
-  .risk-high &     { color: #fdba74; }
-  .risk-medium &   { color: #fcd34d; }
-  .risk-low &      { color: #6ee7b7; }
+  .risk-critical & { color: #dc2626; }
+  .risk-high &     { color: #ea580c; }
+  .risk-medium &   { color: #d97706; }
+  .risk-low &      { color: #059669; }
 }
 
 .ali-bottom {
@@ -1380,21 +1611,21 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 
-  &.badge-critical { background: rgba(239,68,68,0.18); color: #fca5a5; }
-  &.badge-high     { background: rgba(249,115,22,0.18); color: #fdba74; }
-  &.badge-medium   { background: rgba(245,158,11,0.18); color: #fcd34d; }
-  &.badge-low      { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+  &.badge-critical { background: rgba(239,68,68,0.12); color: #dc2626; }
+  &.badge-high     { background: rgba(249,115,22,0.12); color: #c2410c; }
+  &.badge-medium   { background: rgba(245,158,11,0.12); color: #b45309; }
+  &.badge-low      { background: rgba(16,185,129,0.12); color: #047857; }
 }
 
 .ali-conf {
   font-size: 9px;
-  color: rgba(255,255,255,0.35);
+  color: #64748b;
   font-family: 'Share Tech Mono', monospace;
 }
 
 .ali-time {
   font-size: 9px;
-  color: rgba(255,255,255,0.25);
+  color: #94a3b8;
   margin-left: auto;
 }
 </style>

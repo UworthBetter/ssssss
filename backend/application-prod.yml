@@ -1,4 +1,4 @@
-﻿# production profile
+# production profile
 swagger:
   enabled: true
   pathMapping: /prod-api
@@ -19,23 +19,39 @@ qkyd:
   profile: ${QKYD_PROFILE:/app/upload}
   addressEnabled: false
   captchaType: math
+  demo:
+    engine:
+      enabled: ${DEMO_ENGINE_ENABLED:true}
+      interval-ms: ${DEMO_ENGINE_INTERVAL_MS:10000}
+      initial-delay-ms: ${DEMO_ENGINE_INITIAL_DELAY_MS:5000}
+      subject-count: ${DEMO_ENGINE_SUBJECT_COUNT:6}
 
 spring:
   application:
     name: qkyd
+  messages:
+    basename: i18n/messages
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   ai:
     openai:
-      api-key: ${AI_API_KEY:}
+      api-key: ${AI_API_KEY:sk-placeholder-key-for-startup-fix}
       base-url: ${AI_BASE_URL:https://api.openai.com}
       chat:
         options:
           model: ${AI_MODEL:GLM-4.7}
+          temperature: ${AI_TEMPERATURE:0.7}
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     druid:
       master:
-        url: jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/${MYSQL_DB:qkyd_jkpt}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DB:qkyd_jkpt}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: ${MYSQL_USER:root}
         password: ${MYSQL_PASSWORD:123456}
       slave:
@@ -75,7 +91,7 @@ spring:
             multi-statement-allow: true
   data:
     redis:
-      host: ${REDIS_HOST:redis}
+      host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
       database: ${REDIS_DB:0}
       password: ${REDIS_PASSWORD:}
@@ -95,6 +111,12 @@ user:
 mybatis:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   type-aliases-package: com.qkyd.**.domain
+  config-location: classpath:mybatis/mybatis-config.xml
+
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
 
 logging:
   level:
@@ -127,4 +149,9 @@ xss:
   excludes: /system/notice
   urlPatterns: /system/*,/monitor/*,/tool/*
 
-
+ueit:
+  ai:
+    service-url: ${AI_SERVICE_URL:http://localhost:8011}
+    connect-timeout: ${AI_SERVICE_CONNECT_TIMEOUT:5000}
+    read-timeout: ${AI_SERVICE_READ_TIMEOUT:30000}
+    async-enabled: ${AI_SERVICE_ASYNC_ENABLED:true}

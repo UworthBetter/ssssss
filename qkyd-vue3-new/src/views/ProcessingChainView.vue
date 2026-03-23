@@ -179,7 +179,7 @@
                   <div v-if="stage.details" class="tl-details">
                     <template v-if="typeof stage.details === 'object'">
                       <div v-for="(val, key) in flattenDetails(stage.details)" :key="key" class="tl-detail-row">
-                        <span class="tl-detail-key">{{ key }}:</span>
+                        <span class="tl-detail-key">{{ formatDetailKey(key) }}:</span>
                         <span class="tl-detail-val">{{ val }}</span>
                       </div>
                     </template>
@@ -287,7 +287,6 @@ import {
 import { listExceptions, type ExceptionAlert } from '@/api/health'
 import { getProcessingChain } from '@/api/processingChain'
 import { getEventInsight } from '@/api/ai'
-import { generateMockProcessingChain, enrichExceptionWithChain } from '@/utils/mockProcessingChain'
 
 interface ChainStage {
   name: string
@@ -326,7 +325,58 @@ const insightData = ref<InsightSummary | null>(null)
 const notificationItems = ref<PlatformNotificationRecord[]>([])
 
 // 链路缓存
-const chainCache = new Map<string | number, { stages: { name: string; status: string }[] }>()
+const chainCache = new Map<string | number, ChainData>()
+const enrichExceptionWithChain = <T extends ExceptionAlert>(item: T) => item
+const generateMockProcessingChain = (): ChainData => ({ stages: [], totalDuration: 0 })
+
+const normalizeChainStatus = (status: unknown): ChainStage['status'] => {
+  const normalized = String(status ?? '').trim().toLowerCase()
+  if (['success', 'completed', 'done', 'resolved', 'finished'].includes(normalized)) return 'completed'
+  if (['running', 'processing', 'in_progress', 'active'].includes(normalized)) return 'processing'
+  return 'pending'
+}
+
+const normalizeChainData = (payload: any): ChainData | null => {
+  if (!payload || !Array.isArray(payload.stages) || !payload.stages.length) return null
+
+  const stages = payload.stages
+    .map((stage: any) => {
+      const name = String(stage?.name ?? stage?.stageName ?? '').trim()
+      if (!name) return null
+      return {
+        name,
+        status: normalizeChainStatus(stage?.status),
+        timestamp: typeof stage?.timestamp === 'string' ? stage.timestamp : undefined,
+        details: stage?.details ?? stage?.detail ?? stage?.metadata
+      } as ChainStage
+    })
+    .filter(Boolean) as ChainStage[]
+
+  if (!stages.length) return null
+
+  return {
+    stages,
+    totalDuration: Number(payload.totalDuration ?? 0) || 0
+  }
+}
+
+const primeChainCache = async (rows: ExceptionAlert[]) => {
+  const eventIds = rows
+    .map(row => row.id)
+    .filter((id): id is string | number => id !== undefined && id !== null)
+    .filter(id => !chainCache.has(id))
+
+  if (!eventIds.length) return
+
+  const results = await Promise.allSettled(eventIds.map(eventId => getProcessingChain(eventId)))
+  results.forEach((result, index) => {
+    if (result.status !== 'fulfilled') return
+    const normalized = normalizeChainData(result.value?.data)
+    if (normalized) {
+      chainCache.set(eventIds[index], normalized)
+    }
+  })
+}
 
 // ============ API 调用 ============
 const fetchList = async () => {
@@ -343,6 +393,13 @@ const fetchList = async () => {
     // 为每条记录补充链路状态
     list.value = rows.map((item: any) => enrichExceptionWithChain(item))
     total.value = res.total || 0
+    list.value = rows
+    await primeChainCache(rows)
+
+    const activeEventId = selectedEvent.value?.id
+    if (activeEventId && !chainData.value && chainCache.has(activeEventId)) {
+      chainData.value = chainCache.get(activeEventId) || null
+    }
   } catch (e) {
     console.error('加载事件列表失败:', e)
     ElMessage.error('事件列表加载失败')
@@ -353,9 +410,11 @@ const fetchList = async () => {
 
 const fetchChain = async (eventId: string | number) => {
   chainLoading.value = true
-  chainData.value = null
+  chainData.value = chainCache.get(eventId) || null
+  let requestFailed = false
   try {
     const res = await getProcessingChain(eventId)
+    const normalized = normalizeChainData(res.data)
     if (res.data && res.data.stages) {
       chainData.value = res.data as ChainData
     } else {
@@ -363,13 +422,21 @@ const fetchChain = async (eventId: string | number) => {
       chainData.value = generateMockProcessingChain(eventId) as ChainData
     }
     // 缓存链路信息
+    if (normalized) {
+      chainData.value = normalized
+    }
     if (chainData.value) {
-      chainCache.set(eventId, { stages: chainData.value.stages.map(s => ({ name: s.name, status: s.status })) })
+      chainCache.set(eventId, chainData.value)
     }
   } catch {
+    requestFailed = true
+    chainData.value = chainCache.get(eventId) || null
     // 降级到模拟数据
     chainData.value = generateMockProcessingChain(eventId) as ChainData
   } finally {
+    if (requestFailed) {
+      chainData.value = chainCache.get(eventId) || null
+    }
     chainLoading.value = false
   }
 }
@@ -455,6 +522,29 @@ const flattenDetails = (details: Record<string, any>) => {
   return result
 }
 
+const formatDetailKey = (key: string) => {
+  const labelMap: Record<string, string> = {
+    abnormalType: '异常类型',
+    abnormalValue: '异常值',
+    snapshotCount: '快照数',
+    summary: '阶段摘要',
+    detail: '执行说明',
+    progress: '完成度',
+    agentKey: 'Agent 标识',
+    riskLevel: '风险等级',
+    riskScore: '风险分数',
+    suggestion: '处置建议',
+    notificationLevel: '通知等级',
+    autoExecute: '自动执行',
+    executionStatus: '执行状态',
+    executionResult: '执行结果',
+    actualOutcome: '实际结果',
+    feedbackScore: '反馈分数',
+    auditCount: '审计记录数'
+  }
+  return labelMap[key] || key
+}
+
 const formatTime = (timestamp: string) => {
   try {
     return new Date(timestamp).toLocaleTimeString('zh-CN')
@@ -468,7 +558,12 @@ const pendingCount = computed(() => list.value.filter((r: ExceptionAlert) => Str
 const resolvedCount = computed(() => list.value.filter((r: ExceptionAlert) => String(r.state) === '1').length)
 const avgChainDuration = computed(() => {
   if (!chainCache.size) return 0
-  return Math.round(Array.from(chainCache.values()).reduce((s, c) => s + c.stages.length * 15, 0) / chainCache.size)
+  return Math.round(
+    Array.from(chainCache.values()).reduce((sum, chain) => {
+      if (chain.totalDuration > 0) return sum + chain.totalDuration
+      return sum + chain.stages.length * 15
+    }, 0) / chainCache.size
+  )
 })
 
 const insightRiskTagType = computed(() => {

@@ -297,7 +297,7 @@ import {
 } from '@/components/platform'
 import ProcessingChainPanel from '@/components/ProcessingChainPanel.vue'
 import ProcessingChainProgress from '@/components/ProcessingChainProgress.vue'
-import { getIndexException } from '@/api/index'
+import { listExceptions } from '@/api/health'
 import { getProcessingChain } from '@/api/processingChain'
 import { generateMockProcessingChain, enrichExceptionWithChain } from '@/utils/mockProcessingChain'
 
@@ -306,6 +306,7 @@ const searchPresentation = getPlatformSearchPresentation('event')
 const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
 
 const exceptionList = ref<any[]>([])
+const exceptionTotal = ref(0)
 const fetching = ref(false)
 const showChainPanel = ref(false)
 const selectedChainData = ref<any>(null)
@@ -319,8 +320,9 @@ const REFRESH_INTERVAL = 60000
 const loadData = async () => {
   try {
     fetching.value = true
-    const exceptionRes = await getIndexException('', 1)
+    const exceptionRes = await listExceptions({ pageNum: 1, pageSize: 50, type: '', state: '' } as any)
     const rawList = exceptionRes.rows || exceptionRes.data || []
+    exceptionTotal.value = Number(exceptionRes.total || 0)
     exceptionList.value = (Array.isArray(rawList) ? rawList : []).map((item: any) =>
       enrichExceptionWithChain(item)
     )
@@ -343,7 +345,7 @@ const loadNotifications = async () => {
 // ============ 统计数据 ============
 const stats = computed(() => {
   const items = exceptionList.value
-  const total = items.length
+  const total = exceptionTotal.value || items.length
   const resolved = items.filter(r => String(r.state) === '1').length
   const highRisk = items.filter(r => {
     const type = String(r.type ?? '').toLowerCase()
@@ -352,9 +354,9 @@ const stats = computed(() => {
 
   return {
     totalEvents: total,
-    aiProcessed: Math.min(total, total > 0 ? total - Math.floor(total * 0.1) : 0),
+    aiProcessed: total,
     highRisk,
-    closedPercent: total > 0 ? Math.round((resolved / total) * 100) : 0
+    closedPercent: items.length > 0 ? Math.round((resolved / items.length) * 100) : 0
   }
 })
 
