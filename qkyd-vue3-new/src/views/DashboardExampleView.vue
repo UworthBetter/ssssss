@@ -19,13 +19,14 @@
 
     <template #toolbar>
       <div class="toolbar-stack">
-        <PlatformContextFilterBar
-          v-model="contextFilters"
-          summary-label="当前工作上下文"
-          summary-value="工作台 / 事件处理链总览"
-          @confirm="handleContextConfirm"
-          @reset="handleContextReset"
-        />
+        <div class="toolbar-actions">
+          <el-radio-group v-model="timeRange" size="small">
+            <el-radio-button label="today">今天</el-radio-button>
+            <el-radio-button label="week">本周</el-radio-button>
+            <el-radio-button label="month">本月</el-radio-button>
+          </el-radio-group>
+          <el-button type="primary" size="small" :icon="Refresh" @click="refreshData">刷新数据</el-button>
+        </div>
       </div>
     </template>
 
@@ -280,19 +281,18 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Check, Loading, Clock, DataAnalysis, MagicStick, WarningFilled, CircleCheckFilled } from '@element-plus/icons-vue'
+import { Check, Loading, Clock, DataAnalysis, MagicStick, WarningFilled, CircleCheckFilled, Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import {
-  PlatformContextFilterBar,
-  PlatformNotificationEntry,
-  PlatformPageShell,
-  PlatformSearchEntry,
+  dispatchPlatformAction,
   getPlatformSearchPresentation,
   loadPlatformNotifications,
   openAllPlatformNotifications,
   openPlatformNotification,
   openPlatformSearch,
-  type PlatformContextFilters,
+  PlatformNotificationEntry,
+  PlatformPageShell,
+  PlatformSearchEntry,
   type PlatformNotificationRecord
 } from '@/components/platform'
 import ProcessingChainPanel from '@/components/ProcessingChainPanel.vue'
@@ -303,7 +303,7 @@ import { generateMockProcessingChain, enrichExceptionWithChain } from '@/utils/m
 
 const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('event')
-const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
+const timeRange = ref('today')
 
 const exceptionList = ref<any[]>([])
 const exceptionTotal = ref(0)
@@ -421,11 +421,8 @@ const formatTime = (timestamp: string) => {
   }
 }
 
-const handleSearchClick = () => openPlatformSearch(router)
-const handleContextConfirm = () => loadData()
-const handleContextReset = () => {
-  contextFilters.value = { timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' }
-  loadData()
+const handleSearchClick = async () => {
+  await openPlatformSearch(router, 'tech')
 }
 const handleNotificationItem = (item: PlatformNotificationRecord) => openPlatformNotification(router, item)
 const handleNotificationClick = () => openAllPlatformNotifications(router)

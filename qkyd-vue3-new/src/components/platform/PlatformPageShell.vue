@@ -1,6 +1,6 @@
 <template>
   <section :class="['platform-page-shell', { 'has-aside': hasAside }]">
-    <div class="platform-page-card panel">
+    <div class="platform-page-card">
       <header class="platform-page-header">
         <div class="platform-page-heading">
           <p v-if="eyebrow" class="platform-page-eyebrow">{{ eyebrow }}</p>
@@ -24,7 +24,9 @@
 
         <aside v-if="$slots.aside" class="platform-page-aside" :style="asideStyle">
           <div v-if="asideTitle" class="platform-page-aside-title">{{ asideTitle }}</div>
-          <slot name="aside" />
+          <div class="aside-inner">
+            <slot name="aside" />
+          </div>
         </aside>
       </div>
     </div>
@@ -62,23 +64,29 @@ const asideStyle = computed(() => ({
   width: 100%;
   min-height: 100%;
   background-color: #f8fafc;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 .platform-page-card {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-height: calc(100vh - 80px); /* Clean canvas, more usable space */
-  padding: 24px;
+  gap: 24px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  min-height: calc(100vh - 88px);
 }
 
 .platform-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .platform-page-heading {
@@ -88,29 +96,28 @@ const asideStyle = computed(() => ({
 }
 
 .platform-page-eyebrow {
-  margin: 0 0 4px;
-  color: var(--brand);
+  margin: 0 0 8px;
+  color: #3b82f6;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  opacity: 0.8;
 }
 
 .platform-page-title {
   margin: 0;
   color: #0f172a;
-  font-size: 24px;
-  line-height: 1.25;
-  font-weight: 600; /* Crisper, semibold vs black weight */
-  letter-spacing: -0.01em;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .platform-page-subtitle {
-  margin: 6px 0 0;
+  margin: 10px 0 0;
   color: #64748b;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .platform-page-header-extra {
@@ -122,15 +129,15 @@ const asideStyle = computed(() => ({
 }
 
 .platform-page-toolbar {
-  padding: 12px 0;
-  margin-bottom: 4px; /* Flatter approach, integrated rather than boxed */
+  padding: 0;
 }
 
 .platform-page-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
+  gap: 32px;
   align-items: start;
+  flex: 1;
 }
 
 .platform-page-shell.has-aside .platform-page-body {
@@ -142,35 +149,37 @@ const asideStyle = computed(() => ({
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: 100%;
 }
 
 .platform-page-aside {
   min-width: 0;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
 }
 
 .platform-page-aside-title {
-  margin: 0 0 16px;
+  padding: 20px 24px 12px;
+  margin: 0;
   color: #0f172a;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
+.aside-inner {
+  padding: 0 24px 24px;
+}
+
 @media (max-width: 1024px) {
-  .platform-page-card {
-    min-height: auto;
-    padding: 16px;
-  }
-
-  .platform-page-header {
-    flex-direction: column;
-  }
-
+  .platform-page-shell { padding: 16px; }
+  .platform-page-card { padding: 20px; border-radius: 16px; gap: 20px; }
+  .platform-page-header { flex-direction: column; gap: 16px; }
+  
   .platform-page-body,
   .platform-page-shell.has-aside .platform-page-body {
     grid-template-columns: minmax(0, 1fr);
@@ -181,3 +190,4 @@ const asideStyle = computed(() => ({
   }
 }
 </style>
+

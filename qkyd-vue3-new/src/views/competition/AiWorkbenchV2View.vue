@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div :class="['ai-command-center', `theme-${settingsForm.theme}`]">
     <PlatformPageShell
       title="AI 决策工作台"
@@ -23,14 +23,6 @@
 
       <template #toolbar>
         <div class="toolbar-stack">
-          <PlatformContextFilterBar
-            v-model="contextFilters"
-            summary-label="当前分析范围"
-            summary-value="AI 中心 / 风险研判与报告生成"
-            @confirm="handleContextConfirm"
-            @reset="handleContextReset"
-          />
-
           <div class="mode-row">
             <button
               v-for="task in quickTasks"
@@ -440,7 +432,6 @@ import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import { chatAi } from '@/api/ai'
 import {
-  PlatformContextFilterBar,
   dispatchPlatformAction,
   getPlatformSearchPresentation,
   loadPlatformNotifications,
@@ -450,9 +441,7 @@ import {
   openPlatformSearch,
   PlatformNotificationEntry,
   PlatformPageShell,
-  PlatformSearchEntry,
-  type PlatformContextFilters,
-  type PlatformNotificationRecord
+  PlatformSearchEntry
 } from '@/components/platform'
 
 interface InsightEvidence {
@@ -524,12 +513,6 @@ const isInputFocused = ref(false)
 const chatScroll = ref<HTMLElement | null>(null)
 const activeTaskLabel = ref('风险研判')
 const showSettingsDrawer = ref(false)
-const contextFilters = ref<PlatformContextFilters>({
-  timeRange: 'today',
-  region: 'all',
-  riskLevel: 'all',
-  status: 'processing'
-})
 
 const settingsForm = ref({
   botName: '小豆',
@@ -565,7 +548,7 @@ const getInitialMessage = (): ChatMessage => ({
     entities: [
       buildEntity('event', '事件中心', '接收 AI 研判结果', { type: 'AI研判' }),
       buildEntity('subject', '对象中心', '接收重点关注对象', { keyword: '张建国' }),
-      buildEntity('device', '设备中心', '接收设备运营动作', { name: '夜间监测设备组' })
+      buildEntity('device', '设备中心', '接收夜间监测设备组', { name: '夜间监测设备组' })
     ],
     recommendedActions: ['开始风险研判', '生成报告并下载']
   },
@@ -678,7 +661,7 @@ const buildStructuredInsight = (text: string, replyText: string, type: ChatMessa
     evidence: [
       { label: '触发指令', detail: text },
       { label: '输出类型', detail: type === 'table' ? '名单整理与处置建议' : type === 'chart' ? '趋势图表与波动分析' : '文本结论与建议' },
-      { label: '当前上下文', detail: `${contextFilters.value.timeRange} / ${contextFilters.value.region} / ${contextFilters.value.riskLevel}` }
+      { label: '当前上下文', detail: `全局 / 全区域 / 所有风险` }
     ],
     entities,
     recommendedActions: actions.length ? actions : ['创建事件', '加入重点关注']
@@ -858,14 +841,6 @@ const handleNotificationItem = async (item: PlatformNotificationRecord) => {
 
 const handleNotificationClick = async () => {
   await openAllPlatformNotifications(router, 'ai')
-}
-
-const handleContextConfirm = () => {
-  ElMessage.success('分析范围已应用')
-}
-
-const handleContextReset = () => {
-  contextFilters.value = { timeRange: 'today', region: 'all', riskLevel: 'all', status: 'processing' }
 }
 
 watch(() => latestInsight.value, () => {

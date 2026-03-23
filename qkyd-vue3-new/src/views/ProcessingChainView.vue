@@ -19,19 +19,12 @@
 
     <template #toolbar>
       <div class="toolbar-stack">
-        <PlatformContextFilterBar
-          v-model="contextFilters"
-          summary-label="当前工作上下文"
-          summary-value="事件中心 / 处理链追踪"
-          @confirm="handleContextConfirm"
-          @reset="handleContextReset"
-        />
-
         <div class="toolbar">
-          <el-input v-model="query.type" placeholder="异常类型" clearable style="width: 180px" />
-          <el-select v-model="query.state" placeholder="处理状态" clearable style="width: 140px">
-            <el-option label="待处理" value="0" />
-            <el-option label="已处理" value="1" />
+          <el-input v-model="query.keyword" placeholder="搜索异常/节点" clearable style="width: 200px" />
+          <el-select v-model="query.status" placeholder="节点状态" clearable style="width: 140px">
+            <el-option label="运行中" value="running" />
+            <el-option label="已完成" value="done" />
+            <el-option label="异常" value="error" />
           </el-select>
           <el-button type="primary" @click="fetchList">查询</el-button>
           <el-button @click="resetQuery">重置</el-button>
@@ -272,16 +265,15 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Check, Loading, Clock } from '@element-plus/icons-vue'
 import {
-  PlatformContextFilterBar,
-  PlatformNotificationEntry,
-  PlatformPageShell,
-  PlatformSearchEntry,
+  dispatchPlatformAction,
   getPlatformSearchPresentation,
   loadPlatformNotifications,
   openAllPlatformNotifications,
   openPlatformNotification,
   openPlatformSearch,
-  type PlatformContextFilters,
+  PlatformNotificationEntry,
+  PlatformPageShell,
+  PlatformSearchEntry,
   type PlatformNotificationRecord
 } from '@/components/platform'
 import { listExceptions, type ExceptionAlert } from '@/api/health'
@@ -310,12 +302,11 @@ interface InsightSummary {
 
 const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('event')
-const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
 
 const loading = ref(false)
 const list = ref<ExceptionAlert[]>([])
 const total = ref(0)
-const query = reactive({ pageNum: 1, pageSize: 15, type: '', state: '' })
+const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: '' })
 
 const selectedEvent = ref<ExceptionAlert | null>(null)
 const chainLoading = ref(false)
@@ -327,7 +318,16 @@ const notificationItems = ref<PlatformNotificationRecord[]>([])
 // 链路缓存
 const chainCache = new Map<string | number, ChainData>()
 const enrichExceptionWithChain = <T extends ExceptionAlert>(item: T) => item
-const generateMockProcessingChain = (): ChainData => ({ stages: [], totalDuration: 0 })
+const generateMockProcessingChain = (eventId: string | number): ChainData => ({
+  stages: [
+    { name: '事件检测', status: 'completed', timestamp: new Date().toISOString(), details: `事件 ${eventId} 被检测到。` },
+    { name: 'AI 研判', status: 'processing', timestamp: new Date(Date.now() + 10000).toISOString(), details: '正在进行多模态分析...' },
+    { name: '处置建议', status: 'pending' },
+    { name: '执行处置', status: 'pending' },
+    { name: '效果评估', status: 'pending' }
+  ],
+  totalDuration: 0
+})
 
 const normalizeChainStatus = (status: unknown): ChainStage['status'] => {
   const normalized = String(status ?? '').trim().toLowerCase()
@@ -385,8 +385,8 @@ const fetchList = async () => {
     const res = await listExceptions({
       pageNum: query.pageNum,
       pageSize: query.pageSize,
-      type: query.type,
-      state: query.state
+      keyword: query.keyword,
+      status: query.status
     } as any)
 
     const rows = (res.rows || []) as ExceptionAlert[]
@@ -586,17 +586,14 @@ const handleCurrentChange = (row: ExceptionAlert | null) => {
 }
 
 const resetQuery = () => {
-  query.type = ''
-  query.state = ''
+  query.keyword = ''
+  query.status = ''
   query.pageNum = 1
   fetchList()
 }
 
-const handleSearchClick = () => openPlatformSearch(router)
-const handleContextConfirm = () => fetchList()
-const handleContextReset = () => {
-  contextFilters.value = { timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' }
-  fetchList()
+const handleSearchClick = async () => {
+  await openPlatformSearch(router, 'tech')
 }
 const handleNotificationItem = (item: PlatformNotificationRecord) => openPlatformNotification(router, item)
 const handleNotificationClick = () => openAllPlatformNotifications(router)

@@ -7,10 +7,22 @@ Use this file as the single handoff record between sessions.
 - `current_phase`: P7
 - `active_item`: P7-001 rebuild the home workbench into a competition-grade risk command screen
 - `state`: in_progress
-- `last_updated`: 2026-03-22
+- `last_updated`: 2026-03-23
 
 ## Done this session
 
+- Completed `P7-006a` by adding demo-only secondary pages for subject health
+  records, subject risk profile, device monitor, device maintenance, AI model
+  logs, AI rule configuration, operation reports, and health reports.
+- Extended the platform navigation so those secondary pages are reachable from
+  the grouped platform shell, including a new report-center route group for the
+  competition presentation flow.
+- Added one shared demo boundary to `PlatformPageShellV2` and marked the new
+  secondary pages as `演示版 · 当前使用模拟数据` so the frontend can be shipped
+  and demoed without pretending that the data contracts are already real.
+- Validated the new frontend slice with `npm run build` and prepared it for a
+  frontend-only Lighthouse deployment instead of dragging unrelated backend
+  workspace changes into the same submission.
 - Replanned the next upgrade stage around competition demonstration value and
   practical problem-solving clarity instead of continuing deeper trust-layer
   microfeatures in the event-center history flow.
@@ -221,6 +233,8 @@ Use this file as the single handoff record between sessions.
 
 ## Verification
 
+- `npm run build` passed in `qkyd-vue3-new` after the new demo-only secondary
+  pages and mock-data status badges landed.
 - `mvn -pl qkyd-ai -am -DskipTests clean compile` passed in `backend` after the
   snapshot-history provenance split landed.
 - `npm run build` passed in `qkyd-vue3-new` after the event-center history list
@@ -273,6 +287,14 @@ Use this file as the single handoff record between sessions.
 
 ## Next item
 
+1. First, land `P7-001` by turning the home workbench into a competition-grade
+   risk command screen that links naturally into the new demo-only secondary
+   pages.
+2. Then curate three strong demo cases so the newly added subject, device, AI,
+   and report pages each serve one clear judge-facing story.
+3. Only after the guided demo route stabilizes, replace the highest-value demo
+   surfaces with backend-backed data.
+
 1. Land `P7-001` by turning the home workbench into a competition-grade risk
    command screen with high-risk counts, urgent objects, trend change, and
    pending-action framing.
@@ -283,10 +305,14 @@ Use this file as the single handoff record between sessions.
 
 ## Blockers
 
+- None for the current frontend submission slice.
 - None for the current slice.
 
 ## Risks to watch
 
+- The new secondary pages are intentionally demo-only and currently use mock
+  data, so future contributors must not describe them as backend-complete
+  features until the real contracts land.
 - Snapshot reads now support stale detection, but the current policy only
   compares a few high-signal timestamps; later slices may still need richer
   invalidation rules if more dynamic health sources join the flow.
@@ -299,6 +325,24 @@ Use this file as the single handoff record between sessions.
 
 ## Handoff
 
+- What changed in the latest slice: the frontend now includes a new set of
+  secondary competition pages across subject, device, AI, and report centers,
+  and those pages are reachable through the shared platform navigation. They
+  intentionally use curated mock data, and the shared shell now labels them as
+  demo-only so the team can submit and deploy the slice without overstating
+  backend readiness.
+- What remains after this slice: the home workbench still needs to become the
+  strongest first screen, and the new secondary pages still need a guided
+  end-to-end demo route plus selective backend integration for the
+  highest-value stories.
+- Exact next step for the next contributor: rebuild the home workbench so its
+  key cards, actions, and jump paths drive directly into the strongest new demo
+  pages in under ten seconds of judge attention.
+- Avoid breaking in the next slice: keep the demo-only labels on mock-data
+  pages until real contracts replace them, do not mix unrelated backend
+  workspace changes into the frontend submission, and preserve the current
+  grouped navigation because it is now the entry point for the P7 presentation
+  flow.
 - What changed: the workspace now has a standing subagent collaboration
   protocol that defines who owns the shared frontend layer, who owns the event
   insight contract, which agents may run in parallel, and how every multi-agent

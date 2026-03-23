@@ -61,7 +61,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { Menu, DataBoard, UserFilled, Watch, WarningFilled, MagicStick } from '@element-plus/icons-vue'
+import {
+  Menu, DataBoard, UserFilled, Watch, WarningFilled, MagicStick,
+  Document, PieChart, Monitor, Tools, Memo, Setting,
+  TrendCharts, Histogram, Notebook, Promotion, DataAnalysis
+} from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { appChildrenRoutes, type AppRouteMeta } from '@/router'
 import { useAppStore } from '@/store/app'
@@ -92,7 +96,18 @@ const iconMap = {
   UserFilled,
   Watch,
   WarningFilled,
-  MagicStick
+  MagicStick,
+  Document,
+  PieChart,
+  Monitor,
+  Tools,
+  Memo,
+  Setting,
+  TrendCharts,
+  Histogram,
+  Notebook,
+  Promotion,
+  DataAnalysis
 } as const
 
 const navGroups = computed<NavGroup[]>(() => {
@@ -197,17 +212,46 @@ onBeforeUnmount(() => {
 .sidebar {
   border-radius: 20px;
   overflow: hidden;
-  padding: 12px 10px;
+  padding: 0;
   transition: width 0.25s ease;
+  display: flex;
+  flex-direction: column;
+
+  .brand {
+    flex: 0 0 auto;
+    padding: 12px 10px 8px;
+  }
 
   :deep(.el-menu) {
+    flex: 1 1 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     border-right: none;
     background: transparent;
+    padding: 0 10px 12px;
+
+    /* 隐藏滚动条但保留滚动能力 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.08) transparent;
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 2px; }
+    &::-webkit-scrollbar-track { background: transparent; }
   }
 
   :deep(.el-menu-item) {
     border-radius: 12px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    height: 42px;
+    line-height: 42px;
+  }
+
+  /* 修复折叠态下 el-menu--collapse 宽度 */
+  :deep(.el-menu--collapse) {
+    width: 100%;
+    .el-menu-item {
+      padding: 0 !important;
+      justify-content: center;
+    }
   }
 }
 

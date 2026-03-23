@@ -6,6 +6,15 @@
           <p v-if="eyebrow" class="page-eyebrow">{{ eyebrow }}</p>
           <h1 class="page-title">{{ title }}</h1>
           <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
+          <el-tag
+            v-if="statusNote"
+            class="page-status-note"
+            :type="statusTone"
+            effect="light"
+            round
+          >
+            {{ statusNote }}
+          </el-tag>
         </div>
         <div class="topbar-actions" v-if="$slots.headerExtra">
           <slot name="headerExtra" />
@@ -18,12 +27,16 @@
 
     <div class="page-body">
       <main class="page-main">
-        <slot />
+        <div class="page-content-wrapper">
+          <slot />
+        </div>
       </main>
 
       <aside v-if="$slots.aside" class="page-aside" :style="asideStyle">
         <div v-if="asideTitle" class="aside-title">{{ asideTitle }}</div>
-        <slot name="aside" />
+        <div class="aside-content">
+          <slot name="aside" />
+        </div>
       </aside>
     </div>
   </div>
@@ -36,6 +49,8 @@ interface Props {
   title: string
   subtitle?: string
   eyebrow?: string
+  statusNote?: string
+  statusTone?: '' | 'success' | 'warning' | 'danger' | 'info'
   asideTitle?: string
   asideWidth?: string
 }
@@ -43,6 +58,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   subtitle: '',
   eyebrow: '',
+  statusNote: '',
+  statusTone: 'info',
   asideTitle: '',
   asideWidth: '360px'
 })
@@ -60,9 +77,9 @@ const asideStyle = computed(() => ({
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%; /* Important: needs to be 100% of parent in App layout */
+  height: 100%;
   min-height: 0;
-  background: var(--el-bg-color);
+  background: #f8fafc;
   box-sizing: border-box;
 }
 
@@ -70,17 +87,18 @@ const asideStyle = computed(() => ({
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--el-bg-color);
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .topbar-main {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 24px;
-  gap: 16px;
+  padding: 24px 32px;
+  gap: 24px;
 }
 
 .page-heading {
@@ -91,38 +109,47 @@ const asideStyle = computed(() => ({
 }
 
 .page-eyebrow {
-  margin: 0 0 6px;
-  color: var(--el-color-primary);
-  font-size: 12px;
+  margin: 0 0 8px;
+  color: #3b82f6;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .page-title {
   margin: 0;
-  color: var(--el-text-color-primary);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
+  color: #0f172a;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {
-  margin: 6px 0 0;
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+.page-status-note {
+  margin-top: 12px;
+  width: fit-content;
 }
 
 .topbar-actions {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding-top: 4px;
 }
 
 .page-toolbar {
-  padding: 0 24px 16px;
+  padding: 0 32px 20px;
 }
 
 .page-body {
@@ -130,7 +157,7 @@ const asideStyle = computed(() => ({
   display: flex;
   min-height: 0;
   position: relative;
-  background: var(--el-bg-color-page);
+  background: #f8fafc;
 }
 
 .page-main {
@@ -139,25 +166,47 @@ const asideStyle = computed(() => ({
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content-wrapper {
+  padding: 24px 32px 40px;
+  width: 100%;
+  max-width: 1600px; /* Optional: cap width for large screens */
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .page-aside {
   flex: 0 0 auto;
   height: 100%;
   overflow-y: auto;
-  background-color: var(--el-bg-color);
-  border-left: 1px solid var(--el-border-color-lighter);
+  background-color: #ffffff;
+  border-left: 1px solid rgba(226, 232, 240, 0.8);
   display: flex;
   flex-direction: column;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.02);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.03);
 }
 
 .aside-title {
-  padding: 16px 24px 0;
+  padding: 24px 24px 16px;
   margin: 0;
-  color: var(--el-text-color-primary);
-  font-size: 15px;
-  font-weight: 600;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  border-bottom: 1px solid #f1f5f9;
   flex: 0 0 auto;
+}
+
+.aside-content {
+  flex: 1;
+  padding: 20px 24px;
+}
+
+@media (max-width: 1200px) {
+  .topbar-main { padding: 20px 24px; }
+  .page-toolbar { padding: 0 24px 16px; }
+  .page-content-wrapper { padding: 20px 24px 32px; }
 }
 </style>

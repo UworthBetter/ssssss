@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <PlatformPageShell
     title="设备中心"
     subtitle="统一承载设备运营状态、绑定关系、健康度和异常线索，为后续设备运营工作台打下结构基础。"
@@ -19,14 +19,6 @@
 
     <template #toolbar>
       <div class="toolbar-stack">
-        <PlatformContextFilterBar
-          v-model="contextFilters"
-          summary-label="当前工作上下文"
-          summary-value="设备中心 / 运营监测流"
-          @confirm="handleContextConfirm"
-          @reset="handleContextReset"
-        />
-
         <div class="toolbar">
           <el-input v-model="query.name" placeholder="设备名称" clearable style="width: 220px" />
           <el-input v-model="query.imei" placeholder="IMEI" clearable style="width: 220px" />
@@ -148,13 +140,11 @@ import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  PlatformContextFilterBar,
   PlatformPageShell,
   PlatformSearchEntry,
   dispatchPlatformAction,
   getPlatformSearchPresentation,
-  openPlatformSearch,
-  type PlatformContextFilters
+  openPlatformSearch
 } from '@/components/platform'
 import { createDevice, deleteDevice, getDevice, listDevices, updateDevice, type DeviceInfo } from '@/api/health'
 import { useRouteQueryListSync } from '@/composables/useRouteQueryListSync'
@@ -172,7 +162,6 @@ const route = useRoute()
 const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('device')
 
-const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
 const query = reactive({ pageNum: 1, pageSize: 10, name: '', imei: '', userId: '' })
 const applyRouteQuery = (routeQuery: LocationQuery) => {
   query.pageNum = 1
@@ -262,8 +251,6 @@ const removeItem = async (id?: number) => {
 const handleSearchClick = async () => {
   await openPlatformSearch(router, 'device')
 }
-const handleContextConfirm = () => ElMessage.success('上下文筛选已记录')
-const handleContextReset = () => ElMessage.info('上下文筛选已重置')
 const openSubjectLink = async () => {
   if (!selectedDevice.value?.userId) return ElMessage.info('当前设备暂无绑定对象')
   await dispatchPlatformAction(router, '查看对象', {

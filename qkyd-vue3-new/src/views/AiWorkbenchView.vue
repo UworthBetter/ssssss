@@ -1,11 +1,9 @@
 <template>
   <div :class="['ai-command-center', `theme-${settingsForm.theme}`]">
     <PlatformPageShell
-      title="AI 决策工作台"
-      subtitle="将聊天回复升级为可追踪、可引用、可执行的分析结果。"
-      eyebrow="AI 中心"
-      aside-title="洞察面板"
-      aside-width="360px"
+      title="AI 决策辅助舱"
+      subtitle="沉浸式无干扰环境，专注处理医疗健康复杂推断。"
+      eyebrow="FOCUS MODE"
     >
       <template #headerExtra>
         <div class="header-actions">
@@ -15,6 +13,14 @@
             :hint="searchPresentation.hint"
             @click="handleSearchClick"
           />
+          <PlatformNotificationEntry
+            title="通知"
+            :unread-count="notificationItems.length"
+            :items="notificationItems"
+            @click-item="handleNotificationItem"
+            @click-all="handleNotificationClick"
+            style="margin-left: 12px; margin-right: 12px;"
+          />
           <el-button circle plain size="small" @click="showSettingsDrawer = true">
             <el-icon><Setting /></el-icon>
           </el-button>
@@ -22,15 +28,25 @@
       </template>
 
       <template #toolbar>
-        <div class="toolbar-stack">
-          <PlatformContextFilterBar
-            v-model="contextFilters"
-            summary-label="当前分析范围"
-            summary-value="AI 中心 / 风险研判与报告生成"
-            @confirm="handleContextConfirm"
-            @reset="handleContextReset"
-          />
-
+        <div class="ai-focus-layout toolbar-focus-pad">
+          <div class="metrics-pill-row">
+            <div class="metric-pill">
+              <el-icon><ChatDotRound /></el-icon>
+              <span>分析 <strong>{{ aiMessageCount }}</strong></span>
+            </div>
+            <div class="metric-pill">
+              <el-icon><Grid /></el-icon>
+              <span>结构化 <strong>{{ structuredInsightCount }}</strong></span>
+            </div>
+            <div class="metric-pill danger">
+              <el-icon><Warning /></el-icon>
+              <span>高风险 <strong>{{ highRiskCount }}</strong></span>
+            </div>
+            <div class="metric-pill success">
+              <el-icon><VideoPlay /></el-icon>
+              <span>动作 <strong>{{ pendingActionCount }}</strong></span>
+            </div>
+          </div>
           <div class="mode-row">
             <button
               v-for="task in quickTasks"
@@ -47,304 +63,177 @@
         </div>
       </template>
 
-      <div class="workbench-split-layout">
-        <aside class="workbench-left-pane">
-          <div class="metrics-panel">
-            <div class="metric-item panel">
-              <div class="metric-info">
-                <span class="metric-label">分析轮次</span>
-                <strong class="metric-value">{{ aiMessageCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><ChatDotRound /></el-icon></div>
-            </div>
-            <div class="metric-item panel">
-              <div class="metric-info">
-                <span class="metric-label">结构化结果</span>
-                <strong class="metric-value">{{ structuredInsightCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><Grid /></el-icon></div>
-            </div>
-            <div class="metric-item panel danger-soft">
-              <div class="metric-info">
-                <span class="metric-label">高风险判断</span>
-                <strong class="metric-value">{{ highRiskCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><Warning /></el-icon></div>
-            </div>
-            <div class="metric-item panel success-soft">
-              <div class="metric-info">
-                <span class="metric-label">待执行动作</span>
-                <strong class="metric-value">{{ pendingActionCount }}</strong>
-              </div>
-              <div class="metric-icon"><el-icon><VideoPlay /></el-icon></div>
-            </div>
-          </div>
-
-          <div class="chart-panel panel">
-            <div class="panel-header">
-              <div>
-                <p class="section-eyebrow">风险结构监控</p>
-                <h4>风险等级分布</h4>
-              </div>
-            </div>
-            <div id="riskChart" class="dashboard-chart"></div>
-          </div>
-
-          <div class="chart-panel panel">
-            <div class="panel-header">
-              <div>
-                <p class="section-eyebrow">分析效能趋势</p>
-                <h4>今日处理量趋势</h4>
-              </div>
-            </div>
-            <div id="trendChart" class="dashboard-chart"></div>
-          </div>
-        </aside>
-
+      <div class="ai-focus-layout">
         <main class="workbench-center-pane">
-          <section class="conversation-panel panel">
-          <header class="conversation-header">
-            <div>
-              <p class="section-eyebrow">分析线程</p>
-              <h3>{{ settingsForm.botName }} AI 助理</h3>
-              <span class="conversation-subtitle">保留对话方式，同时把每条 AI 回复升级为结构化决策卡。</span>
+          <section class="conversation-panel">
+            <header class="conversation-header">
+              <div>
+                <p class="section-eyebrow">分析线程</p>
+                <h3>{{ settingsForm.botName }} 智能决策中枢</h3>
+                <span class="conversation-subtitle">基于医疗大模型引擎，确保结构化动作的可靠性。</span>
+              </div>
+
+              <el-dropdown trigger="click" @command="handleHeaderCommand">
+                <el-button circle plain size="small">
+                  <el-icon><MoreFilled /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="clear">
+                      <el-icon><Delete /></el-icon> 重置舱室
+                    </el-dropdown-item>
+                    <el-dropdown-item command="settings">
+                      <el-icon><Setting /></el-icon> 助理偏好
+                    </el-dropdown-item>
+                    <el-dropdown-item command="exportChat" divided>
+                      <el-icon><Document /></el-icon> 下载推断记录
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </header>
+
+            <div ref="chatScroll" class="chat-viewport">
+              <transition-group name="chat-flow" tag="div" class="chat-list">
+                <div v-for="msg in messages" :key="msg.id" :class="['message-box', msg.role]">
+                  <div class="msg-avatar" :class="msg.role">
+                    <el-icon v-if="msg.role === 'ai'" size="20"><Monitor /></el-icon>
+                    <el-icon v-else size="20"><Avatar /></el-icon>
+                  </div>
+
+                  <div class="msg-content-wrapper">
+                    <div class="msg-bubble" :class="{ 'rich-media': msg.type !== 'text' || Boolean(msg.insight) }">
+                      <div v-if="msg.insight" class="insight-card">
+                        <div class="insight-head">
+                          <div>
+                            <p class="section-eyebrow">推理结论</p>
+                            <h4>{{ msg.insight.title }}</h4>
+                          </div>
+                          <el-tag :type="riskTagType(msg.insight.riskLevel)" effect="light">
+                            {{ riskLabelMap[msg.insight.riskLevel] }}
+                          </el-tag>
+                        </div>
+
+                        <p class="insight-summary">{{ msg.insight.summary }}</p>
+
+                        <div class="insight-grid">
+                          <div class="insight-block">
+                            <span class="block-label">证据要素</span>
+                            <ul>
+                              <li v-for="evidence in msg.insight.evidence" :key="`${evidence.label}-${evidence.detail}`">
+                                <strong>{{ evidence.label }}</strong>
+                                <span>{{ evidence.detail }}</span>
+                              </li>
+                            </ul>
+                          </div>
+
+                          <div class="insight-block">
+                            <span class="block-label">溯源实体</span>
+                            <ul>
+                              <li v-for="entity in msg.insight.entities" :key="`${entity.kind}-${entity.value}`">
+                                <strong>{{ entity.name }}</strong>
+                                <span>{{ entity.kindLabel }} · {{ entity.value }}</span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-if="msg.type === 'text'" v-html="msg.content" class="md-text"></div>
+
+                      <div v-if="msg.type === 'table'" class="widget-box">
+                        <div class="widget-header">
+                          <el-icon><List /></el-icon>
+                          <span>重点拦截名单</span>
+                        </div>
+                        <el-table :data="msg.data" size="small" class="glass-table" :row-class-name="tableRowClassName">
+                          <el-table-column prop="name" label="姓名" width="90" />
+                          <el-table-column prop="room" label="房间号" width="100" />
+                          <el-table-column prop="issue" label="异常类型" />
+                          <el-table-column prop="time" label="发生时间" width="140" />
+                        </el-table>
+                      </div>
+
+                      <div v-if="msg.type === 'chart'" class="widget-box">
+                        <div class="widget-header">
+                          <el-icon><TrendCharts /></el-icon>
+                          <span>动态监测图谱</span>
+                        </div>
+                        <div :id="'chart-' + msg.id" class="echarts-container"></div>
+                      </div>
+                    </div>
+
+                    <transition name="fade">
+                      <div v-if="msg.role === 'ai' && msg.actions && msg.actions.length" class="action-chips">
+                        <button
+                          v-for="(action, idx) in msg.actions"
+                          :key="idx"
+                          type="button"
+                          class="chip-btn"
+                          @click="handleAction(action, msg)"
+                        >
+                          {{ action }}
+                        </button>
+                      </div>
+                    </transition>
+                  </div>
+                </div>
+                <div v-if="isTyping" key="typing" class="message-box ai">
+                  <div class="msg-avatar ai">
+                    <el-icon size="20"><Monitor /></el-icon>
+                  </div>
+                  <div class="msg-content-wrapper">
+                    <div class="msg-bubble typing">
+                      <span class="typing-text">计算集群正在分析...</span>
+                      <div class="dot-flashing"></div>
+                    </div>
+                  </div>
+                </div>
+              </transition-group>
             </div>
 
-            <el-dropdown trigger="click" @command="handleHeaderCommand">
-              <el-button circle plain size="small">
-                <el-icon><MoreFilled /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="clear">
-                    <el-icon><Delete /></el-icon> 清空当前会话
-                  </el-dropdown-item>
-                  <el-dropdown-item command="settings">
-                    <el-icon><Setting /></el-icon> 助理设置
-                  </el-dropdown-item>
-                  <el-dropdown-item command="exportChat" divided>
-                    <el-icon><Document /></el-icon> 导出对话记录
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </header>
-
-          <div ref="chatScroll" class="chat-viewport">
-            <transition-group name="chat-flow" tag="div" class="chat-list">
-              <div v-for="msg in messages" :key="msg.id" :class="['message-box', msg.role]">
-                <div class="msg-avatar" :class="msg.role">
-                  <img v-if="msg.role === 'ai'" :src="bot3dImage" class="avatar-image bot-img-3d" alt="Bot" />
-                  <el-icon v-else><Avatar /></el-icon>
-                </div>
-
-                <div class="msg-content-wrapper">
-                  <div class="msg-bubble" :class="{ 'rich-media': msg.type !== 'text' || Boolean(msg.insight) }">
-                    <div v-if="msg.insight" class="insight-card">
-                      <div class="insight-head">
-                        <div>
-                          <p class="section-eyebrow">结构化结果</p>
-                          <h4>{{ msg.insight.title }}</h4>
-                        </div>
-                        <el-tag :type="riskTagType(msg.insight.riskLevel)" effect="light">
-                          {{ riskLabelMap[msg.insight.riskLevel] }}
-                        </el-tag>
-                      </div>
-
-                      <p class="insight-summary">{{ msg.insight.summary }}</p>
-
-                      <div class="insight-grid">
-                        <div class="insight-block">
-                          <span class="block-label">证据</span>
-                          <ul>
-                            <li v-for="evidence in msg.insight.evidence" :key="`${evidence.label}-${evidence.detail}`">
-                              <strong>{{ evidence.label }}</strong>
-                              <span>{{ evidence.detail }}</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div class="insight-block">
-                          <span class="block-label">关联实体</span>
-                          <ul>
-                            <li v-for="entity in msg.insight.entities" :key="`${entity.kind}-${entity.value}`">
-                              <strong>{{ entity.name }}</strong>
-                              <span>{{ entity.kindLabel }} · {{ entity.value }}</span>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="msg.type === 'text'" v-html="msg.content" class="md-text"></div>
-
-                    <div v-if="msg.type === 'table'" class="widget-box">
-                      <div class="widget-header">
-                        <el-icon><List /></el-icon>
-                        <span>{{ settingsForm.botName }} 为您整理的名单</span>
-                      </div>
-                      <el-table :data="msg.data" size="small" class="glass-table" :row-class-name="tableRowClassName">
-                        <el-table-column prop="name" label="姓名" width="90" />
-                        <el-table-column prop="room" label="房间号" width="100" />
-                        <el-table-column prop="issue" label="异常类型" />
-                        <el-table-column prop="time" label="发生时间" width="140" />
-                      </el-table>
-                    </div>
-
-                    <div v-if="msg.type === 'chart'" class="widget-box">
-                      <div class="widget-header">
-                        <el-icon><TrendCharts /></el-icon>
-                        <span>相关健康趋势</span>
-                      </div>
-                      <div :id="'chart-' + msg.id" class="echarts-container"></div>
-                    </div>
-                  </div>
-
-                  <transition name="fade">
-                    <div v-if="msg.role === 'ai' && msg.actions && msg.actions.length" class="action-chips">
-                      <button
-                        v-for="(action, idx) in msg.actions"
-                        :key="idx"
-                        type="button"
-                        class="chip-btn"
-                        @click="handleAction(action, msg)"
-                      >
-                        {{ action }}
-                      </button>
-                    </div>
-                  </transition>
-                </div>
-              </div>
-              <div v-if="isTyping" key="typing" class="message-box ai">
-                <div class="msg-avatar ai">
-                  <img :src="bot3dImage" class="avatar-image bot-img-3d" alt="Bot" />
-                </div>
-                <div class="msg-content-wrapper">
-                  <div class="msg-bubble typing">
-                    <span class="typing-text">{{ settingsForm.botName }} 正在生成结构化分析</span>
-                    <div class="dot-flashing"></div>
-                  </div>
-                </div>
-              </div>
-            </transition-group>
-          </div>
-
-          <div class="floating-input-zone">
-            <div class="dynamic-mascot-zone" :class="{ 'is-thinking': isTyping }">
-              <transition name="fade-bounce">
-                <div v-if="isTyping" class="mascot-bubble">
+            <div class="floating-input-zone">
+              <div class="pill-input-box" :class="{ focused: isInputFocused }">
+                <div v-if="isTyping" class="input-header-status">
                   <el-icon class="is-loading"><Loading /></el-icon>
-                  正在快速分析...
+                  <span>正在快速检索与分析...</span>
                 </div>
-                <div v-else-if="isInputFocused" class="mascot-bubble">
-                  <el-icon><Microphone /></el-icon>
-                  正在监听输入...
+                <el-input
+                  v-model="inputText"
+                  type="textarea"
+                  :autosize="{ minRows: 1, maxRows: 6 }"
+                  resize="none"
+                  :placeholder="`向 ${settingsForm.botName} 发起深度调度，获取结论与处置建议...`"
+                  @focus="isInputFocused = true"
+                  @blur="isInputFocused = false"
+                  @keyup.enter.exact.prevent="sendMessage"
+                />
+                <div class="input-footer">
+                  <div class="sec-footer">
+                    <el-icon><Lock /></el-icon>
+                    医疗核心数据链路受控 · {{ settingsForm.botName }}
+                  </div>
+                  <button
+                    type="button"
+                    class="send-action-btn"
+                    :class="{ ready: inputText.trim().length > 0 }"
+                    :disabled="isTyping"
+                    @click="sendMessage"
+                  >
+                    <el-icon v-if="!isTyping"><Position /></el-icon>
+                    <el-icon v-else class="spin"><Loading /></el-icon>
+                  </button>
                 </div>
-              </transition>
-
-              <div class="mascot-body" @click="pokeMascot">
-                <img :src="bot3dImage" alt="3D Bot" />
               </div>
             </div>
-
-            <div class="pill-input-box" :class="{ focused: isInputFocused }">
-              <el-input
-                v-model="inputText"
-                type="textarea"
-                :autosize="{ minRows: 1, maxRows: 3 }"
-                resize="none"
-                :placeholder="`向 ${settingsForm.botName} 发起分析，获取结论、证据和动作建议...`"
-                @focus="isInputFocused = true"
-                @blur="isInputFocused = false"
-                @keyup.enter.exact.prevent="sendMessage"
-              />
-              <button
-                type="button"
-                class="send-action-btn"
-                :class="{ ready: inputText.trim().length > 0 }"
-                :disabled="isTyping"
-                @click="sendMessage"
-              >
-                <el-icon v-if="!isTyping"><Position /></el-icon>
-                <el-icon v-else class="spin"><Loading /></el-icon>
-              </button>
-            </div>
-
-            <div class="sec-footer">
-              <el-icon><Lock /></el-icon>
-              医疗级数据保护 · {{ settingsForm.botName }} 决策引擎
-            </div>
-          </div>
-        </section>
+          </section>
         </main>
       </div>
-
-      <template #aside>
-        <div class="aside-stack">
-          <PlatformNotificationEntry
-            title="AI 协同通知"
-            :unread-count="notificationItems.length"
-            :items="notificationItems"
-            @click-item="handleNotificationItem"
-            @click-all="handleNotificationClick"
-          />
-
-          <div class="panel aside-card">
-            <div class="section-head compact">
-              <div>
-                <p class="section-eyebrow">最新结果</p>
-                <h4>最新结构化结果</h4>
-              </div>
-              <el-tag v-if="latestInsight" :type="riskTagType(latestInsight.riskLevel)" effect="light">
-                {{ riskLabelMap[latestInsight.riskLevel] }}
-              </el-tag>
-            </div>
-
-            <template v-if="latestInsight">
-              <p class="aside-summary">{{ latestInsight.summary }}</p>
-
-              <div class="aside-block">
-                <span class="block-label">关联实体</span>
-                <div class="entity-stack">
-                  <button
-                    v-for="entity in latestInsight.entities"
-                    :key="`${entity.kind}-${entity.value}-aside`"
-                    type="button"
-                    class="entity-chip"
-                    @click="openEntity(entity)"
-                  >
-                    <strong>{{ entity.name }}</strong>
-                    <span>{{ entity.kindLabel }} · {{ entity.value }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="aside-block">
-                <span class="block-label">建议动作</span>
-                <div class="entity-stack">
-                  <button
-                    v-for="action in latestInsight.recommendedActions"
-                    :key="`${action}-aside`"
-                    type="button"
-                    class="action-tile"
-                    @click="handleAction(action)"
-                  >
-                    {{ action }}
-                  </button>
-                </div>
-              </div>
-            </template>
-
-            <p v-else class="empty-copy">执行一次分析后，这里会展示最新的证据、关联实体和建议动作。</p>
-          </div>
-
-        </div>
-      </template>
     </PlatformPageShell>
 
     <el-drawer
       v-model="showSettingsDrawer"
-      title="助理设置"
+      title="助理配置矩阵"
       direction="rtl"
       size="380px"
       class="glass-drawer"
@@ -352,45 +241,44 @@
     >
       <div class="drawer-settings-content">
         <el-form label-position="top" :model="settingsForm">
-          <el-form-item label="助理名称" class="setting-item">
-            <el-input v-model="settingsForm.botName" placeholder="给助理起个名字" clearable>
+          <el-form-item label="核心名称" class="setting-item">
+            <el-input v-model="settingsForm.botName" placeholder="命名您的引擎" clearable>
               <template #prefix><el-icon><Service /></el-icon></template>
             </el-input>
-            <div class="form-tip">该名称会同步显示在页面头部和 AI 回复中。</div>
+            <div class="form-tip">同步于工作台所有核心汇报视窗。</div>
           </el-form-item>
 
-          <el-form-item label="输出语气" class="setting-item">
+          <el-form-item label="输出策略" class="setting-item">
             <el-radio-group v-model="settingsForm.tone" class="custom-radio-group">
-              <el-radio-button label="professional">专业严谨</el-radio-button>
-              <el-radio-button label="lively">活泼亲切</el-radio-button>
-              <el-radio-button label="concise">简明扼要</el-radio-button>
+              <el-radio-button label="professional">严密逻辑</el-radio-button>
+              <el-radio-button label="lively">亲切平易</el-radio-button>
+              <el-radio-button label="concise">极简图文</el-radio-button>
             </el-radio-group>
           </el-form-item>
 
-          <el-form-item label="工作台主题" class="setting-item">
+          <el-form-item label="光污染保护主题" class="setting-item">
             <el-select v-model="settingsForm.theme">
-              <el-option label="紫色霓虹" value="purple" />
-              <el-option label="蓝色冷静" value="blue" />
-              <el-option label="绿色健康" value="green" />
-              <el-option label="粉色活力" value="pink" />
+              <el-option label="静幽紫" value="purple" />
+              <el-option label="医疗蓝" value="blue" />
+              <el-option label="生态绿" value="green" />
+              <el-option label="警示红" value="pink" />
             </el-select>
           </el-form-item>
 
-          <el-form-item label="语音播报" class="setting-item inline-setting">
+          <el-form-item label="语音播报链路" class="setting-item inline-setting">
             <el-switch v-model="settingsForm.autoSpeak" />
-            <span class="setting-inline-tip">自动朗读结构化结论</span>
+            <span class="setting-inline-tip">启用结构化警报音频直读</span>
           </el-form-item>
         </el-form>
 
         <div class="drawer-actions">
-          <el-button @click="showSettingsDrawer = false">取消</el-button>
-          <el-button type="primary" @click="saveSettings">保存设置</el-button>
+          <el-button @click="showSettingsDrawer = false">撤销</el-button>
+          <el-button type="primary" @click="saveSettings">应用架构</el-button>
         </div>
       </div>
     </el-drawer>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -404,6 +292,7 @@ import {
   Loading,
   Lock,
   Microphone,
+  Monitor,
   MoreFilled,
   Position,
   Service,
@@ -417,7 +306,6 @@ import * as echarts from 'echarts'
 import { chatAi, getAbnormalTrend, getRecentAbnormal, type AbnormalTrendPoint } from '@/api/ai'
 import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
 import {
-  PlatformContextFilterBar,
   dispatchPlatformAction,
   getPlatformSearchPresentation,
   loadPlatformNotifications,
@@ -428,7 +316,6 @@ import {
   PlatformNotificationEntry,
   PlatformPageShell,
   PlatformSearchEntry,
-  type PlatformContextFilters,
   type PlatformNotificationRecord
 } from '@/components/platform'
 
@@ -515,21 +402,13 @@ const isInputFocused = ref(false)
 const chatScroll = ref<HTMLElement | null>(null)
 const activeTaskLabel = ref('风险研判')
 const showSettingsDrawer = ref(false)
-const contextFilters = ref<PlatformContextFilters>({
-  timeRange: 'today',
-  region: 'all',
-  riskLevel: 'all',
-  status: 'processing'
-})
 
 const settingsForm = ref({
-  botName: '小豆',
-  tone: 'lively',
+  botName: '辅助决策',
+  tone: 'professional',
   autoSpeak: false,
-  theme: 'purple'
+  theme: 'blue'
 })
-
-const bot3dImage = 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png'
 const searchPresentation = getPlatformSearchPresentation('ai')
 
 const buildEntity = (kind: EntityKind, name: string, value: string, query: Record<string, string> = {}): RelatedEntity => ({
@@ -831,7 +710,7 @@ const buildStructuredInsight = (text: string, replyText: string, type: ChatMessa
     evidence: [
       { label: '触发指令', detail: text },
       { label: '输出类型', detail: type === 'table' ? '名单整理与处置建议' : type === 'chart' ? '趋势图表与波动分析' : '文本结论与建议' },
-      { label: '当前上下文', detail: `${contextFilters.value.timeRange} / ${contextFilters.value.region} / ${contextFilters.value.riskLevel}` }
+      { label: '当前上下文', detail: 'AI 中心 / 风险研判与报告生成' }
     ],
     entities,
     recommendedActions: actions.length ? actions : ['创建事件', '加入重点关注']
@@ -1040,14 +919,6 @@ const handleNotificationClick = async () => {
   await openAllPlatformNotifications(router, 'ai')
 }
 
-const handleContextConfirm = () => {
-  ElMessage.success('分析范围已应用')
-}
-
-const handleContextReset = () => {
-  contextFilters.value = { timeRange: 'today', region: 'all', riskLevel: 'all', status: 'processing' }
-}
-
 const renderDashboardCharts = () => {
   const riskDom = document.getElementById('riskChart')
   const trendDom = document.getElementById('trendChart')
@@ -1182,13 +1053,13 @@ onUnmounted(() => {
 </script>
 <style scoped lang="scss">
 .ai-command-center {
-  --ai-primary: #3f3cbb;
-  --ai-primary-soft: rgba(63, 60, 187, 0.08);
-  --ai-danger-soft: rgba(209, 77, 114, 0.12);
-  --ai-success-soft: rgba(28, 126, 96, 0.12);
-  --ai-border: rgba(209, 215, 224, 0.92);
-  --ai-bg: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-  --ai-card: rgba(255, 255, 255, 0.86);
+  --ai-primary: #0f172a;
+  --ai-primary-soft: #f1f5f9;
+  --ai-danger-soft: #fff1f2;
+  --ai-success-soft: #ecfdf5;
+  --ai-border: #e2e8f0;
+  --ai-bg: #f8fafc;
+  --ai-card: #ffffff;
   min-height: 100%;
   background: var(--ai-bg);
 }
@@ -1198,26 +1069,32 @@ onUnmounted(() => {
 }
 
 .ai-command-center :deep(.platform-page-toolbar) {
-  background: rgba(255, 255, 255, 0.74);
+  background: transparent;
+  border-bottom: 1px solid var(--ai-border);
 }
 
 .ai-command-center :deep(.platform-page-aside) {
-  background: rgba(255, 255, 255, 0.82);
+  background: transparent;
 }
 
 .ai-command-center.theme-blue {
   --ai-primary: #2563eb;
-  --ai-primary-soft: rgba(37, 99, 235, 0.08);
+  --ai-primary-soft: #eff6ff;
+}
+
+.ai-command-center.theme-purple {
+  --ai-primary: #4f46e5;
+  --ai-primary-soft: #eef2ff;
 }
 
 .ai-command-center.theme-green {
   --ai-primary: #059669;
-  --ai-primary-soft: rgba(5, 150, 105, 0.08);
+  --ai-primary-soft: #ecfdf5;
 }
 
 .ai-command-center.theme-pink {
   --ai-primary: #e11d48;
-  --ai-primary-soft: rgba(225, 29, 72, 0.08);
+  --ai-primary-soft: #fff1f2;
 }
 
 .header-actions,
@@ -1258,30 +1135,31 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--ai-card);
+  border: 1px solid var(--ai-border);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 }
 
 .metric-item.danger-soft {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--ai-danger-soft));
-  border-color: rgba(209, 77, 114, 0.3);
+  background: var(--ai-danger-soft);
+  border-color: #fecdd3;
 }
 
 .metric-item.danger-soft .metric-icon {
-  background: rgba(209, 77, 114, 0.1);
-  color: #d14d72;
+  background: #ffe4e6;
+  color: #e11d48;
 }
 
 .metric-item.success-soft {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--ai-success-soft));
-  border-color: rgba(28, 126, 96, 0.3);
+  background: var(--ai-success-soft);
+  border-color: #a7f3d0;
 }
 
 .metric-item.success-soft .metric-icon {
-  background: rgba(28, 126, 96, 0.1);
-  color: #1c7e60;
+  background: #d1fae5;
+  color: #059669;
 }
 
 .metric-info {
@@ -1342,10 +1220,10 @@ onUnmounted(() => {
 
 .panel,
 .inner-panel {
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--ai-border);
+  background: var(--ai-card);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
 }
 
 .task-rail,
@@ -1510,9 +1388,9 @@ onUnmounted(() => {
 }
 
 .msg-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1522,12 +1400,11 @@ onUnmounted(() => {
 }
 
 .msg-avatar.user {
-  background: rgba(20, 33, 61, 0.08);
-  color: #14213d;
+  background: #f1f5f9;
+  color: #475569;
 }
 
-.avatar-image,
-.mascot-body img {
+.avatar-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -1546,20 +1423,24 @@ onUnmounted(() => {
 
 .msg-bubble {
   padding: 16px;
-  border-radius: 6px;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  border-top-left-radius: 4px;
+  background: var(--ai-card);
+  border: 1px solid var(--ai-border);
   min-width: 220px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .message-box.user .msg-bubble {
-  background: linear-gradient(135deg, var(--ai-primary) 0%, #6d5efc 100%);
-  color: #fff;
+  background: var(--ai-primary-soft);
+  border-color: transparent;
+  color: #0f172a;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 4px;
 }
 
 .message-box.user .md-text {
-  color: #fff;
+  color: #0f172a;
 }
 
 .insight-card {
@@ -1665,62 +1546,55 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(209, 215, 224, 0.82);
-}
-
-.dynamic-mascot-zone {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.mascot-body {
-  width: 64px;
-  height: 64px;
-  padding: 8px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(63, 60, 187, 0.12), rgba(99, 102, 241, 0.04));
-  cursor: pointer;
-}
-
-.mascot-bubble {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 999px;
-  background: var(--ai-primary-soft);
-  color: var(--ai-primary);
-  font-size: 13px;
-  font-weight: 700;
+  padding-top: 16px;
+  background: var(--ai-card);
 }
 
 .pill-input-box {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-items: end;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--ai-border);
+  background: var(--ai-bg);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s;
 }
 
 .pill-input-box.focused {
-  border-color: rgba(63, 60, 187, 0.34);
-  box-shadow: 0 0 0 4px rgba(63, 60, 187, 0.08);
+  border-color: var(--ai-primary);
+  background: #fff;
+}
+
+.input-header-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ai-primary);
+  font-weight: 600;
+}
+
+.input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
 }
 
 .send-action-btn {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: none;
-  background: rgba(20, 33, 61, 0.1);
-  color: #14213d;
+  background: #e2e8f0;
+  color: #64748b;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
 }
 
 .send-action-btn.ready {
@@ -1731,9 +1605,9 @@ onUnmounted(() => {
 .sec-footer {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #667085;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
 }
 
 .aside-block {
@@ -1845,5 +1719,61 @@ onUnmounted(() => {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.ai-focus-layout {
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.toolbar-focus-pad {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.metrics-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--ai-card);
+  border: 1px solid var(--ai-border);
+  border-radius: 999px;
+  font-size: 13px;
+  color: #475569;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.02);
+}
+
+.metric-pill.danger {
+  background: var(--ai-danger-soft);
+  color: #e11d48;
+  border-color: #fecdd3;
+}
+
+.metric-pill.success {
+  background: var(--ai-success-soft);
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.conversation-panel {
+  padding: 24px;
+}
+
 </style>
 

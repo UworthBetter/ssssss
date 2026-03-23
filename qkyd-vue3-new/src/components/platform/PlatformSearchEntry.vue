@@ -1,13 +1,15 @@
 <template>
-  <button class="search-entry panel" type="button" @click="$emit('click')">
+  <button class="search-entry" type="button" @click="$emit('click')">
     <span class="search-icon-wrap">
       <el-icon><Search /></el-icon>
     </span>
     <span class="search-copy">
-      <span class="search-label">{{ label }}</span>
+      <span class="search-label" v-if="label">{{ label }}</span>
       <span class="search-placeholder">{{ displayText }}</span>
     </span>
-    <span class="search-hint">{{ hint }}</span>
+    <span class="search-hint">
+       <span class="key-cmd">⌘</span> K
+    </span>
   </button>
 </template>
 
@@ -22,8 +24,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: '全局搜索',
-  placeholder: '搜索对象、设备、事件、手机号或 IMEI',
+  label: '',
+  placeholder: '搜索档案、设备或事件...',
   hint: 'Ctrl K'
 })
 
@@ -37,59 +39,69 @@ const displayText = computed(() => props.placeholder)
 <style scoped lang="scss">
 .search-entry {
   width: 100%;
-  min-width: 280px;
-  min-height: 44px; /* Touch friendly >= 44px */
+  min-width: 320px;
+  height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px; /* Sharper corners */
+  gap: 12px;
+  padding: 0 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
   background: #ffffff;
-  color: #334155;
+  color: #0f172a;
   cursor: pointer;
   text-align: left;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   outline: none;
+  position: relative;
 
   &:hover {
-    border-color: rgba(0, 0, 0, 0.2);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:focus-visible {
-    border-color: var(--brand, #0ea5e9);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
   }
 }
 
 .search-icon-wrap {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #94a3b8;
   flex: 0 0 auto;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .search-copy {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .search-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  display: none; /* Hide label in normal command bar, only show placeholder */
+  font-size: 11px;
+  font-weight: 700;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: -2px;
 }
 
 .search-placeholder {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   color: #64748b;
   white-space: nowrap;
   overflow: hidden;
@@ -98,13 +110,31 @@ const displayText = computed(() => props.placeholder)
 
 .search-hint {
   flex: 0 0 auto;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   color: #64748b;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+  .key-cmd {
+    font-family: inherit;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .search-entry {
+    min-width: 200px;
+  }
+  .search-hint {
+    display: none;
+  }
 }
 </style>
+

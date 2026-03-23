@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <PlatformPageShell
     title="事件中心"
     subtitle="围绕异常事件完成筛选、研判、处置和关闭的统一工作流，并为后续状态流转与协同联动预留稳定骨架。"
@@ -19,14 +19,6 @@
 
     <template #toolbar>
       <div class="toolbar-stack">
-        <PlatformContextFilterBar
-          v-model="contextFilters"
-          summary-label="当前工作上下文"
-          summary-value="事件中心 / 研判与处置流"
-          @confirm="handleContextConfirm"
-          @reset="handleContextReset"
-        />
-
         <div class="toolbar">
           <el-input v-model="query.type" placeholder="异常类型" clearable style="width: 180px" />
           <el-select v-model="query.state" placeholder="处理状态" clearable style="width: 140px">
@@ -426,7 +418,6 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
-  PlatformContextFilterBar,
   PlatformNotificationEntry,
   PlatformPageShell,
   PlatformSearchEntry,
@@ -435,9 +426,7 @@ import {
   loadPlatformNotifications,
   openAllPlatformNotifications,
   openPlatformNotification,
-  openPlatformSearch,
-  type PlatformContextFilters,
-  type PlatformNotificationRecord
+  openPlatformSearch
 } from '@/components/platform'
 import {
   getEventInsight,
@@ -513,7 +502,6 @@ const selectedSnapshotId = ref<number | string | undefined>(undefined)
 const snapshotDetailLoading = ref(false)
 const snapshotDetailInsight = ref<NormalizedInsight | null>(null)
 const snapshotDetailMeta = ref<EventInsightSnapshotSummary | null>(null)
-const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
 const query = reactive({ pageNum: 1, pageSize: 10, type: '', state: '' })
 const routeDeviceId = ref('')
 const applyRouteQuery = (routeQuery: LocationQuery) => {
@@ -1267,8 +1255,6 @@ const handleNotificationItem = async (item: PlatformNotificationRecord) => {
 const handleNotificationClick = async () => {
   await openAllPlatformNotifications(router, 'event')
 }
-const handleContextConfirm = () => ElMessage.success('上下文筛选已记录')
-const handleContextReset = () => ElMessage.info('上下文筛选已重置')
 
 watch(selectedEvent, (row) => {
   snapshotHistoryVisible.value = false

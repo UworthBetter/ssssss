@@ -19,20 +19,18 @@
 
     <template #toolbar>
       <div class="toolbar-stack">
-        <PlatformContextFilterBar
-          v-model="contextFilters"
-          summary-label="当前工作上下文"
-          summary-value="对象中心 / 360 预览流"
-          @confirm="handleContextConfirm"
-          @reset="handleContextReset"
-        />
-
         <div class="toolbar">
-          <el-input v-model="query.subjectName" placeholder="服务对象账号或姓名" clearable style="width: 220px" />
-          <el-input v-model="query.phonenumber" placeholder="手机号" clearable style="width: 220px" />
-          <el-select v-model="query.status" placeholder="状态" clearable style="width: 160px">
-            <el-option label="正常" value="0" />
-            <el-option label="停用" value="1" />
+          <el-input
+            v-model="query.keyword"
+            placeholder="搜索姓名、房间号或异常标签"
+            clearable
+            style="width: 240px"
+          >
+            <template #prefix><el-icon><Search /></el-icon></template>
+          </el-input>
+          <el-select v-model="query.region" placeholder="所在区域" clearable style="width: 140px">
+            <el-option label="东区" value="east" />
+            <el-option label="西区" value="west" />
           </el-select>
           <el-button type="primary" @click="fetchList">查询</el-button>
           <el-button @click="resetQuery">重置</el-button>
@@ -165,16 +163,15 @@ import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  PlatformContextFilterBar,
   PlatformPageShell,
   PlatformSearchEntry,
   dispatchPlatformAction,
   getPlatformSearchPresentation,
   openPlatformSearch,
-  type PlatformContextFilters
 } from '@/components/platform'
 import { createSubject, deleteSubject, getSubject, listSubjects, updateSubject, type HealthSubject } from '@/api/health'
 import { useRouteQueryListSync } from '@/composables/useRouteQueryListSync'
+import { Search } from '@element-plus/icons-vue'
 
 type SubjectRiskLevel = 'high' | 'medium' | 'low'
 
@@ -190,13 +187,11 @@ const route = useRoute()
 const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('subject')
 
-const contextFilters = ref<PlatformContextFilters>({ timeRange: 'today', region: 'all', riskLevel: 'all', status: 'all' })
-const query = reactive({ pageNum: 1, pageSize: 10, subjectName: '', phonenumber: '', status: '' })
+const query = reactive({ pageNum: 1, pageSize: 12, keyword: '', region: '' })
 const applyRouteQuery = (routeQuery: LocationQuery) => {
   query.pageNum = 1
-  query.subjectName = String(routeQuery.subjectName || routeQuery.keyword || '')
-  query.phonenumber = String(routeQuery.phonenumber || '')
-  query.status = String(routeQuery.status || '')
+  query.keyword = String(routeQuery.keyword || '')
+  query.region = String(routeQuery.region || '')
 }
 
 const initialForm = (): HealthSubject => ({ subjectName: '', nickName: '', phonenumber: '', email: '', age: undefined, sex: '0', status: '0', remark: '' })
@@ -278,8 +273,6 @@ const removeItem = async (subjectId?: number) => {
 const handleSearchClick = async () => {
   await openPlatformSearch(router, 'subject')
 }
-const handleContextConfirm = () => ElMessage.success('上下文筛选已记录')
-const handleContextReset = () => ElMessage.info('上下文筛选已重置')
 const openDeviceLink = async () => {
   if (!selectedSubject.value) return ElMessage.info('请先选择一个对象')
   await dispatchPlatformAction(router, '查看设备', {

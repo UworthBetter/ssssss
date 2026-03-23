@@ -23,6 +23,7 @@ verify within one focused session.
 
 | ID | Phase | Item | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
+| P7-006a | P7 | Ship demo-only secondary pages for subject, device, AI, and report centers with curated mock narratives | done | Operators and judges can open the new secondary pages, see clear presentation-grade content, and understand that the pages are demo-only because the UI marks them as using mock data |
 | P0-001 | P0 | Create and validate the `qkyd-platform-upgrade` skill | done | Skill folder, metadata, and validation all pass |
 | P0-002 | P0 | Define the subagent collaboration protocol and ownership rules | done | Multi-agent upgrade work has one stable playbook for ownership, activation, handoff, and verification |
 | P0-003 | P0 | Restore clean reactor compilation for `qkyd-health` and `qkyd-ai` verification | done | `mvn -pl qkyd-ai -am -DskipTests clean compile` passes from `backend` without relying on prebuilt module outputs |
