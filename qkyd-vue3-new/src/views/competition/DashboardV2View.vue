@@ -34,7 +34,6 @@
 
     <!-- ================= 1. 顶部居中：战术胶囊信标 (HUD Pills) ================= -->
     <div class="hud-top-center">
-      <div v-if="useMockExceptionData" class="mock-data-tip">当前为演示异常点（后端暂无异常位置数据）</div>
       <div 
         class="hud-pill" 
         v-for="item in allPieCards" 
@@ -196,8 +195,6 @@ const ageSexTable = ref<Array<{ label: string; value: number }>>([])
 const recentAbnormal = ref<RecentAbnormalRow[]>([])
 const exceptionList = ref<ExceptionRow[]>([])
 const fetching = ref(false)
-const useMockExceptionData = ref(false)
-
 const activePill = ref<string | null>(null)
 const activePillName = ref<string>('')
 const activeColor = ref<string>('#0ea5e9')
@@ -296,7 +293,7 @@ const isHighRiskException = (row: Pick<ExceptionRow, 'type'>) => {
 }
 
 const uniqueAbnormalObjectCount = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   const unique = new Set<string>()
 
   source.forEach((row) => {
@@ -322,12 +319,12 @@ const highRiskAlertCount = computed(() => {
   const recentCount = recentAbnormal.value.filter((row) => isHighRiskLevel(row.riskLevel)).length
   if (recentCount > 0) return recentCount
 
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   return source.filter((row) => String(row.state ?? '0') !== '1' && isHighRiskException(row)).length
 })
 
 const avgResponseMinutes = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   const now = Date.now()
   const durations = source
     .filter((row) => String(row.state ?? '0') !== '1')
@@ -342,7 +339,7 @@ const avgResponseMinutes = computed(() => {
 })
 
 const closedRatioValue = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   if (source.length === 0) return 0
   const resolved = source.filter((row) => String(row.state ?? '0') === '1').length
   return Number(((resolved / source.length) * 100).toFixed(1))
@@ -902,13 +899,7 @@ const fetchAll = async (forceFull = false) => {
 
       const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
       const normalizedExceptions = normalizeExceptionList(rawExceptions)
-      if (normalizedExceptions.length > 0) {
-        useMockExceptionData.value = false
-        exceptionList.value = normalizedExceptions
-      } else {
-        useMockExceptionData.value = true
-        exceptionList.value = buildMockExceptions(recentAbnormal.value)
-      }
+      exceptionList.value = normalizedExceptions
 
       if (amapInstance) {
         const digest = exceptionList.value

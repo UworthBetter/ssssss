@@ -2,44 +2,38 @@ package com.qkyd.ai.service;
 
 import org.springframework.ai.chat.model.ChatResponse;
 
-import java.util.List;
-
 /**
- * AI鏈嶅姟鎺ュ彛
- *
- * @author ueit
+ * AI service contract.
  */
 public interface IAiService {
 
     /**
-     * 鑱婂ぉ瀵硅瘽
-     *
-     * @param message 鐢ㄦ埛娑堟伅
-     * @return AI鍥炲
+     * Main conversational capability. Defaults to the high-capability model.
      */
     String chat(String message);
 
     /**
-     * 鎵归噺瀵硅瘽
-     *
-     * @param messages 娑堟伅鍒楄〃
-     * @return AI鍥炲
+     * Fast response capability for lightweight prompts.
+     */
+    String chatFast(String message);
+
+    /**
+     * Report or summary generation capability.
+     */
+    String chatReport(String message);
+
+    /**
+     * Multi-message conversational capability.
      */
     String chat(String[] messages);
 
     /**
-     * 鑾峰彇瀹屾暣鍝嶅簲瀵硅薄
-     *
-     * @param message 鐢ㄦ埛娑堟伅
-     * @return 鍝嶅簲瀵硅薄
+     * Returns the underlying chat response for the main model.
      */
     ChatResponse chatWithResponse(String message);
 
     /**
-     * 璺屽€掓娴?(Jiaqing Algorithm)
-     * 
-     * @param request 妫€娴嬭姹傚弬鏁?
-     * @return 妫€娴嬬粨鏋?JSON瀛楃涓?
+     * Fall detection algorithm bridge.
      */
     String detectFall(com.qkyd.ai.domain.FallDetectionRequest request);
 }

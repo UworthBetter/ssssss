@@ -53,7 +53,9 @@ public class UeitBloodServiceImpl implements IUeitBloodService
     @Override
     public int insertUeitBlood(UeitBlood ueitBlood)
     {
-        ueitBlood.setCreateTime(DateUtils.getNowDate());
+        if (ueitBlood.getCreateTime() == null) {
+            ueitBlood.setCreateTime(DateUtils.getNowDate());
+        }
         return ueitBloodMapper.insertUeitBlood(ueitBlood);
     }
 
@@ -105,4 +107,3 @@ public class UeitBloodServiceImpl implements IUeitBloodService
         return ueitBloodMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
-

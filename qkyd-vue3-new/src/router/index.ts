@@ -8,6 +8,7 @@ export interface AppRouteMeta {
   groupTitle: string
   groupIcon: string
   navKey: string
+  adminOnly?: boolean
 }
 
 export const appChildrenRoutes: RouteRecordRaw[] = [
@@ -145,6 +146,20 @@ export const appChildrenRoutes: RouteRecordRaw[] = [
       navKey: '/device/maintenance'
     } satisfies AppRouteMeta
   },
+  {
+    path: 'device/simulator',
+    name: 'DeviceSimulator',
+    component: () => import('@/views/device/DeviceSimulatorView.vue'),
+    meta: {
+      title: '仿真设备控制台',
+      icon: 'Tools',
+      group: 'device',
+      groupTitle: '设备中心',
+      groupIcon: 'Watch',
+      navKey: '/device/simulator',
+      adminOnly: true
+    } satisfies AppRouteMeta
+  },
   // ── AI 中心 ──
   {
     path: 'ai/workbench',
@@ -266,6 +281,10 @@ router.beforeEach(async (to, _from, next) => {
   try {
     if (!userStore.userInfo?.userId) {
       await userStore.fetchUserInfo()
+    }
+    if ((to.meta as Partial<AppRouteMeta>).adminOnly && !userStore.isAdmin) {
+      next({ path: '/' })
+      return
     }
     next()
   } catch (error) {

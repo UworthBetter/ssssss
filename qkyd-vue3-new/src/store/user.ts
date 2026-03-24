@@ -7,6 +7,8 @@ interface UserInfo {
   nickName?: string
   phonenumber?: string
   avatar?: string
+  roles?: Array<{ roleKey?: string; [key: string]: unknown }>
+  permissions?: string[]
   [key: string]: unknown
 }
 
@@ -24,6 +26,17 @@ export const useUserStore = defineStore('user', {
     captcha: '',
     captchaEnabled: true
   }),
+  getters: {
+    roleKeys: (state): string[] =>
+      Array.isArray(state.userInfo.roles)
+        ? state.userInfo.roles
+            .map((role) => String(role?.roleKey || '').trim())
+            .filter(Boolean)
+        : [],
+    isAdmin(): boolean {
+      return this.roleKeys.includes('admin')
+    }
+  },
   actions: {
     setToken(token: string) {
       this.token = token

@@ -504,9 +504,24 @@ const snapshotDetailInsight = ref<NormalizedInsight | null>(null)
 const snapshotDetailMeta = ref<EventInsightSnapshotSummary | null>(null)
 const query = reactive({ pageNum: 1, pageSize: 10, type: '', state: '' })
 const routeDeviceId = ref('')
+const normalizeEventTypeQuery = (value: unknown) => {
+  const text = String(value || '').trim()
+  const lower = text.toLowerCase()
+  if (!text) return ''
+  if (lower.includes('heart') || text.includes('心率')) return '心率异常'
+  if (lower.includes('spo2') || lower.includes('oxygen') || text.includes('血氧')) return '血氧异常'
+  if (lower.includes('pressure') || lower.includes('blood') || text.includes('血压')) return '血压异常'
+  if (lower.includes('temp') || lower.includes('temperature') || text.includes('体温')) return '体温异常'
+  if (lower.includes('fence') || text.includes('围栏') || text.includes('越界')) return '围栏越界'
+  if (lower.includes('sos') || text.includes('求救') || text.includes('求助')) return 'SOS求救'
+  if (lower.includes('offline') || text.includes('离线')) return '设备离线'
+  if (lower.includes('activity') || text.includes('活动') || text.includes('步数')) return '活动量异常'
+  if (lower.includes('signal') || text.includes('信号')) return '设备信号异常'
+  return text
+}
 const applyRouteQuery = (routeQuery: LocationQuery) => {
   query.pageNum = 1
-  query.type = String(routeQuery.type || routeQuery.keyword || '')
+  query.type = normalizeEventTypeQuery(routeQuery.type || routeQuery.keyword || '')
   query.state = String(routeQuery.state || '')
   routeDeviceId.value = String(routeQuery.deviceId || '')
   const userId = Number(routeQuery.userId || 0)
@@ -1274,10 +1289,12 @@ const { install: installRouteQuerySync, syncSelectedAfterFetch } = useRouteQuery
   selected: selectedEvent,
   applyQuery: applyRouteQuery,
   resolveMatchedItem: ({ list, fallbackSelected }) => {
+    const routeType = normalizeEventTypeQuery(route.query.type || route.query.keyword || '')
     const matched = list.find(
       (item) =>
-        (routeDeviceId.value && String(item.deviceId || '') === routeDeviceId.value) ||
-        (userIdFilter.value && Number(item.userId || 0) === userIdFilter.value)
+        (((routeDeviceId.value && String(item.deviceId || '') === routeDeviceId.value) ||
+        (userIdFilter.value && Number(item.userId || 0) === userIdFilter.value)))
+        && (!routeType || normalizeEventTypeQuery(item.type) === routeType)
     )
     if (matched) return matched
 

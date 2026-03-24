@@ -118,6 +118,9 @@ const navGroups = computed<NavGroup[]>(() => {
     if (!meta) {
       return
     }
+    if (meta.adminOnly && !userStore.isAdmin) {
+      return
+    }
 
     if (!groups.has(meta.group)) {
       groups.set(meta.group, {

@@ -1,9 +1,9 @@
 <template>
   <PlatformPageShell
     title="处理链追踪"
-    subtitle="追踪每一条异常事件从检测到闭环的完整处理过程，透视 AI 决策链路与处置执行细节。"
+    subtitle="追踪真实异常事件从检测到闭环的处理过程，查看处理状态、链路节点与 AI 研判摘要。"
     eyebrow="PROCESSING CHAIN"
-    aside-title="处理链详情"
+    aside-title="链路详情"
     aside-width="420px"
   >
     <template #headerExtra>
@@ -20,11 +20,10 @@
     <template #toolbar>
       <div class="toolbar-stack">
         <div class="toolbar">
-          <el-input v-model="query.keyword" placeholder="搜索异常/节点" clearable style="width: 200px" />
-          <el-select v-model="query.status" placeholder="节点状态" clearable style="width: 140px">
-            <el-option label="运行中" value="running" />
-            <el-option label="已完成" value="done" />
-            <el-option label="异常" value="error" />
+          <el-input v-model="query.keyword" placeholder="搜索异常类型 / 服务对象" clearable style="width: 220px" />
+          <el-select v-model="query.status" placeholder="处理状态" clearable style="width: 140px">
+            <el-option label="处理中" value="pending" />
+            <el-option label="已闭环" value="resolved" />
           </el-select>
           <el-button type="primary" @click="fetchList">查询</el-button>
           <el-button @click="resetQuery">重置</el-button>
@@ -33,18 +32,17 @@
     </template>
 
     <div class="panel section">
-      <!-- 统计摘要卡片 -->
       <div class="chain-summary-row">
         <div class="summary-card">
           <div class="sc-label">事件总数</div>
-          <div class="sc-value digital-font">{{ total }}</div>
+          <div class="sc-value digital-font">{{ filteredList.length }}</div>
         </div>
         <div class="summary-card">
           <div class="sc-label">待处理</div>
           <div class="sc-value digital-font text-warning">{{ pendingCount }}</div>
         </div>
         <div class="summary-card">
-          <div class="sc-label">已完成链路</div>
+          <div class="sc-label">已闭环</div>
           <div class="sc-value digital-font text-success">{{ resolvedCount }}</div>
         </div>
         <div class="summary-card">
@@ -53,26 +51,25 @@
         </div>
       </div>
 
-      <!-- 事件列表 -->
       <el-table
         v-loading="loading"
-        :data="list"
+        :data="pagedList"
         stripe
         highlight-current-row
         @current-change="handleCurrentChange"
         @row-click="handleRowClick"
       >
         <el-table-column prop="id" label="事件ID" width="90" />
-        <el-table-column prop="nickName" label="服务对象" min-width="100" />
+        <el-table-column prop="nickName" label="服务对象" min-width="110" />
         <el-table-column prop="type" label="异常类型" min-width="120" />
-        <el-table-column prop="value" label="指标值" min-width="100" />
+        <el-table-column prop="value" label="指标值" min-width="120" />
         <el-table-column label="链路进度" min-width="180">
           <template #default="{ row }">
             <div class="chain-inline-progress">
               <div class="chain-dots">
                 <div
-                  v-for="(stage, i) in getChainStages(row)"
-                  :key="i"
+                  v-for="(stage, index) in getChainStages(row)"
+                  :key="`${row.id}-${index}`"
                   class="chain-dot"
                   :class="stage.status"
                   :title="stage.name"
@@ -82,9 +79,11 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="处理状态" min-width="90">
+        <el-table-column label="处理状态" min-width="100">
           <template #default="{ row }">
-            <el-tag :type="row.state === '1' ? 'success' : 'danger'">{{ row.state === '1' ? '已闭环' : '处理中' }}</el-tag>
+            <el-tag :type="String(row.state || '0') === '1' ? 'success' : 'danger'">
+              {{ String(row.state || '0') === '1' ? '已闭环' : '处理中' }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="location" label="位置" min-width="180" show-overflow-tooltip />
@@ -93,39 +92,28 @@
 
       <div class="pagination">
         <el-pagination
-          v-model:current-page="query.pageNum"
-          v-model:page-size="query.pageSize"
-          :total="total"
-          layout="total, sizes, prev, pager, next"
-          @change="fetchList"
+          v-model:current-page="page"
+          :page-size="pageSize"
+          :total="filteredList.length"
+          layout="total, prev, pager, next"
         />
       </div>
     </div>
 
     <template #aside>
       <div class="aside-stack">
-        <PlatformNotificationEntry
-          title="事件链路通知"
-          :unread-count="notificationItems.length"
-          :items="notificationItems"
-          @click-item="handleNotificationItem"
-          @click-all="handleNotificationClick"
-        />
-
-        <!-- 选中事件的处理链详情 -->
-        <div class="panel aside-card chain-detail-card">
+        <div class="panel aside-card detail-card">
           <div class="detail-head">
             <div>
               <div class="aside-card-title">处理链时间轴</div>
-              <p class="detail-subtitle">展示事件从检测到闭环的完整处理过程。</p>
+              <p class="detail-subtitle">展示事件检测、研判、处置等真实链路节点。</p>
             </div>
-            <el-tag v-if="selectedEvent" :type="selectedEvent.state === '1' ? 'success' : 'warning'" effect="light">
-              {{ selectedEvent.state === '1' ? '已闭环' : '进行中' }}
+            <el-tag v-if="selectedEvent" :type="String(selectedEvent.state || '0') === '1' ? 'success' : 'warning'" effect="light">
+              {{ String(selectedEvent.state || '0') === '1' ? '已闭环' : '处理中' }}
             </el-tag>
           </div>
 
           <div v-if="selectedEvent" class="detail-body">
-            <!-- 事件基本信息 -->
             <div class="chain-info-bar">
               <div class="info-item">
                 <span class="info-label">事件ID</span>
@@ -141,28 +129,21 @@
               </div>
             </div>
 
-            <!-- 处理链时间轴 -->
             <div v-if="chainLoading" class="chain-loading">
               <div class="loading-line loading-line-lg"></div>
               <div class="loading-line"></div>
               <div class="loading-line"></div>
-              <div class="loading-line loading-line-short"></div>
             </div>
 
-            <div v-else-if="chainData" class="chain-timeline">
-              <div
-                v-for="(stage, index) in chainData.stages"
-                :key="index"
-                class="tl-item"
-                :class="`tl-${stage.status}`"
-              >
+            <div v-else-if="chainData?.stages?.length" class="chain-timeline">
+              <div v-for="(stage, index) in chainData.stages" :key="`${stage.name}-${index}`" class="tl-item" :class="`tl-${stage.status}`">
                 <div class="tl-marker">
                   <div class="tl-dot">
                     <el-icon v-if="stage.status === 'completed'"><Check /></el-icon>
                     <el-icon v-else-if="stage.status === 'processing'"><Loading /></el-icon>
                     <el-icon v-else><Clock /></el-icon>
                   </div>
-                  <div v-if="index < chainData.stages.length - 1" class="tl-line" />
+                  <div v-if="index < chainData.stages.length - 1" class="tl-line"></div>
                 </div>
                 <div class="tl-body">
                   <div class="tl-head">
@@ -184,40 +165,28 @@
               </div>
             </div>
 
-            <div v-else class="empty-detail">
-              处理链数据加载失败或暂无数据,请重新选择事件。
-            </div>
+            <div v-else class="empty-detail">后端暂未返回该事件的处理链节点，当前仅展示真实空态。</div>
 
-            <!-- 快捷操作 -->
             <div class="chain-actions">
               <el-button type="primary" size="small" @click="jumpToEvent(selectedEvent)">进入事件中心</el-button>
-              <el-button size="small" @click="jumpToSubject(selectedEvent)">查看对象</el-button>
-              <el-button size="small" @click="jumpToDevice(selectedEvent)">查看设备</el-button>
+              <el-button size="small" @click="jumpToSubject(selectedEvent)" :disabled="!selectedEvent.userId">查看对象</el-button>
+              <el-button size="small" @click="jumpToDevice(selectedEvent)" :disabled="!selectedEvent.deviceId">查看设备</el-button>
             </div>
           </div>
 
           <div v-else class="empty-detail">
             <div class="empty-title">尚未选中事件</div>
-            <p>从左侧列表中选择一个事件后，这里会展示该事件的完整处理链时间轴。</p>
+            <p>从左侧列表选择一个真实事件后，这里会显示该事件的处理链时间轴。</p>
           </div>
         </div>
 
-        <!-- AI 研判摘要 -->
         <div class="panel aside-card insight-summary-card">
           <div class="detail-head">
             <div>
               <div class="aside-card-title">AI 研判摘要</div>
-              <p class="detail-subtitle">基于多 Agent 协同生成的处置建议。</p>
+              <p class="detail-subtitle">基于真实事件洞察接口生成的风险摘要与建议动作。</p>
             </div>
-            <el-button
-              v-if="selectedEvent"
-              text
-              type="primary"
-              :loading="insightLoading"
-              @click="fetchInsight"
-            >
-              刷新研判
-            </el-button>
+            <el-button v-if="selectedEvent" text type="primary" :loading="insightLoading" @click="fetchInsight">刷新研判</el-button>
           </div>
 
           <div v-if="selectedEvent && insightData" class="detail-body">
@@ -233,25 +202,27 @@
               <div v-if="insightData.reasons.length" class="im-row">
                 <span class="im-label">分析理由</span>
                 <div class="im-chips">
-                  <span v-for="r in insightData.reasons.slice(0, 3)" :key="r" class="insight-chip">{{ r }}</span>
+                  <span v-for="reason in insightData.reasons.slice(0, 3)" :key="reason" class="insight-chip">{{ reason }}</span>
                 </div>
               </div>
               <div v-if="insightData.suggestedActions.length" class="im-row">
                 <span class="im-label">建议动作</span>
                 <div class="im-chips">
-                  <span v-for="a in insightData.suggestedActions.slice(0, 3)" :key="a" class="insight-chip insight-chip-action">{{ a }}</span>
+                  <span v-for="action in insightData.suggestedActions.slice(0, 3)" :key="action" class="insight-chip insight-chip-action">{{ action }}</span>
                 </div>
               </div>
             </div>
           </div>
+
           <div v-else-if="insightLoading" class="detail-body">
             <div class="chain-loading">
               <div class="loading-line loading-line-lg"></div>
               <div class="loading-line"></div>
             </div>
           </div>
+
           <div v-else class="empty-detail">
-            {{ selectedEvent ? '暂无研判数据，点击刷新研判获取。' : '选中事件后展示 AI 研判摘要。' }}
+            {{ selectedEvent ? '当前事件暂无 AI 研判结果。' : '选中事件后展示 AI 研判摘要。' }}
           </div>
         </div>
       </div>
@@ -262,20 +233,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Check, Clock, Loading } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { Check, Loading, Clock } from '@element-plus/icons-vue'
-import {
-  dispatchPlatformAction,
-  getPlatformSearchPresentation,
-  loadPlatformNotifications,
-  openAllPlatformNotifications,
-  openPlatformNotification,
-  openPlatformSearch,
-  PlatformNotificationEntry,
-  PlatformPageShell,
-  PlatformSearchEntry,
-  type PlatformNotificationRecord
-} from '@/components/platform'
+import { PlatformPageShell, PlatformSearchEntry, getPlatformSearchPresentation, openPlatformSearch } from '@/components/platform'
 import { listExceptions, type ExceptionAlert } from '@/api/health'
 import { getProcessingChain } from '@/api/processingChain'
 import { getEventInsight } from '@/api/ai'
@@ -304,30 +264,21 @@ const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('event')
 
 const loading = ref(false)
-const list = ref<ExceptionAlert[]>([])
-const total = ref(0)
-const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: '' })
-
+const page = ref(1)
+const pageSize = 10
+const sourceList = ref<ExceptionAlert[]>([])
 const selectedEvent = ref<ExceptionAlert | null>(null)
 const chainLoading = ref(false)
 const chainData = ref<ChainData | null>(null)
 const insightLoading = ref(false)
 const insightData = ref<InsightSummary | null>(null)
-const notificationItems = ref<PlatformNotificationRecord[]>([])
 
-// 链路缓存
-const chainCache = new Map<string | number, ChainData>()
-const enrichExceptionWithChain = <T extends ExceptionAlert>(item: T) => item
-const generateMockProcessingChain = (eventId: string | number): ChainData => ({
-  stages: [
-    { name: '事件检测', status: 'completed', timestamp: new Date().toISOString(), details: `事件 ${eventId} 被检测到。` },
-    { name: 'AI 研判', status: 'processing', timestamp: new Date(Date.now() + 10000).toISOString(), details: '正在进行多模态分析...' },
-    { name: '处置建议', status: 'pending' },
-    { name: '执行处置', status: 'pending' },
-    { name: '效果评估', status: 'pending' }
-  ],
-  totalDuration: 0
+const query = reactive({
+  keyword: '',
+  status: ''
 })
+
+const chainCache = new Map<string | number, ChainData>()
 
 const normalizeChainStatus = (status: unknown): ChainStage['status'] => {
   const normalized = String(status ?? '').trim().toLowerCase()
@@ -360,48 +311,72 @@ const normalizeChainData = (payload: any): ChainData | null => {
   }
 }
 
-const primeChainCache = async (rows: ExceptionAlert[]) => {
-  const eventIds = rows
-    .map(row => row.id)
-    .filter((id): id is string | number => id !== undefined && id !== null)
-    .filter(id => !chainCache.has(id))
-
-  if (!eventIds.length) return
-
-  const results = await Promise.allSettled(eventIds.map(eventId => getProcessingChain(eventId)))
-  results.forEach((result, index) => {
-    if (result.status !== 'fulfilled') return
-    const normalized = normalizeChainData(result.value?.data)
-    if (normalized) {
-      chainCache.set(eventIds[index], normalized)
-    }
+const filteredList = computed(() => {
+  const keyword = query.keyword.trim()
+  return sourceList.value.filter((item) => {
+    if (query.status === 'pending' && String(item.state || '0') === '1') return false
+    if (query.status === 'resolved' && String(item.state || '0') !== '1') return false
+    if (!keyword) return true
+    return [item.nickName, item.type, item.location].some((field) => String(field || '').includes(keyword))
   })
+})
+
+const pagedList = computed(() => {
+  const start = (page.value - 1) * pageSize
+  return filteredList.value.slice(start, start + pageSize)
+})
+
+const pendingCount = computed(() => filteredList.value.filter((item) => String(item.state || '0') !== '1').length)
+const resolvedCount = computed(() => filteredList.value.filter((item) => String(item.state || '0') === '1').length)
+const avgChainDuration = computed(() => {
+  if (!chainCache.size) return 0
+  const total = Array.from(chainCache.values()).reduce((sum, item) => sum + (item.totalDuration || item.stages.length * 15), 0)
+  return Math.round(total / chainCache.size)
+})
+
+const normalizeInsight = (payload: any): InsightSummary => {
+  const toText = (...values: unknown[]) => values.map((item) => String(item || '').trim()).find(Boolean) || ''
+  const toList = (value: unknown) => {
+    if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean)
+    const text = toText(value)
+    return text ? text.split(/[,，；;\n]+/).map((item) => item.trim()).filter(Boolean) : []
+  }
+
+  const riskLevel = toText(payload.risk?.riskLevel, payload.risk?.level, payload.riskLevel).toLowerCase()
+  const normalizedLevel = ['high', 'critical', 'danger'].some((item) => riskLevel.includes(item))
+    ? 'high'
+    : ['medium', 'warning'].some((item) => riskLevel.includes(item))
+      ? 'medium'
+      : ['low', 'normal'].some((item) => riskLevel.includes(item))
+        ? 'low'
+        : 'unknown'
+
+  return {
+    overview: toText(payload.summary, payload.overview, payload.abnormalOverview, '暂无概述'),
+    riskLevel: normalizedLevel,
+    riskLabel: { high: '高风险', medium: '中风险', low: '低风险', unknown: '待判定' }[normalizedLevel] || '待判定',
+    reasons: toList(payload.risk?.possibleCauses || payload.risk?.analysisReasons || payload.analysisReasons),
+    suggestedActions: toList(payload.advice?.suggestedActions || payload.advice?.actions || payload.suggestedActions)
+  }
 }
 
-// ============ API 调用 ============
+const insightRiskTagType = computed(() => {
+  if (!insightData.value) return 'info'
+  return { high: 'danger', medium: 'warning', low: 'success' }[insightData.value.riskLevel] || 'info'
+})
+
 const fetchList = async () => {
+  loading.value = true
   try {
-    loading.value = true
-    const res = await listExceptions({
-      pageNum: query.pageNum,
-      pageSize: query.pageSize,
-      keyword: query.keyword,
-      status: query.status
-    } as any)
+    const res = await listExceptions({ pageNum: 1, pageSize: 100 })
+    sourceList.value = (res.rows || []) as ExceptionAlert[]
 
-    const rows = (res.rows || []) as ExceptionAlert[]
-    // 为每条记录补充链路状态
-    list.value = rows.map((item: any) => enrichExceptionWithChain(item))
-    total.value = res.total || 0
-    list.value = rows
-    await primeChainCache(rows)
-
-    const activeEventId = selectedEvent.value?.id
-    if (activeEventId && !chainData.value && chainCache.has(activeEventId)) {
-      chainData.value = chainCache.get(activeEventId) || null
+    if (selectedEvent.value?.id) {
+      const matched = sourceList.value.find((item) => item.id === selectedEvent.value?.id)
+      selectedEvent.value = matched || null
     }
-  } catch (e) {
-    console.error('加载事件列表失败:', e)
+  } catch (error) {
+    console.error(error)
     ElMessage.error('事件列表加载失败')
   } finally {
     loading.value = false
@@ -411,32 +386,16 @@ const fetchList = async () => {
 const fetchChain = async (eventId: string | number) => {
   chainLoading.value = true
   chainData.value = chainCache.get(eventId) || null
-  let requestFailed = false
   try {
     const res = await getProcessingChain(eventId)
     const normalized = normalizeChainData(res.data)
-    if (res.data && res.data.stages) {
-      chainData.value = res.data as ChainData
-    } else {
-      // 后端可能暂未返回，使用 mock 作为降级
-      chainData.value = generateMockProcessingChain(eventId) as ChainData
-    }
-    // 缓存链路信息
+    chainData.value = normalized ?? (chainCache.get(eventId) || null)
     if (normalized) {
-      chainData.value = normalized
-    }
-    if (chainData.value) {
-      chainCache.set(eventId, chainData.value)
+      chainCache.set(eventId, normalized)
     }
   } catch {
-    requestFailed = true
     chainData.value = chainCache.get(eventId) || null
-    // 降级到模拟数据
-    chainData.value = generateMockProcessingChain(eventId) as ChainData
   } finally {
-    if (requestFailed) {
-      chainData.value = chainCache.get(eventId) || null
-    }
     chainLoading.value = false
   }
 }
@@ -447,8 +406,7 @@ const fetchInsight = async () => {
   insightData.value = null
   try {
     const res = await getEventInsight(selectedEvent.value.id)
-    const payload = res.data || {}
-    insightData.value = normalizeInsight(payload)
+    insightData.value = normalizeInsight(res.data || {})
   } catch {
     insightData.value = null
   } finally {
@@ -456,123 +414,54 @@ const fetchInsight = async () => {
   }
 }
 
-const loadNotifications = async () => {
-  notificationItems.value = await loadPlatformNotifications('event')
+const getChainStages = (row: ExceptionAlert) => {
+  if (!row.id) return []
+  return chainCache.get(row.id)?.stages || []
 }
 
-// ============ 数据处理 ============
-const normalizeInsight = (payload: any): InsightSummary => {
-  const getText = (...vals: unknown[]) => {
-    for (const v of vals) {
-      if (typeof v === 'string' && v.trim()) return v.trim()
-    }
-    return ''
-  }
-  const getList = (v: unknown) => {
-    if (Array.isArray(v)) return v.map(String).filter(Boolean)
-    const t = getText(v)
-    return t ? t.split(/[,，;；、\n]+/).map(s => s.trim()).filter(Boolean) : []
-  }
-
-  const riskLevel = getText(payload.risk?.riskLevel, payload.risk?.level, payload.riskLevel, '').toLowerCase()
-  const riskLabelMap: Record<string, string> = { high: '高风险', medium: '中风险', low: '低风险' }
-  const normalizedLevel = ['high', 'danger', 'critical'].some(k => riskLevel.includes(k)) ? 'high'
-    : ['medium', 'warning'].some(k => riskLevel.includes(k)) ? 'medium'
-    : ['low', 'normal'].some(k => riskLevel.includes(k)) ? 'low' : 'unknown'
-
-  return {
-    overview: getText(payload.summary, payload.overview, payload.abnormalOverview, '暂无概述'),
-    riskLevel: normalizedLevel,
-    riskLabel: riskLabelMap[normalizedLevel] || '待判断',
-    reasons: getList(payload.risk?.possibleCauses || payload.risk?.analysisReasons || payload.possibleCauses || payload.analysisReasons),
-    suggestedActions: getList(payload.advice?.suggestedActions || payload.advice?.actions || payload.suggestedActions || payload.actions)
-  }
-}
-
-const getChainStages = (row: any) => {
-  if (row.stages) return row.stages
-  const cached = row.id ? chainCache.get(row.id) : null
-  return cached?.stages || []
-}
-
-const getChainLabel = (row: any) => {
+const getChainLabel = (row: ExceptionAlert) => {
   const stages = getChainStages(row)
-  if (!stages.length) return '-'
-  const completed = stages.filter((s: any) => s.status === 'completed').length
-  const processing = stages.find((s: any) => s.status === 'processing')
+  if (!stages.length) return '暂无链路'
+  const processing = stages.find((item) => item.status === 'processing')
   if (processing) return processing.name
-  if (completed === stages.length) return '已闭环'
-  return `${completed}/${stages.length}`
+  if (stages.every((item) => item.status === 'completed')) return '已闭环'
+  return `${stages.filter((item) => item.status === 'completed').length}/${stages.length}`
 }
 
 const flattenDetails = (details: Record<string, any>) => {
   const result: Record<string, string> = {}
-  for (const [key, val] of Object.entries(details)) {
-    if (val == null) continue
-    if (Array.isArray(val)) {
-      result[key] = val.map(item => typeof item === 'object' ? JSON.stringify(item) : String(item)).join(', ')
-    } else if (typeof val === 'object') {
-      for (const [subKey, subVal] of Object.entries(val)) {
-        result[subKey] = String(subVal ?? '')
-      }
-    } else {
-      result[key] = String(val)
+  Object.entries(details).forEach(([key, value]) => {
+    if (value == null) return
+    if (Array.isArray(value)) {
+      result[key] = value.map((item) => String(item)).join(', ')
+      return
     }
-  }
+    if (typeof value === 'object') {
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        result[subKey] = String(subValue ?? '')
+      })
+      return
+    }
+    result[key] = String(value)
+  })
   return result
 }
 
-const formatDetailKey = (key: string) => {
-  const labelMap: Record<string, string> = {
-    abnormalType: '异常类型',
-    abnormalValue: '异常值',
-    snapshotCount: '快照数',
-    summary: '阶段摘要',
-    detail: '执行说明',
-    progress: '完成度',
-    agentKey: 'Agent 标识',
-    riskLevel: '风险等级',
-    riskScore: '风险分数',
-    suggestion: '处置建议',
-    notificationLevel: '通知等级',
-    autoExecute: '自动执行',
-    executionStatus: '执行状态',
-    executionResult: '执行结果',
-    actualOutcome: '实际结果',
-    feedbackScore: '反馈分数',
-    auditCount: '审计记录数'
-  }
-  return labelMap[key] || key
-}
+const formatDetailKey = (key: string) => ({
+  abnormalType: '异常类型',
+  abnormalValue: '异常值',
+  summary: '摘要',
+  detail: '说明',
+  riskLevel: '风险等级',
+  suggestion: '建议'
+}[key] || key)
 
 const formatTime = (timestamp: string) => {
-  try {
-    return new Date(timestamp).toLocaleTimeString('zh-CN')
-  } catch {
-    return timestamp
-  }
+  const date = new Date(timestamp)
+  if (!Number.isFinite(date.getTime())) return timestamp
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
 }
 
-// ============ 统计指标 ============
-const pendingCount = computed(() => list.value.filter((r: ExceptionAlert) => String(r.state ?? '0') !== '1').length)
-const resolvedCount = computed(() => list.value.filter((r: ExceptionAlert) => String(r.state) === '1').length)
-const avgChainDuration = computed(() => {
-  if (!chainCache.size) return 0
-  return Math.round(
-    Array.from(chainCache.values()).reduce((sum, chain) => {
-      if (chain.totalDuration > 0) return sum + chain.totalDuration
-      return sum + chain.stages.length * 15
-    }, 0) / chainCache.size
-  )
-})
-
-const insightRiskTagType = computed(() => {
-  if (!insightData.value) return 'info'
-  const m: Record<string, string> = { high: 'danger', medium: 'warning', low: 'success' }
-  return m[insightData.value.riskLevel] || 'info'
-})
-
-// ============ 事件处理 ============
 const handleRowClick = (row: ExceptionAlert) => {
   selectedEvent.value = row
   if (row.id) {
@@ -588,60 +477,55 @@ const handleCurrentChange = (row: ExceptionAlert | null) => {
 const resetQuery = () => {
   query.keyword = ''
   query.status = ''
-  query.pageNum = 1
-  fetchList()
+  page.value = 1
 }
 
 const handleSearchClick = async () => {
-  await openPlatformSearch(router, 'tech')
+  await openPlatformSearch(router, 'event')
 }
-const handleNotificationItem = (item: PlatformNotificationRecord) => openPlatformNotification(router, item)
-const handleNotificationClick = () => openAllPlatformNotifications(router)
+
+const normalizeEventTypeQuery = (value: unknown) => {
+  const text = String(value || '').trim()
+  const lower = text.toLowerCase()
+  if (!text) return ''
+  if (lower.includes('heart') || text.includes('心率')) return '心率异常'
+  if (lower.includes('spo2') || lower.includes('oxygen') || text.includes('血氧')) return '血氧异常'
+  if (lower.includes('pressure') || lower.includes('blood') || text.includes('血压')) return '血压异常'
+  if (lower.includes('temp') || lower.includes('temperature') || text.includes('体温')) return '体温异常'
+  if (lower.includes('fence') || text.includes('围栏') || text.includes('越界')) return '围栏越界'
+  if (lower.includes('sos') || text.includes('求救') || text.includes('求助')) return 'SOS求救'
+  if (lower.includes('offline') || text.includes('离线')) return '设备离线'
+  if (lower.includes('activity') || text.includes('活动') || text.includes('步数')) return '活动量异常'
+  if (lower.includes('signal') || text.includes('信号')) return '设备信号异常'
+  return text
+}
 
 const jumpToEvent = (row: ExceptionAlert) => {
-  router.push({ path: '/event', query: { type: row.type || '', userId: String(row.userId || '') } })
-}
-const jumpToSubject = (row: ExceptionAlert) => {
-  if (row.userId) router.push({ path: '/subject', query: { userId: String(row.userId) } })
-}
-const jumpToDevice = (row: ExceptionAlert) => {
-  if (row.deviceId) router.push({ path: '/device', query: { deviceId: String(row.deviceId) } })
+  router.push({ path: '/event', query: { type: normalizeEventTypeQuery(row.type), userId: String(row.userId || '') } })
 }
 
-// ============ 生命周期 ============
+const jumpToSubject = (row: ExceptionAlert) => {
+  if (!row.userId) return
+  router.push({ path: '/subject', query: { userId: String(row.userId) } })
+}
+
+const jumpToDevice = (row: ExceptionAlert) => {
+  if (!row.deviceId) return
+  router.push({ path: '/device', query: { deviceId: String(row.deviceId) } })
+}
+
 onMounted(() => {
   fetchList()
-  loadNotifications()
 })
 </script>
 
 <style scoped lang="scss">
-.toolbar-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.toolbar-stack { display: flex; flex-direction: column; gap: 12px; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.panel.section { display: flex; flex-direction: column; gap: 16px; }
+.pagination { display: flex; justify-content: flex-end; padding-top: 8px; }
+.header-actions { width: min(360px, 100%); }
 
-.toolbar {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.panel.section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 8px;
-}
-
-// 统计卡片
 .chain-summary-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -656,45 +540,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-
-  .sc-label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  .sc-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1e293b;
-    line-height: 1;
-  }
-
-  .sc-unit {
-    font-size: 12px;
-    color: #94a3b8;
-    font-weight: 400;
-    margin-left: 2px;
-  }
 }
+
+.sc-label { font-size: 12px; color: #64748b; font-weight: 500; }
+.sc-value { font-size: 24px; font-weight: 700; color: #1e293b; line-height: 1; }
+.sc-unit { font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 2px; }
 
 .text-warning { color: #f59e0b; }
 .text-success { color: #10b981; }
-.text-danger { color: #ef4444; }
 .digital-font { font-family: 'Courier New', monospace; }
 
-// 链路内联进度
-.chain-inline-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.chain-dots {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-}
+.chain-inline-progress { display: flex; flex-direction: column; gap: 4px; }
+.chain-dots { display: flex; gap: 3px; align-items: center; }
 
 .chain-dot {
   width: 10px;
@@ -702,83 +559,29 @@ onMounted(() => {
   border-radius: 50%;
   border: 1.5px solid #d1d5db;
   background: white;
-  transition: all 0.2s;
-
-  &.completed {
-    background: #10b981;
-    border-color: #10b981;
-  }
-
-  &.processing {
-    background: #f59e0b;
-    border-color: #f59e0b;
-    animation: pulse-dot 1.5s infinite;
-  }
-
-  &.pending {
-    background: #e5e7eb;
-    border-color: #d1d5db;
-  }
 }
 
-.chain-label {
-  font-size: 11px;
-  color: #64748b;
-}
+.chain-dot.completed { background: #10b981; border-color: #10b981; }
+.chain-dot.processing { background: #f59e0b; border-color: #f59e0b; animation: pulse-dot 1.5s infinite; }
+.chain-dot.pending { background: #e5e7eb; border-color: #d1d5db; }
+.chain-label { font-size: 11px; color: #64748b; }
 
-// 侧栏
-.aside-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.panel.aside-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.detail-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.aside-card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.detail-subtitle {
-  font-size: 12px;
-  color: #94a3b8;
-  margin: 4px 0 0;
-}
-
-.detail-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.aside-stack { display: flex; flex-direction: column; gap: 16px; }
+.panel.aside-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+.detail-card, .detail-body { display: flex; flex-direction: column; gap: 12px; }
+.detail-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; }
+.aside-card-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+.detail-subtitle { font-size: 12px; color: #94a3b8; margin: 4px 0 0; line-height: 1.5; }
 
 .empty-detail {
   padding: 24px 16px;
   text-align: center;
   color: #94a3b8;
   font-size: 13px;
-
-  .empty-title {
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 8px;
-  }
 }
 
-// 链路信息条
+.empty-title { font-weight: 600; color: #64748b; margin-bottom: 8px; }
+
 .chain-info-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -789,59 +592,14 @@ onMounted(() => {
   border-left: 3px solid #0ea5e9;
 }
 
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.info-item { display: flex; flex-direction: column; gap: 2px; }
+.info-label { font-size: 11px; color: #94a3b8; }
+.info-value { font-size: 13px; color: #1e293b; font-weight: 500; }
 
-.info-label {
-  font-size: 11px;
-  color: #94a3b8;
-}
+.chain-timeline { display: flex; flex-direction: column; }
 
-.info-value {
-  font-size: 13px;
-  color: #1e293b;
-  font-weight: 500;
-}
-
-// 时间轴
-.chain-timeline {
-  display: flex;
-  flex-direction: column;
-}
-
-.tl-item {
-  display: flex;
-  gap: 12px;
-  position: relative;
-
-  &.tl-completed .tl-dot {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-  }
-
-  &.tl-processing .tl-dot {
-    background: #f59e0b;
-    border-color: #f59e0b;
-    color: white;
-  }
-
-  &.tl-pending .tl-dot {
-    background: #e5e7eb;
-    border-color: #d1d5db;
-    color: #94a3b8;
-  }
-}
-
-.tl-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
+.tl-item { display: flex; gap: 12px; position: relative; }
+.tl-marker { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
 
 .tl-dot {
   width: 28px;
@@ -856,41 +614,16 @@ onMounted(() => {
   z-index: 1;
 }
 
-.tl-line {
-  width: 2px;
-  flex: 1;
-  min-height: 16px;
-  background: #e5e7eb;
-}
+.tl-completed .tl-dot { background: #10b981; border-color: #10b981; color: white; }
+.tl-processing .tl-dot { background: #f59e0b; border-color: #f59e0b; color: white; }
+.tl-pending .tl-dot { background: #e5e7eb; border-color: #d1d5db; color: #94a3b8; }
 
-.tl-body {
-  flex: 1;
-  padding-bottom: 16px;
-}
-
-.tl-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.tl-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.tl-time {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.tl-details {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
+.tl-line { width: 2px; flex: 1; min-height: 16px; background: #e5e7eb; }
+.tl-body { flex: 1; padding-bottom: 16px; }
+.tl-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 10px; }
+.tl-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+.tl-time { font-size: 11px; color: #94a3b8; }
+.tl-details { display: flex; flex-direction: column; gap: 3px; }
 
 .tl-detail-row {
   display: flex;
@@ -901,62 +634,17 @@ onMounted(() => {
   border-radius: 3px;
 }
 
-.tl-detail-key {
-  color: #64748b;
-  font-weight: 500;
-  min-width: 60px;
-  flex-shrink: 0;
-}
+.tl-detail-key { color: #64748b; font-weight: 500; min-width: 60px; flex-shrink: 0; }
+.tl-detail-val { color: #334155; word-break: break-all; }
+.tl-detail-text { font-size: 12px; color: #64748b; margin: 0; line-height: 1.6; }
 
-.tl-detail-val {
-  color: #334155;
-  word-break: break-all;
-}
+.chain-actions { display: flex; gap: 8px; padding-top: 4px; flex-wrap: wrap; }
 
-.tl-detail-text {
-  font-size: 12px;
-  color: #64748b;
-  margin: 0;
-}
-
-// 快捷操作
-.chain-actions {
-  display: flex;
-  gap: 8px;
-  padding-top: 4px;
-}
-
-// 研判摘要
-.insight-mini {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.im-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  font-size: 13px;
-}
-
-.im-label {
-  color: #64748b;
-  font-weight: 500;
-  min-width: 60px;
-  flex-shrink: 0;
-}
-
-.im-value {
-  color: #334155;
-  line-height: 1.5;
-}
-
-.im-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
+.insight-mini { display: flex; flex-direction: column; gap: 10px; }
+.im-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.im-label { color: #64748b; font-weight: 500; min-width: 60px; flex-shrink: 0; }
+.im-value { color: #334155; line-height: 1.5; }
+.im-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 
 .insight-chip {
   padding: 2px 8px;
@@ -964,14 +652,10 @@ onMounted(() => {
   border-radius: 3px;
   font-size: 11px;
   color: #475569;
-
-  &.insight-chip-action {
-    background: #eff6ff;
-    color: #2563eb;
-  }
 }
 
-// 加载占位
+.insight-chip-action { background: #eff6ff; color: #2563eb; }
+
 .chain-loading {
   display: flex;
   flex-direction: column;
@@ -986,10 +670,9 @@ onMounted(() => {
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
   width: 100%;
-
-  &.loading-line-lg { height: 16px; width: 80%; }
-  &.loading-line-short { width: 50%; }
 }
+
+.loading-line-lg { height: 16px; width: 80%; }
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }
@@ -999,5 +682,9 @@ onMounted(() => {
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+@media (max-width: 1200px) {
+  .chain-summary-row { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

@@ -7,6 +7,8 @@ import com.qkyd.ai.service.IAbnormalDetectionService;
 import com.qkyd.ai.service.IEventProcessingPipelineService;
 import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.common.event.AbnormalDetectionEvent;
+import com.qkyd.health.domain.HealthSubject;
+import com.qkyd.health.service.IHealthSubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +46,9 @@ public class AbnormalDetectionController {
 
     @Autowired
     private AbnormalRecordMapper abnormalRecordMapper;
+
+    @Autowired
+    private IHealthSubjectService healthSubjectService;
 
     @PostMapping("/detect")
     public AjaxResult detect(@RequestBody Map<String, Object> data) {
@@ -152,12 +157,12 @@ public class AbnormalDetectionController {
 
     private List<Map<String, Object>> mockRecentAbnormal(int limit) {
         List<Map<String, Object>> list = new ArrayList<>();
-        list.add(buildRecent(9101L, "演示对象A", "心率异常", "high", "132 bpm", 96, "演示手表-A01", "AI_RULE_V2", 2));
-        list.add(buildRecent(9102L, "演示对象B", "体温异常", "medium", "38.6 C", 88, "演示手表-A02", "AI_RULE_V2", 5));
-        list.add(buildRecent(9103L, "演示对象C", "血氧异常", "high", "89%", 93, "演示手表-A03", "VITAL_FUSION", 9));
-        list.add(buildRecent(9104L, "演示对象D", "围栏越界", "medium", "超出1.8公里", 82, "演示手表-A04", "GEOFENCE_GUARD", 13));
-        list.add(buildRecent(9105L, "演示对象E", "SOS求救", "critical", "手动触发", 99, "演示手表-A05", "EMERGENCY_AGENT", 18));
-        list.add(buildRecent(9106L, "演示对象F", "步数异常", "low", "15400 steps/day", 79, "演示手表-A06", "ACTIVITY_BASELINE", 24));
+        list.add(buildRecent(9101L, "王秀兰", "心率异常", "high", "132 次/分", 96, "康护腕表-01", "AI_RULE_V2", 2));
+        list.add(buildRecent(9102L, "李建国", "体温异常", "medium", "38.6℃", 88, "康护腕表-02", "AI_RULE_V2", 5));
+        list.add(buildRecent(9103L, "陈桂英", "血氧异常", "high", "89%", 93, "康护腕表-03", "VITAL_FUSION", 9));
+        list.add(buildRecent(9104L, "周德明", "围栏越界", "medium", "超出1.8公里", 82, "康护腕表-04", "GEOFENCE_GUARD", 13));
+        list.add(buildRecent(9105L, "吴美琴", "SOS求救", "critical", "手动触发", 99, "康护腕表-05", "EMERGENCY_AGENT", 18));
+        list.add(buildRecent(9106L, "赵文华", "活动量异常", "low", "1540 步/日", 79, "康护腕表-06", "ACTIVITY_BASELINE", 24));
         if (limit <= 0 || limit >= list.size()) {
             return list;
         }
@@ -189,9 +194,10 @@ public class AbnormalDetectionController {
             return Collections.emptyList();
         }
 
+        Map<Long, String> patientNameCache = new HashMap<>();
         List<Map<String, Object>> normalized = new ArrayList<>();
         for (Object row : rows) {
-            Map<String, Object> item = normalizeRecentRow(row);
+            Map<String, Object> item = normalizeRecentRow(row, patientNameCache);
             if (item != null) {
                 normalized.add(item);
             }
@@ -202,7 +208,7 @@ public class AbnormalDetectionController {
         return normalized;
     }
 
-    private Map<String, Object> normalizeRecentRow(Object row) {
+    private Map<String, Object> normalizeRecentRow(Object row, Map<Long, String> patientNameCache) {
         if (row instanceof AbnormalRecord record) {
             if (isBlank(record.getAbnormalType()) && isBlank(record.getAbnormalValue()) && record.getDetectedTime() == null) {
                 return null;
@@ -213,13 +219,13 @@ public class AbnormalDetectionController {
             Date detectedTime = record.getDetectedTime() != null ? record.getDetectedTime() : record.getCreateTime();
             item.put("id", record.getId());
             item.put("userId", userId);
-            item.put("patientName", userId == null ? "Demo patient" : "Patient-" + userId);
-            item.put("abnormalType", defaultText(record.getAbnormalType(), defaultText(record.getMetricType(), "Health abnormal")));
+            item.put("patientName", resolvePatientName(userId, null, patientNameCache));
+            item.put("abnormalType", defaultText(record.getAbnormalType(), defaultText(record.getMetricType(), "健康异常")));
             item.put("riskLevel", defaultText(record.getRiskLevel(), "medium"));
             item.put("abnormalValue", defaultText(record.getAbnormalValue(), "-"));
             item.put("confidence", confidenceFromRisk(record.getRiskLevel()));
-            item.put("deviceName", defaultText(record.getDeviceId(), "Smart device"));
-            item.put("source", defaultText(record.getDetectionMethod(), "AI_RULE_V2"));
+            item.put("deviceName", defaultText(record.getDeviceId(), "智能设备"));
+            item.put("source", defaultText(record.getDetectionMethod(), "规则引擎"));
             item.put("detectedTime", detectedTime);
             item.put("createTime", record.getCreateTime() != null ? record.getCreateTime() : detectedTime);
             item.put("readTime", detectedTime);
@@ -233,17 +239,58 @@ public class AbnormalDetectionController {
             if (isBlank(source.get("abnormalType")) && isBlank(source.get("abnormalValue")) && source.get("detectedTime") == null) {
                 return null;
             }
-            source.putIfAbsent("patientName", source.getOrDefault("nickName", "Demo patient"));
+            Long userId = parseLong(source.get("userId"));
+            source.put("patientName", resolvePatientName(userId, source.getOrDefault("patientName", source.get("nickName")), patientNameCache));
             source.putIfAbsent("riskLevel", "medium");
             source.putIfAbsent("confidence", confidenceFromRisk(String.valueOf(source.get("riskLevel"))));
-            source.putIfAbsent("deviceName", "Smart device");
-            source.putIfAbsent("source", "AI_RULE_V2");
+            source.putIfAbsent("deviceName", "智能设备");
+            source.putIfAbsent("source", "规则引擎");
             source.putIfAbsent("createTime", source.get("detectedTime"));
             source.putIfAbsent("readTime", source.get("detectedTime"));
             return source;
         }
 
         return null;
+    }
+
+    private String resolvePatientName(Long userId, Object fallbackName, Map<Long, String> patientNameCache) {
+        String fallback = defaultText(fallbackName == null ? null : String.valueOf(fallbackName), userId == null ? "演示对象" : "Patient-" + userId);
+        if (!looksLikePlaceholderName(fallback)) {
+            return fallback;
+        }
+        if (userId == null) {
+            return fallback;
+        }
+        if (patientNameCache.containsKey(userId)) {
+            return patientNameCache.get(userId);
+        }
+
+        String resolved = fallback;
+        try {
+            HealthSubject subject = healthSubjectService.selectHealthSubjectBySubjectId(userId);
+            if (subject != null) {
+                resolved = defaultText(subject.getNickName(), defaultText(subject.getSubjectName(), fallback));
+            }
+        } catch (Exception ignored) {
+            resolved = fallback;
+        }
+
+        patientNameCache.put(userId, resolved);
+        return resolved;
+    }
+
+    private boolean looksLikePlaceholderName(String value) {
+        String normalized = String.valueOf(value).trim().toLowerCase(Locale.ROOT);
+        if (normalized.isEmpty()) {
+            return true;
+        }
+        return normalized.equals("unknown")
+                || normalized.equals("demo patient")
+                || normalized.startsWith("patient-")
+                || normalized.startsWith("user ")
+                || normalized.startsWith("user-")
+                || normalized.startsWith("subject-")
+                || normalized.matches("user\\d+");
     }
 
     private String normalizeMetricType(String metricType) {

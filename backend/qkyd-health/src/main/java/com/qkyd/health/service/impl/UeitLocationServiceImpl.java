@@ -62,7 +62,9 @@ public class UeitLocationServiceImpl implements IUeitLocationService {
      */
     @Override
     public int insertUeitLocation(UeitLocation ueitLocation) {
-        ueitLocation.setCreateTime(DateUtils.getNowDate());
+        if (ueitLocation.getCreateTime() == null) {
+            ueitLocation.setCreateTime(DateUtils.getNowDate());
+        }
         return ueitLocationMapper.insertUeitLocation(ueitLocation);
     }
 
@@ -132,4 +134,3 @@ public class UeitLocationServiceImpl implements IUeitLocationService {
         return ueitLocationMapper.pathList(coordinateType,beginReadTime,endReadTime,userId);
     }
 }
-

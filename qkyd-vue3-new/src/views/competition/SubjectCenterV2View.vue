@@ -41,7 +41,7 @@
 
     <div class="panel section">
       <el-table v-loading="loading" :data="list" stripe highlight-current-row @current-change="handleCurrentChange" @row-click="handleRowSelect">
-        <el-table-column prop="subjectId" label="ID" width="90" />
+        <el-table-column prop="subjectId" label="系统ID" width="90" />
         <el-table-column prop="subjectName" label="对象账号" min-width="120" />
         <el-table-column prop="nickName" label="姓名" min-width="120" />
         <el-table-column prop="age" label="年龄" width="90" />
@@ -87,7 +87,7 @@
 
           <div v-if="selectedSubject" class="detail-body">
             <el-descriptions :column="1" border size="small">
-              <el-descriptions-item label="对象ID">{{ selectedSubject.subjectId || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="系统ID">{{ selectedSubject.subjectId || '-' }}</el-descriptions-item>
               <el-descriptions-item label="对象账号">{{ selectedSubject.subjectName || '-' }}</el-descriptions-item>
               <el-descriptions-item label="姓名">{{ selectedSubject.nickName || '-' }}</el-descriptions-item>
               <el-descriptions-item label="手机号">{{ selectedSubject.phonenumber || '-' }}</el-descriptions-item>

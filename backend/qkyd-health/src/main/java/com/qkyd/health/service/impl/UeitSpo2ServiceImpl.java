@@ -54,7 +54,9 @@ public class UeitSpo2ServiceImpl implements IUeitSpo2Service
     @Override
     public int insertUeitSpo2(UeitSpo2 ueitSpo2)
     {
-        ueitSpo2.setCreateTime(DateUtils.getNowDate());
+        if (ueitSpo2.getCreateTime() == null) {
+            ueitSpo2.setCreateTime(DateUtils.getNowDate());
+        }
         return ueitSpo2Mapper.insertUeitSpo2(ueitSpo2);
     }
 
@@ -106,4 +108,3 @@ public class UeitSpo2ServiceImpl implements IUeitSpo2Service
         return ueitSpo2Mapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
-

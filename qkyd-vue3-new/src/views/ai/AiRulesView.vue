@@ -1,278 +1,225 @@
 <template>
   <PlatformPageShellV2
-    title="规则配置"
-    subtitle="统一管理各类 AI 告警触发阈值、规则组合策略与通知链路，灵活适配不同对象的监护需求。"
-    eyebrow="AI RULE CONFIG"
-    status-note="演示版 · 当前使用模拟数据"
-    status-tone="warning"
+    title="规则执行概览"
+    subtitle="基于真实异常检测结果统计当前各类规则的命中、风险等级与最近触发情况。"
+    eyebrow="AI RULE OVERVIEW"
   >
-    <template #headerExtra>
-      <el-button type="primary" :icon="Plus" @click="openCreate">新增规则</el-button>
-    </template>
-
-    <!-- 规则统计 -->
     <div class="rule-stats">
-      <div v-for="s in ruleStats" :key="s.label" class="rs-card">
-        <span class="rs-num" :style="{ color: s.color }">{{ s.value }}</span>
-        <span class="rs-label">{{ s.label }}</span>
+      <div v-for="item in ruleStats" :key="item.label" class="rs-card">
+        <span class="rs-num" :style="{ color: item.color }">{{ item.value }}</span>
+        <span class="rs-label">{{ item.label }}</span>
       </div>
     </div>
 
-    <!-- 规则分类标签 -->
     <div class="category-bar">
       <button
-        v-for="cat in categories"
-        :key="cat.value"
+        v-for="category in categories"
+        :key="category.value"
         class="cat-btn"
-        :class="{ active: activeCategory === cat.value }"
-        @click="activeCategory = cat.value"
+        :class="{ active: activeCategory === category.value }"
+        @click="activeCategory = category.value"
       >
-        <el-icon><component :is="cat.icon" /></el-icon>
-        {{ cat.label }}
+        {{ category.label }}
       </button>
     </div>
 
-    <!-- 规则卡片列表 -->
     <div class="rules-grid">
-      <div v-for="rule in filteredRules" :key="rule.id" class="rule-card" :class="{ disabled: !rule.enabled }">
+      <div v-for="rule in filteredRules" :key="rule.key" class="rule-card">
         <div class="rc-header">
-          <div class="rc-icon" :style="{ background: categoryColor(rule.category) }">
-            <el-icon :size="16"><component :is="categoryIcon(rule.category)" /></el-icon>
+          <div class="rc-icon" :style="{ background: rule.bg }">
+            <el-icon :size="16"><component :is="rule.icon" /></el-icon>
           </div>
           <div class="rc-title-area">
             <span class="rc-name">{{ rule.name }}</span>
-            <span class="rc-category">{{ categoryLabel(rule.category) }}</span>
+            <span class="rc-category">{{ rule.categoryLabel }}</span>
           </div>
-          <el-switch v-model="rule.enabled" @change="handleToggle(rule)" />
+          <el-tag :type="levelTagType(rule.level)" size="small" effect="light">{{ levelLabel[rule.level] }}</el-tag>
         </div>
 
         <p class="rc-desc">{{ rule.description }}</p>
 
         <div class="rc-conditions">
-          <div v-for="cond in rule.conditions" :key="cond.key" class="cond-row">
-            <span class="cond-key">{{ cond.key }}</span>
-            <span class="cond-op">{{ cond.op }}</span>
-            <span class="cond-val" :class="{ 'val-high': cond.high }">{{ cond.value }}</span>
+          <div v-for="item in rule.conditions" :key="item.key" class="cond-row">
+            <span class="cond-key">{{ item.key }}</span>
+            <span class="cond-op">=</span>
+            <span class="cond-val" :class="{ 'val-high': item.high }">{{ item.value }}</span>
           </div>
         </div>
 
         <div class="rc-footer">
           <div class="rc-meta">
-            <el-tag :type="levelTagType(rule.level)" size="small" effect="light">{{ levelLabel[rule.level] }}</el-tag>
             <span class="rc-trigger-count">命中 {{ rule.triggerCount }} 次</span>
+            <span class="rc-trigger-count">对象 {{ rule.subjectCount }} 人</span>
           </div>
-          <div class="rc-actions">
-            <el-button size="small" text type="primary" @click="openEdit(rule)">编辑</el-button>
-            <el-button size="small" text type="danger" @click="deleteRule(rule.id)">删除</el-button>
-          </div>
+          <span class="rc-last-time">{{ rule.lastTime }}</span>
         </div>
       </div>
-    </div>
 
-    <!-- 编辑/新增对话框 -->
-    <el-dialog v-model="dialogVisible" :title="editingRule?.id ? '编辑规则' : '新增规则'" width="560px">
-      <el-form v-if="form" :model="form" label-width="96px">
-        <el-form-item label="规则名称"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="规则类别">
-          <el-select v-model="form.category" style="width: 100%">
-            <el-option label="心率监测" value="heartRate" />
-            <el-option label="血氧监测" value="spo2" />
-            <el-option label="跌倒检测" value="fall" />
-            <el-option label="睡眠监控" value="sleep" />
-            <el-option label="综合风险" value="risk" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="告警级别">
-          <el-select v-model="form.level" style="width: 100%">
-            <el-option label="紧急" value="critical" />
-            <el-option label="高级" value="high" />
-            <el-option label="中级" value="medium" />
-            <el-option label="低级" value="low" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="规则描述"><el-input v-model="form.description" type="textarea" :rows="3" /></el-form-item>
-        <el-form-item label="启用状态">
-          <el-switch v-model="form.enabled" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitRule">保存规则</el-button>
-      </template>
-    </el-dialog>
+      <el-empty v-if="!filteredRules.length" description="暂无规则命中数据" />
+    </div>
   </PlatformPageShellV2>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed, onMounted, ref } from 'vue'
 import { PlatformPageShellV2 } from '@/components/platform'
+import { getRecentAbnormal } from '@/api/ai'
 
 type RuleLevel = 'critical' | 'high' | 'medium' | 'low'
-type RuleCategory = 'heartRate' | 'spo2' | 'fall' | 'sleep' | 'risk'
 
-const activeCategory = ref<'all' | RuleCategory>('all')
-const dialogVisible = ref(false)
-const editingRule = ref<any>(null)
-const form = reactive<any>({})
+interface RecentAbnormalItem {
+  userId?: number | string
+  patientName?: string
+  abnormalType?: string
+  abnormalValue?: string
+  riskLevel?: string
+  createTime?: string
+  readTime?: string
+  detectedTime?: string
+}
 
-const levelLabel: Record<RuleLevel, string> = { critical: '紧急', high: '高级', medium: '中级', low: '低级' }
-const levelTagType = (l: RuleLevel) => ({ critical: 'danger', high: 'warning', medium: '', low: 'success' }[l] as any)
+interface RuleCard {
+  key: string
+  name: string
+  category: string
+  categoryLabel: string
+  level: RuleLevel
+  description: string
+  triggerCount: number
+  subjectCount: number
+  lastTime: string
+  bg: string
+  icon: string
+  conditions: Array<{ key: string; value: string; high?: boolean }>
+}
 
-const categoryLabel = (cat: RuleCategory) => ({ heartRate: '心率', spo2: '血氧', fall: '跌倒', sleep: '睡眠', risk: '综合' }[cat])
-const categoryIcon = (cat: RuleCategory) => ({ heartRate: 'Odometer', spo2: 'Aim', fall: 'Warning', sleep: 'Moon', risk: 'DataAnalysis' }[cat])
-const categoryColor = (cat: RuleCategory) => ({
-  heartRate: 'linear-gradient(135deg,#fee2e2,#fca5a5)',
-  spo2: 'linear-gradient(135deg,#dcfce7,#86efac)',
-  fall: 'linear-gradient(135deg,#fef3c7,#fcd34d)',
-  sleep: 'linear-gradient(135deg,#ede9fe,#c4b5fd)',
-  risk: 'linear-gradient(135deg,#dbeafe,#93c5fd)',
-}[cat])
+const activeCategory = ref('all')
+const rules = ref<RuleCard[]>([])
 
-const categories = [
-  { label: '全部', value: 'all', icon: 'Grid' },
-  { label: '心率', value: 'heartRate', icon: 'Odometer' },
-  { label: '血氧', value: 'spo2', icon: 'Aim' },
-  { label: '跌倒', value: 'fall', icon: 'Warning' },
-  { label: '睡眠', value: 'sleep', icon: 'Moon' },
-  { label: '综合风险', value: 'risk', icon: 'DataAnalysis' },
-]
+const levelLabel: Record<RuleLevel, string> = { critical: '紧急', high: '高风险', medium: '中风险', low: '低风险' }
+const levelTagType = (level: RuleLevel) => ({ critical: 'danger', high: 'warning', medium: '', low: 'success' }[level] as 'danger' | 'warning' | '' | 'success')
 
-const rules = ref([
-  { id: 1, name: '心率过速告警', category: 'heartRate' as RuleCategory, level: 'critical' as RuleLevel, enabled: true, description: '当检测心率连续 5 分钟超过 100 bpm 时，立即触发紧急告警并通知医护人员。', conditions: [{ key: '心率', op: '>', value: '100 bpm', high: true }, { key: '持续时长', op: '≥', value: '5 分钟', high: false }], triggerCount: 12 },
-  { id: 2, name: '心率过缓预警', category: 'heartRate' as RuleCategory, level: 'high' as RuleLevel, enabled: true, description: '当心率低于 50 bpm 持续超过 3 分钟时，触发高级预警。', conditions: [{ key: '心率', op: '<', value: '50 bpm', high: true }, { key: '持续时长', op: '≥', value: '3 分钟', high: false }], triggerCount: 5 },
-  { id: 3, name: '血氧低饱和度告警', category: 'spo2' as RuleCategory, level: 'critical' as RuleLevel, enabled: true, description: '血氧饱和度低于 93% 且持续 2 分钟以上，触发紧急告警。', conditions: [{ key: 'SpO₂', op: '<', value: '93%', high: true }, { key: '持续时长', op: '≥', value: '2 分钟', high: false }], triggerCount: 3 },
-  { id: 4, name: '跌倒行为检测', category: 'fall' as RuleCategory, level: 'critical' as RuleLevel, enabled: true, description: '加速度传感器检测到疑似跌倒事件时，立即派发通知并记录位置。', conditions: [{ key: '加速度变化', op: '>', value: '4g（阈值）', high: true }, { key: '静止状态', op: '持续', value: '> 30s', high: false }], triggerCount: 2 },
-  { id: 5, name: '睡眠异常监测', category: 'sleep' as RuleCategory, level: 'medium' as RuleLevel, enabled: false, description: '当睡眠时段内心率波动超过 25 bpm 且同时伴有体动异常时，触发中级预警。', conditions: [{ key: '心率波动', op: '>', value: '25 bpm', high: false }, { key: '体动指数', op: '>', value: '70', high: false }], triggerCount: 8 },
-  { id: 6, name: '综合高风险评估', category: 'risk' as RuleCategory, level: 'high' as RuleLevel, enabled: true, description: '当AI综合风险评分超过75分，且近24小时内已有异常记录，触发高级预警并向主管报告。', conditions: [{ key: '风险评分', op: '>', value: '75分', high: true }, { key: '近24h异常', op: '≥', value: '1次', high: false }], triggerCount: 19 },
+const categories = computed(() => [
+  { label: '全部', value: 'all' },
+  ...Array.from(new Set(rules.value.map((item) => item.category))).map((value) => ({
+    label: rules.value.find((item) => item.category === value)?.categoryLabel || value,
+    value
+  }))
 ])
 
-const ruleStats = [
-  { label: '规则总数',   value: rules.value.length,                                   color: '#3b82f6' },
-  { label: '已启用',    value: rules.value.filter(r => r.enabled).length,             color: '#10b981' },
-  { label: '已禁用',    value: rules.value.filter(r => !r.enabled).length,            color: '#94a3b8' },
-  { label: '本月命中',  value: rules.value.reduce((s, r) => s + r.triggerCount, 0),   color: '#f59e0b' },
-]
+const filteredRules = computed(() => activeCategory.value === 'all' ? rules.value : rules.value.filter((item) => item.category === activeCategory.value))
 
-const filteredRules = computed(() =>
-  activeCategory.value === 'all' ? rules.value : rules.value.filter(r => r.category === activeCategory.value)
-)
+const ruleStats = computed(() => [
+  { label: '规则类型', value: rules.value.length, color: '#3b82f6' },
+  { label: '高风险规则', value: rules.value.filter((item) => ['critical', 'high'].includes(item.level)).length, color: '#ef4444' },
+  { label: '累计命中', value: rules.value.reduce((sum, item) => sum + item.triggerCount, 0), color: '#f59e0b' },
+  { label: '覆盖对象', value: rules.value.reduce((sum, item) => sum + item.subjectCount, 0), color: '#10b981' }
+])
 
-const openCreate = () => {
-  editingRule.value = null
-  Object.assign(form, { name: '', category: 'heartRate', level: 'medium', description: '', enabled: true })
-  dialogVisible.value = true
+const resolveRuleType = (abnormalType?: string) => {
+  const text = String(abnormalType || '').toLowerCase()
+  if (text.includes('心率')) return { key: 'heartRate', label: '心率规则', icon: 'Odometer', bg: 'linear-gradient(135deg,#fee2e2,#fca5a5)' }
+  if (text.includes('血氧')) return { key: 'spo2', label: '血氧规则', icon: 'Aim', bg: 'linear-gradient(135deg,#dcfce7,#86efac)' }
+  if (text.includes('血压')) return { key: 'bloodPressure', label: '血压规则', icon: 'DataAnalysis', bg: 'linear-gradient(135deg,#dbeafe,#93c5fd)' }
+  if (text.includes('体温')) return { key: 'temperature', label: '体温规则', icon: 'Sunny', bg: 'linear-gradient(135deg,#ffedd5,#fdba74)' }
+  if (text.includes('围栏')) return { key: 'fence', label: '围栏规则', icon: 'Guide', bg: 'linear-gradient(135deg,#fef3c7,#fcd34d)' }
+  if (text.includes('sos') || text.includes('求救')) return { key: 'sos', label: '求救规则', icon: 'Bell', bg: 'linear-gradient(135deg,#fee2e2,#fecaca)' }
+  if (text.includes('离线') || text.includes('信号')) return { key: 'device', label: '设备规则', icon: 'Monitor', bg: 'linear-gradient(135deg,#e2e8f0,#cbd5e1)' }
+  return { key: 'activity', label: '活动规则', icon: 'DataLine', bg: 'linear-gradient(135deg,#e9d5ff,#c4b5fd)' }
 }
 
-const openEdit = (rule: any) => {
-  editingRule.value = rule
-  Object.assign(form, { ...rule })
-  dialogVisible.value = true
+const resolveLevel = (riskLevel?: string): RuleLevel => {
+  const text = String(riskLevel || '').toLowerCase()
+  if (['critical', 'danger', '紧急'].some((item) => text.includes(item))) return 'critical'
+  if (['high', '高'].some((item) => text.includes(item))) return 'high'
+  if (['medium', 'warning', '中'].some((item) => text.includes(item))) return 'medium'
+  return 'low'
 }
 
-const submitRule = () => {
-  if (editingRule.value?.id) {
-    Object.assign(editingRule.value, form)
-    ElMessage.success('规则已更新')
-  } else {
-    rules.value.push({ ...form, id: Date.now(), triggerCount: 0, conditions: [] })
-    ElMessage.success('规则已创建')
-  }
-  dialogVisible.value = false
+const formatTime = (value?: string) => {
+  const timestamp = value ? new Date(value).getTime() : NaN
+  if (!Number.isFinite(timestamp)) return '暂无'
+  const date = new Date(timestamp)
+  return `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-const deleteRule = async (id: number) => {
-  await ElMessageBox.confirm('删除后无法恢复，确认删除该规则吗？', '提示', { type: 'warning' })
-  const idx = rules.value.findIndex(r => r.id === id)
-  if (idx >= 0) rules.value.splice(idx, 1)
-  ElMessage.success('规则已删除')
+const fetchRules = async () => {
+  const res = await getRecentAbnormal(100)
+  const recentRows = (res.data || []) as RecentAbnormalItem[]
+  const grouped = new Map<string, RecentAbnormalItem[]>()
+
+  recentRows.forEach((item) => {
+    const { key } = resolveRuleType(item.abnormalType)
+    if (!grouped.has(key)) grouped.set(key, [])
+    grouped.get(key)?.push(item)
+  })
+
+  rules.value = Array.from(grouped.entries()).map(([key, items]) => {
+    const config = resolveRuleType(items[0]?.abnormalType)
+    const level = items.reduce<RuleLevel>((highest, current) => {
+      const order: RuleLevel[] = ['low', 'medium', 'high', 'critical']
+      const currentLevel = resolveLevel(current.riskLevel)
+      return order.indexOf(currentLevel) > order.indexOf(highest) ? currentLevel : highest
+    }, 'low')
+
+    const subjectSet = new Set(items.map((item) => String(item.userId || item.patientName || 'unknown')))
+    const latest = items
+      .map((item) => item.detectedTime || item.createTime || item.readTime)
+      .filter(Boolean)
+      .sort()
+      .at(-1)
+
+    return {
+      key,
+      name: `${config.label}执行`,
+      category: config.key,
+      categoryLabel: config.label,
+      level,
+      description: `当前基于真实告警流统计 ${config.label} 的命中情况与风险强度。`,
+      triggerCount: items.length,
+      subjectCount: subjectSet.size,
+      lastTime: formatTime(latest),
+      bg: config.bg,
+      icon: config.icon,
+      conditions: [
+        { key: '最新触发', value: items[0]?.abnormalType || '无', high: level === 'critical' || level === 'high' },
+        { key: '最近指标', value: items[0]?.abnormalValue || '--' },
+        { key: '最高风险', value: levelLabel[level], high: level === 'critical' || level === 'high' }
+      ]
+    }
+  }).sort((a, b) => b.triggerCount - a.triggerCount)
 }
 
-const handleToggle = (rule: any) => {
-  ElMessage.success(rule.enabled ? `规则「${rule.name}」已启用` : `规则「${rule.name}」已禁用`)
-}
+onMounted(() => {
+  fetchRules()
+})
 </script>
 
 <style scoped lang="scss">
-.rule-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.rs-card {
-  background: #fff; border-radius: 14px; padding: 20px 22px;
-  display: flex; flex-direction: column; gap: 6px;
-  border: 1px solid rgba(226,232,240,0.7);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-}
+.rule-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.rs-card { background: #fff; border-radius: 14px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
 .rs-num { font-size: 36px; font-weight: 800; line-height: 1; }
 .rs-label { font-size: 13px; color: #64748b; }
-
-/* 分类标签 */
-.category-bar {
-  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
-}
-.cat-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0;
-  background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b;
-  transition: all 0.2s;
-  &:hover { background: #f8fafc; }
-  &.active { background: #eff6ff; border-color: #93c5fd; color: #2563eb; font-weight: 700; }
-}
-
-/* 规则卡片 */
-.rules-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 16px;
-}
-
-.rule-card {
-  background: #fff; border-radius: 16px; padding: 20px;
-  border: 1px solid rgba(226,232,240,0.7);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  display: flex; flex-direction: column; gap: 14px;
-  transition: all 0.2s;
-  &:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); transform: translateY(-1px); }
-  &.disabled { opacity: 0.65; }
-}
-
-.rc-header {
-  display: flex; align-items: center; gap: 12px;
-}
-.rc-icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: #475569; flex-shrink: 0;
-}
+.category-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.cat-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b; transition: all 0.2s; }
+.cat-btn.active { background: #eff6ff; border-color: #93c5fd; color: #2563eb; font-weight: 700; }
+.rules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.rule-card { background: #fff; border-radius: 16px; padding: 20px; border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 14px; }
+.rc-header { display: flex; align-items: center; gap: 12px; }
+.rc-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #475569; flex-shrink: 0; }
 .rc-title-area { flex: 1; min-width: 0; }
 .rc-name { font-size: 15px; font-weight: 700; color: #0f172a; display: block; }
 .rc-category { font-size: 12px; color: #94a3b8; }
-
 .rc-desc { font-size: 13px; color: #475569; line-height: 1.6; margin: 0; }
-
-.rc-conditions {
-  background: #f8fafc; border-radius: 10px; padding: 10px 14px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.cond-row {
-  display: flex; align-items: center; gap: 8px; font-size: 13px;
-  .cond-key { color: #64748b; flex-shrink: 0; }
-  .cond-op { color: #94a3b8; font-family: monospace; }
-  .cond-val { font-weight: 600; color: #0f172a; &.val-high { color: #ef4444; } }
-}
-
-.rc-footer {
-  display: flex; align-items: center; justify-content: space-between;
-}
-.rc-meta { display: flex; align-items: center; gap: 10px; }
-.rc-trigger-count { font-size: 12px; color: #94a3b8; }
-.rc-actions { display: flex; gap: 4px; }
-
-@media (max-width: 1024px) {
-  .rule-stats { grid-template-columns: repeat(2, 1fr); }
-}
+.rc-conditions { background: #f8fafc; border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.cond-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.cond-key { color: #64748b; flex-shrink: 0; }
+.cond-op { color: #94a3b8; font-family: monospace; }
+.cond-val { font-weight: 600; color: #0f172a; }
+.val-high { color: #ef4444; }
+.rc-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rc-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rc-trigger-count { font-size: 12px; color: #64748b; }
+.rc-last-time { font-size: 12px; color: #94a3b8; }
+@media (max-width: 1024px) { .rule-stats { grid-template-columns: repeat(2, 1fr); } }
 </style>

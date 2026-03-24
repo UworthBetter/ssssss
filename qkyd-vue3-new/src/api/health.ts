@@ -25,6 +25,7 @@ export interface DeviceInfo {
   name: string
   imei: string
   type?: string
+  createTime?: string
 }
 
 export interface ExceptionAlert {
@@ -37,6 +38,62 @@ export interface ExceptionAlert {
   location?: string
   updateContent?: string
   createTime?: string
+}
+
+export interface DeviceInfoExtend {
+  id?: number
+  userId?: number
+  deviceId?: number
+  nickName?: string
+  lastCommunicationTime?: string
+  batteryLevel?: number | string
+  step?: number | string
+  alarmContent?: string
+  alarmTime?: string
+  temp?: number | string
+  tempTime?: string
+  heartRate?: number | string
+  heartRateTime?: string
+  bloodDiastolic?: number | string
+  bloodSystolic?: number | string
+  bloodTime?: string
+  spo2?: number | string
+  spo2Time?: string
+  longitude?: number | string
+  latitude?: number | string
+  location?: string
+  type?: string
+}
+
+export interface VitalRecord {
+  id?: number
+  userId?: number
+  deviceId?: number
+  value?: number | string
+  createTime?: string
+  readTime?: string
+}
+
+export interface BloodRecord {
+  id?: number
+  userId?: number
+  deviceId?: number
+  systolic?: number | string
+  diastolic?: number | string
+  value?: string
+  createTime?: string
+  readTime?: string
+}
+
+export interface StepRecord {
+  id?: number
+  userId?: number
+  deviceId?: number
+  date?: string
+  dateTime?: string
+  value?: number | string
+  calories?: number | string
+  readTime?: string
 }
 
 export function listSubjects(params: ListQuery) {
@@ -89,6 +146,14 @@ export function getDevice(id: number) {
   return request({
     url: `/health/deviceInfo/${id}`,
     method: 'get'
+  })
+}
+
+export function listDeviceExtensions(params: ListQuery) {
+  return request({
+    url: '/health/deviceInfoExt/list',
+    method: 'get',
+    params
   })
 }
 
@@ -146,5 +211,45 @@ export function updateException(data: ExceptionAlert) {
     url: '/health/exception',
     method: 'put',
     data
+  })
+}
+
+export function listHeartRates(params: ListQuery) {
+  return request({
+    url: '/health/heartRate/list',
+    method: 'get',
+    params
+  })
+}
+
+export function listBloods(params: ListQuery) {
+  return request({
+    url: '/health/blood/list',
+    method: 'get',
+    params
+  })
+}
+
+export function listSpo2s(params: ListQuery) {
+  return request({
+    url: '/health/spo2/list',
+    method: 'get',
+    params
+  })
+}
+
+export function listTemps(params: ListQuery) {
+  return request({
+    url: '/health/temp/list',
+    method: 'get',
+    params
+  })
+}
+
+export function listSteps(params: ListQuery) {
+  return request({
+    url: '/health/steps/list',
+    method: 'get',
+    params
   })
 }

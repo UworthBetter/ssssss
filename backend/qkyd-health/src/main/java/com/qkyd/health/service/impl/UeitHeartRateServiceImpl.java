@@ -54,7 +54,9 @@ public class UeitHeartRateServiceImpl implements IUeitHeartRateService
     @Override
     public int insertUeitHeartRate(UeitHeartRate ueitHeartRate)
     {
-        ueitHeartRate.setCreateTime(DateUtils.getNowDate());
+        if (ueitHeartRate.getCreateTime() == null) {
+            ueitHeartRate.setCreateTime(DateUtils.getNowDate());
+        }
         return ueitHeartRateMapper.insertUeitHeartRate(ueitHeartRate);
     }
 
@@ -106,4 +108,3 @@ public class UeitHeartRateServiceImpl implements IUeitHeartRateService
         return ueitHeartRateMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
-

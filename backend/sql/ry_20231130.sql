@@ -66,7 +66,7 @@ create table sys_user (
 -- 鍒濆鍖?鐢ㄦ埛淇℃伅琛ㄦ暟鎹?
 -- ----------------------------
 insert into sys_user values(1,  103, 'admin', '鑻ヤ緷', '00', 'admin@qkyd.cn', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '绠＄悊鍛?);
-insert into sys_user values(2,  105, 'ry',    '鑻ヤ緷', '00', 'ops@qkyd.cn',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '娴嬭瘯鍛?);
+insert into sys_user values(2,  105, 'user1', '鑻ヤ緷', '00', 'ops@qkyd.cn',  '15666666666', '1', '', '$2b$12$/GrYAmTjVZjKH4KkTu7w5uaoAi6B8nwe5Jv/ccTwS0RqE2.iJQwgS', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '娴嬭瘯鍛?);
 
 
 -- ----------------------------

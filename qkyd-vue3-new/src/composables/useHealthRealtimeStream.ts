@@ -19,7 +19,7 @@ let socket: WebSocket | null = null
 let heartbeatTimer: number | null = null
 let reconnectTimer: number | null = null
 let retainCount = 0
-let subscribedPatientId: string | number | null = null
+let subscribedPatientIds: Array<string | number> = []
 let isIntentionalClose = false
 let listenerSeed = 0
 
@@ -54,13 +54,13 @@ const notifyListeners = (message: HealthRealtimeMessage) => {
   })
 }
 
-const sendSubscribe = (patientId: string | number | null | undefined) => {
+const sendSubscribe = (patientIds: Array<string | number>) => {
   if (!socket || socket.readyState !== WebSocket.OPEN) return
-  if (patientId == null || patientId === '') return
+  if (!patientIds.length) return
 
   socket.send(JSON.stringify({
     type: 'subscribe',
-    patientId
+    patientIds
   }))
 }
 
@@ -98,7 +98,7 @@ function ensureSocket() {
       }
     }, 20000)
 
-    sendSubscribe(subscribedPatientId)
+    sendSubscribe(subscribedPatientIds)
   }
 
   socket.onmessage = (event) => {
@@ -162,10 +162,19 @@ export const useHealthRealtimeStream = (options: UseHealthRealtimeStreamOptions 
     }
   }
 
+  const subscribePatients = (patientIds: Array<string | number | null | undefined>) => {
+    const normalized = Array.from(new Set(
+      patientIds
+        .filter((patientId) => patientId != null && patientId !== '')
+        .map((patientId) => String(patientId))
+    ))
+
+    subscribedPatientIds = normalized
+    sendSubscribe(subscribedPatientIds)
+  }
+
   const subscribePatient = (patientId: string | number | null | undefined) => {
-    if (patientId == null || patientId === '') return
-    subscribedPatientId = patientId
-    sendSubscribe(patientId)
+    subscribePatients([patientId])
   }
 
   onMounted(() => {
@@ -179,6 +188,7 @@ export const useHealthRealtimeStream = (options: UseHealthRealtimeStreamOptions 
   return {
     connect,
     disconnect,
-    subscribePatient
+    subscribePatient,
+    subscribePatients
   }
 }

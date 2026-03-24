@@ -53,7 +53,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="type != null  and type != ''"> and type = #{type}</if>
             <if test="positioningTime != null"> and positioning_time = #{positioningTime}</if>
         </where>
-        order by qkyd_device_info_extend.id desc
+        order by
+            qkyd_device_info_extend.last_communication_time desc,
+            qkyd_device_info_extend.device_id desc
     </select>
 
     <select id="selectUeitDeviceInfoExtendByDeviceId" parameterType="Long" resultMap="UeitDeviceInfoExtendResult">

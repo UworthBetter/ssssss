@@ -54,7 +54,7 @@
               </el-avatar>
               <div class="user-info">
                 <span class="user-name">{{ row.nickName || '未知姓名' }}</span>
-                <span class="user-id">ID: {{ row.subjectName || row.subjectId }}</span>
+                <span class="user-id">系统ID: {{ row.subjectId || '-' }}</span>
               </div>
             </div>
           </template>
@@ -132,7 +132,7 @@
             </el-avatar>
             <div class="hero-info">
               <h2>{{ selectedSubject.nickName || '未知姓名' }}</h2>
-              <p>@{{ selectedSubject.subjectName }}</p>
+              <p>系统ID #{{ selectedSubject.subjectId || '-' }} · 账号 {{ selectedSubject.subjectName || '-' }}</p>
             </div>
             <div class="hero-status">
               <el-tag :type="riskTagType(selectedRiskLevel)" effect="dark" round>

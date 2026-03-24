@@ -21,10 +21,15 @@ qkyd:
   captchaType: math
   demo:
     engine:
-      enabled: ${DEMO_ENGINE_ENABLED:true}
+      enabled: ${DEMO_ENGINE_ENABLED:false}
       interval-ms: ${DEMO_ENGINE_INTERVAL_MS:10000}
       initial-delay-ms: ${DEMO_ENGINE_INITIAL_DELAY_MS:5000}
       subject-count: ${DEMO_ENGINE_SUBJECT_COUNT:6}
+  ai:
+    models:
+      chat: ${AI_MODEL:deepseek-chat}
+      fast: ${AI_FAST_MODEL:deepseek-chat}
+      report: ${AI_REPORT_MODEL:deepseek-chat}
 
 spring:
   application:
@@ -40,11 +45,11 @@ spring:
       matching-strategy: ant_path_matcher
   ai:
     openai:
-      api-key: ${AI_API_KEY:sk-placeholder-key-for-startup-fix}
-      base-url: ${AI_BASE_URL:https://api.openai.com}
+      api-key: ${AI_API_KEY:sk-aa869f9c964d4a96a6d0c8f4e0d387f2}
+      base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
       chat:
         options:
-          model: ${AI_MODEL:GLM-4.7}
+          model: ${AI_MODEL:deepseek-chat}
           temperature: ${AI_TEMPERATURE:0.7}
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

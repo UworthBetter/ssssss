@@ -1490,7 +1490,7 @@ CREATE TABLE `sys_user` (
 
 LOCK TABLES `sys_user` WRITE;
 /*!40000 ALTER TABLE `sys_user` DISABLE KEYS */;
-INSERT INTO `sys_user` VALUES (1,103,'admin','鑻ヤ緷','00','admin@qkyd.cn','15888888888',NULL,'1','','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','0','0','127.0.0.1','2026-01-24 13:44:43','admin','2026-01-16 13:11:13','','2026-01-24 13:44:43','绠＄悊鍛?),(2,105,'ry','鑻ヤ緷','00','ops@qkyd.cn','15666666666',NULL,'1','','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','0','0','127.0.0.1','2026-01-16 13:11:13','admin','2026-01-16 13:11:13','',NULL,'娴嬭瘯鍛?);
+INSERT INTO `sys_user` VALUES (1,103,'admin','鑻ヤ緷','00','admin@qkyd.cn','15888888888',NULL,'1','','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','0','0','127.0.0.1','2026-01-24 13:44:43','admin','2026-01-16 13:11:13','','2026-01-24 13:44:43','绠＄悊鍛?),(2,105,'user1','鑻ヤ緷','00','ops@qkyd.cn','15666666666',NULL,'1','','$2b$12$/GrYAmTjVZjKH4KkTu7w5uaoAi6B8nwe5Jv/ccTwS0RqE2.iJQwgS','0','0','127.0.0.1','2026-01-16 13:11:13','admin','2026-01-16 13:11:13','',NULL,'娴嬭瘯鍛?);
 /*!40000 ALTER TABLE `sys_user` ENABLE KEYS */;
 UNLOCK TABLES;
 

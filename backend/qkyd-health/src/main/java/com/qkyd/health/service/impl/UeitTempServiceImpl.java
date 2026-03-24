@@ -54,7 +54,9 @@ public class UeitTempServiceImpl implements IUeitTempService
     @Override
     public int insertUeitTemp(UeitTemp ueitTemp)
     {
-        ueitTemp.setCreateTime(DateUtils.getNowDate());
+        if (ueitTemp.getCreateTime() == null) {
+            ueitTemp.setCreateTime(DateUtils.getNowDate());
+        }
         return ueitTempMapper.insertUeitTemp(ueitTemp);
     }
 
@@ -106,4 +108,3 @@ public class UeitTempServiceImpl implements IUeitTempService
         return ueitTempMapper.getDataBoard(userId, beginReadTime, endReadTime);
     }
 }
-

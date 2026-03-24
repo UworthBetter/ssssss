@@ -57,16 +57,18 @@ public class UeitExceptionController extends BaseController {
                                       @RequestParam(value = "state", required = false) String state) {
         startPage();
         List<UeitException> list = new ArrayList<>();
+        UeitException query = new UeitException();
+        query.setUserId((long) userId);
+        query.setType(type);
+        query.setState(state);
         try {
-            list = ueitExceptionService.selectUeitExceptionListByUserId(userId);
+            list = ueitExceptionService.selectUeitExceptionList(query);
         } catch (Exception ignored) {
         }
         if (list == null || list.isEmpty()) {
-            UeitException query = new UeitException();
-            query.setUserId((long) userId);
-            query.setType(type);
-            query.setState(state);
             list = filterExceptions(mockExceptions(), query);
+        } else {
+            list = filterExceptions(list, query);
         }
         return getDataTable(list);
     }
@@ -160,7 +162,7 @@ public class UeitExceptionController extends BaseController {
                 match = query.getUserId().equals(item.getUserId());
             }
             if (match && query.getType() != null && !query.getType().isBlank()) {
-                match = item.getType() != null && item.getType().contains(query.getType());
+                match = matchesExceptionType(item.getType(), query.getType());
             }
             if (match && query.getState() != null && !query.getState().isBlank()) {
                 match = query.getState().equals(item.getState());
@@ -172,13 +174,36 @@ public class UeitExceptionController extends BaseController {
         return result;
     }
 
+    private boolean matchesExceptionType(String itemType, String queryType) {
+        if (queryType == null || queryType.isBlank()) {
+            return true;
+        }
+        String normalizedItem = normalizeExceptionType(itemType);
+        String normalizedQuery = normalizeExceptionType(queryType);
+        return normalizedItem.contains(normalizedQuery) || normalizedQuery.contains(normalizedItem);
+    }
+
+    private String normalizeExceptionType(String type) {
+        String text = type == null ? "" : type.trim().toLowerCase();
+        if (text.contains("heart") || text.contains("心率")) return "\u5fc3\u7387\u5f02\u5e38";
+        if (text.contains("spo2") || text.contains("oxygen") || text.contains("血氧")) return "\u8840\u6c27\u5f02\u5e38";
+        if (text.contains("pressure") || text.contains("blood") || text.contains("血压")) return "\u8840\u538b\u5f02\u5e38";
+        if (text.contains("temp") || text.contains("temperature") || text.contains("体温")) return "\u4f53\u6e29\u5f02\u5e38";
+        if (text.contains("fence") || text.contains("围栏") || text.contains("越界")) return "\u56f4\u680f\u8d8a\u754c";
+        if (text.contains("sos") || text.contains("求救") || text.contains("求助")) return "SOS\u6c42\u6551";
+        if (text.contains("offline") || text.contains("离线")) return "\u8bbe\u5907\u79bb\u7ebf";
+        if (text.contains("activity") || text.contains("活动") || text.contains("步数")) return "\u6d3b\u52a8\u91cf\u5f02\u5e38";
+        if (text.contains("signal") || text.contains("信号")) return "\u8bbe\u5907\u4fe1\u53f7\u5f02\u5e38";
+        return text;
+    }
+
     private List<UeitException> mockExceptions() {
         List<UeitException> list = new ArrayList<>();
-        list.add(buildException(4001L, 10001L, 3001L, "心率异常", "132 bpm", "0", "北京市朝阳区酒仙桥路 10 号", 116.49, 39.98, 20));
-        list.add(buildException(4002L, 10002L, 3002L, "围栏越界", "2.1 km", "0", "北京市海淀区西二旗地铁站", 116.31, 40.05, 16));
-        list.add(buildException(4003L, 10003L, 3003L, "体温偏高", "38.6 ℃", "1", "北京市丰台区科技园", 116.29, 39.83, 12));
-        list.add(buildException(4004L, 10004L, 3004L, "血氧偏低", "89%", "0", "北京市东城区东直门", 116.44, 39.94, 8));
-        list.add(buildException(4005L, 10005L, 3005L, "SOS求救", "手动触发", "0", "北京市通州区运河西大街", 116.66, 39.90, 5));
+        list.add(buildException(4001L, 10001L, 3001L, "心率异常", "132 bpm", "0", "河南省郑州市二七广场", 113.62493, 34.74725, 20));
+        list.add(buildException(4002L, 10002L, 3002L, "围栏越界", "2.1 km", "0", "河南省郑州市郑州东站", 113.79252, 34.75663, 16));
+        list.add(buildException(4003L, 10003L, 3003L, "体温偏高", "38.6 ℃", "1", "河南省郑州市郑东新区如意湖", 113.74888, 34.76511, 12));
+        list.add(buildException(4004L, 10004L, 3004L, "血氧偏低", "89%", "0", "河南省郑州市金水路省人民医院", 113.68680, 34.75956, 8));
+        list.add(buildException(4005L, 10005L, 3005L, "SOS求救", "手动触发", "0", "河南省郑州市中原福塔", 113.72155, 34.73901, 5));
         return list;
     }
 
@@ -201,3 +226,4 @@ public class UeitExceptionController extends BaseController {
         return e;
     }
 }
+

@@ -1,96 +1,78 @@
 <template>
   <PlatformPageShellV2
     title="运营报表"
-    subtitle="汇总平台日、周、月度核心运营指标，直观呈现设备在线率、告警响应效率与对象服务情况。"
+    subtitle="按今日与近 7 日真实设备、对象和异常数据生成运营概览。"
     eyebrow="OPERATION REPORT"
-    status-note="演示版 · 当前使用模拟数据"
-    status-tone="warning"
   >
     <template #toolbar>
       <div class="toolbar-row">
         <div class="period-tabs">
           <button
-            v-for="p in periods"
-            :key="p.value"
+            v-for="period in periods"
+            :key="period.value"
             class="period-btn"
-            :class="{ active: activePeriod === p.value }"
-            @click="activePeriod = p.value"
-          >{{ p.label }}</button>
+            :class="{ active: activePeriod === period.value }"
+            @click="activePeriod = period.value"
+          >
+            {{ period.label }}
+          </button>
         </div>
-        <el-date-picker v-if="activePeriod === 'custom'" v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始" end-placeholder="结束" />
-        <el-button :icon="Download" plain>导出报表</el-button>
+        <el-date-picker
+          v-if="activePeriod === 'custom'"
+          v-model="dateRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始"
+          end-placeholder="结束"
+        />
+        <el-button type="primary" @click="fetchData">刷新报表</el-button>
       </div>
     </template>
 
-    <!-- KPI 卡片区 -->
     <div class="kpi-grid">
       <div v-for="kpi in kpiCards" :key="kpi.label" class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">{{ kpi.label }}</span>
-          <div class="kpi-trend" :class="kpi.trend">
-            <el-icon v-if="kpi.trend === 'up'"><ArrowUp /></el-icon>
-            <el-icon v-else-if="kpi.trend === 'down'"><ArrowDown /></el-icon>
-            <span>{{ kpi.change }}</span>
-          </div>
+          <div class="kpi-trend" :class="kpi.trend">{{ kpi.change }}</div>
         </div>
         <div class="kpi-value">{{ kpi.value }}</div>
-        <div class="kpi-compare">对比上{{ periodUnit }}：{{ kpi.prevValue }}</div>
-        <div class="kpi-sparkline">
-          <div v-for="(h, i) in kpi.sparkline" :key="i" class="spark-bar" :style="{ height: (h / Math.max(...kpi.sparkline) * 36) + 'px', background: kpi.color }"></div>
-        </div>
+        <div class="kpi-compare">{{ kpi.description }}</div>
       </div>
     </div>
 
-    <!-- 图表区域 -->
     <div class="chart-section">
-      <!-- 告警分布 -->
       <div class="panel-card chart-col">
         <div class="panel-header">
           <span class="panel-title">告警类型分布</span>
-          <span class="panel-sub">本{{ periodUnit }}</span>
+          <span class="panel-sub">{{ periodLabel }}</span>
         </div>
         <div class="donut-chart">
-          <svg viewBox="0 0 120 120" width="120" height="120">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#f1f5f9" stroke-width="16" />
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="16"
-              :stroke-dasharray="`${alertShare} 314`" stroke-dashoffset="-8" stroke-linecap="round" transform="rotate(-90 60 60)" />
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" stroke-width="16"
-              :stroke-dasharray="`${warnShare} 314`" :stroke-dashoffset="-(8 + alertShare)" stroke-linecap="round" transform="rotate(-90 60 60)" />
-            <text x="60" y="56" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">{{ totalAlerts }}</text>
-            <text x="60" y="70" text-anchor="middle" font-size="9" fill="#94a3b8">总告警</text>
-          </svg>
-          <div class="donut-legend">
-            <div v-for="item in alertTypes" :key="item.label" class="dl-item">
-              <span class="dl-dot" :style="{ background: item.color }"></span>
-              <span class="dl-label">{{ item.label }}</span>
-              <span class="dl-val">{{ item.count }}</span>
-            </div>
+          <div v-for="item in alertTypes" :key="item.label" class="dl-item">
+            <span class="dl-dot" :style="{ background: item.color }"></span>
+            <span class="dl-label">{{ item.label }}</span>
+            <span class="dl-val">{{ item.count }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 每日趋势 -->
       <div class="panel-card chart-col-wide">
         <div class="panel-header">
-          <span class="panel-title">每日数据采集量 & 告警数</span>
+          <span class="panel-title">近 7 日异常趋势</span>
           <div class="legend-row">
-            <span class="ld"><span class="ld-dot" style="background:#3b82f6"></span>数据采集(k)</span>
-            <span class="ld"><span class="ld-dot" style="background:#ef4444"></span>告警次数</span>
+            <span class="ld"><span class="ld-dot" style="background:#ef4444"></span>异常次数</span>
           </div>
         </div>
         <div class="trend-chart">
-          <div v-for="(d, i) in trendData" :key="i" class="trend-col">
+          <div v-for="item in trendData" :key="item.label" class="trend-col">
             <div class="tc-bars">
-              <div class="tc-bar data-bar" :style="{ height: (d.data / maxData * 120) + 'px' }" :title="d.data + 'k'"></div>
-              <div class="tc-bar alert-bar" :style="{ height: (d.alerts / maxAlerts * 120) + 'px' }" :title="d.alerts + ' 次'"></div>
+              <div class="tc-bar alert-bar" :style="{ height: `${item.height}px` }" :title="`${item.value} 次`"></div>
             </div>
-            <span class="tc-day">{{ d.day }}</span>
+            <span class="tc-day">{{ item.label }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 响应时效表 -->
     <div class="panel-card">
       <div class="panel-header">
         <span class="panel-title">告警响应时效分析</span>
@@ -102,22 +84,15 @@
           <template #default="{ row }">
             <div class="response-bar-row">
               <div class="rb-bg">
-                <div class="rb-fill" :style="{ width: (row.avgMin / maxAvgMin * 100) + '%', background: row.avgMin < 5 ? '#10b981' : row.avgMin < 15 ? '#f59e0b' : '#ef4444' }"></div>
+                <div class="rb-fill" :style="{ width: `${row.width}%`, background: row.color }"></div>
               </div>
               <span>{{ row.avgMin }} 分钟</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="已处置率" min-width="100">
+        <el-table-column prop="resolveRate" label="已处置率" min-width="100">
           <template #default="{ row }">
             <span :class="row.resolveRate >= 90 ? 'rate-good' : 'rate-warn'">{{ row.resolveRate }}%</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="评级" width="90">
-          <template #default="{ row }">
-            <el-tag :type="row.avgMin < 5 ? 'success' : row.avgMin < 15 ? '' : 'danger'" size="small" effect="light">
-              {{ row.avgMin < 5 ? '优秀' : row.avgMin < 15 ? '良好' : '待改进' }}
-            </el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -126,134 +101,210 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { Download, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
+import { computed, onMounted, ref } from 'vue'
 import { PlatformPageShellV2 } from '@/components/platform'
+import { getAbnormalTrend } from '@/api/ai'
+import { getRealTimeData } from '@/api/index'
+import { listDeviceExtensions, listDevices, listExceptions, listSubjects, type DeviceInfo, type DeviceInfoExtend, type ExceptionAlert, type HealthSubject } from '@/api/health'
 
-const activePeriod = ref<'day' | 'week' | 'month' | 'custom'>('week')
-const dateRange = ref(null)
-const periodUnit = computed(() => ({ day: '日', week: '周', month: '月', custom: '期' }[activePeriod.value]))
+const activePeriod = ref<'day' | 'week' | 'custom'>('week')
+const dateRange = ref<[Date, Date] | null>(null)
+const subjects = ref<HealthSubject[]>([])
+const devices = ref<DeviceInfo[]>([])
+const extensions = ref<DeviceInfoExtend[]>([])
+const exceptions = ref<ExceptionAlert[]>([])
+const realtime = ref<Record<string, unknown>>({})
+const trendSource = ref<Array<{ label: string; value: number }>>([])
+
 const periods = [
-  { label: '今日',  value: 'day' },
-  { label: '本周',  value: 'week' },
-  { label: '本月',  value: 'month' },
-  { label: '自定义', value: 'custom' },
+  { label: '今日', value: 'day' as const },
+  { label: '近 7 日', value: 'week' as const },
+  { label: '自定义', value: 'custom' as const }
 ]
 
-const kpiCards = [
-  { label: '设备在线率', value: '87.5%', prevValue: '83.2%', change: '+4.3%', trend: 'up', color: '#3b82f6', sparkline: [78,80,82,85,83,87,88] },
-  { label: '告警总数', value: '48', prevValue: '61', change: '-21.3%', trend: 'down', color: '#ef4444', sparkline: [9,12,8,7,6,5,3] },
-  { label: '服务对象数', value: '156', prevValue: '148', change: '+5.4%', trend: 'up', color: '#10b981', sparkline: [140,143,148,150,152,153,156] },
-  { label: '平均响应时长', value: '8.2 min', prevValue: '11.4 min', change: '-28%', trend: 'down', color: '#8b5cf6', sparkline: [15,12,11,10,9,9,8] },
-]
+const periodLabel = computed(() => ({ day: '今日', week: '近 7 日', custom: '自定义' }[activePeriod.value]))
 
-const alertTypes = [
-  { label: '心率异常', count: 22, color: '#ef4444' },
-  { label: '设备离线', count: 15, color: '#f59e0b' },
-  { label: '血氧偏低', count: 7,  color: '#8b5cf6' },
-  { label: '其他',     count: 4,  color: '#94a3b8' },
-]
-const totalAlerts = alertTypes.reduce((s, a) => s + a.count, 0)
-const alertShare = computed(() => (alertTypes[0].count / totalAlerts) * 314)
-const warnShare  = computed(() => (alertTypes[1].count / totalAlerts) * 314)
+const parseTimestamp = (value?: string) => {
+  if (!value) return 0
+  const timestamp = new Date(value).getTime()
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
 
-const trendData = [
-  { day: '周一', data: 42, alerts: 8 },
-  { day: '周二', data: 55, alerts: 12 },
-  { day: '周三', data: 48, alerts: 6 },
-  { day: '周四', data: 60, alerts: 9 },
-  { day: '周五', data: 52, alerts: 7 },
-  { day: '周六', data: 35, alerts: 5 },
-  { day: '周日', data: 30, alerts: 3 },
-]
-const maxData   = Math.max(...trendData.map(d => d.data))
-const maxAlerts = Math.max(...trendData.map(d => d.alerts))
+const parseNumber = (value: unknown, fallback = 0) => {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
 
-const responseTable = [
-  { type: '心率异常', count: 22, avgMin: 4.3, resolveRate: 96 },
-  { type: '设备离线', count: 15, avgMin: 12.5, resolveRate: 87 },
-  { type: '血氧偏低', count: 7,  avgMin: 3.8, resolveRate: 100 },
-  { type: '跌倒告警', count: 2,  avgMin: 2.1, resolveRate: 100 },
-  { type: '其他告警', count: 4,  avgMin: 18.2, resolveRate: 75 },
-]
-const maxAvgMin = Math.max(...responseTable.map(r => r.avgMin))
+const inCurrentRange = (value?: string) => {
+  const timestamp = parseTimestamp(value)
+  if (!timestamp) return false
+  const now = new Date()
+  let start = new Date(now)
+  let end = new Date(now)
+
+  if (activePeriod.value === 'day') {
+    start.setHours(0, 0, 0, 0)
+    end.setHours(23, 59, 59, 999)
+  } else if (activePeriod.value === 'week') {
+    start.setHours(0, 0, 0, 0)
+    start.setDate(start.getDate() - 6)
+    end.setHours(23, 59, 59, 999)
+  } else if (dateRange.value?.length === 2) {
+    start = new Date(dateRange.value[0])
+    end = new Date(dateRange.value[1])
+    start.setHours(0, 0, 0, 0)
+    end.setHours(23, 59, 59, 999)
+  }
+
+  return timestamp >= start.getTime() && timestamp <= end.getTime()
+}
+
+const scopedExceptions = computed(() => exceptions.value.filter((item) => inCurrentRange(item.createTime)))
+
+const onlineCount = computed(() => {
+  const onlineIds = new Set<number>()
+  extensions.value.forEach((item) => {
+    const timestamp = parseTimestamp(item.lastCommunicationTime)
+    if (item.deviceId != null && timestamp && Date.now() - timestamp <= 60 * 60 * 1000) {
+      onlineIds.add(Number(item.deviceId))
+    }
+  })
+  return onlineIds.size
+})
+
+const onlineRate = computed(() => {
+  if (!devices.value.length) return 0
+  return Math.round((onlineCount.value / devices.value.length) * 100)
+})
+
+const avgResponseMinutes = computed(() => {
+  const pending = scopedExceptions.value.filter((item) => String(item.state || '0') !== '1')
+  if (!pending.length) return 0
+  const total = pending.reduce((sum, item) => sum + Math.max(0, (Date.now() - parseTimestamp(item.createTime)) / 60000), 0)
+  return Number((total / pending.length).toFixed(1))
+})
+
+const kpiCards = computed(() => [
+  { label: '设备在线率', value: `${onlineRate.value}%`, change: onlineRate.value >= 80 ? '稳定' : '偏低', trend: onlineRate.value >= 80 ? 'up' : 'down', description: `在线设备 ${onlineCount.value}/${devices.value.length}` },
+  { label: '告警总数', value: scopedExceptions.value.length, change: scopedExceptions.value.length ? '实时更新' : '无新增', trend: scopedExceptions.value.length ? 'up' : 'down', description: '来自真实异常事件表' },
+  { label: '服务对象数', value: subjects.value.length, change: '当前在管', trend: 'up', description: '来自健康对象主数据' },
+  { label: '平均响应时长', value: `${avgResponseMinutes.value} min`, change: avgResponseMinutes.value <= 15 ? '可控' : '需关注', trend: avgResponseMinutes.value <= 15 ? 'up' : 'down', description: '按未闭环事件估算' }
+])
+
+const alertTypes = computed(() => {
+  const palette = ['#ef4444', '#f59e0b', '#8b5cf6', '#94a3b8']
+  const groups = new Map<string, number>()
+  scopedExceptions.value.forEach((item) => {
+    const type = item.type || '其他'
+    groups.set(type, (groups.get(type) || 0) + 1)
+  })
+  return Array.from(groups.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([label, count], index) => ({ label, count, color: palette[index % palette.length] }))
+})
+
+const trendData = computed(() => {
+  const maxValue = Math.max(...trendSource.value.map((item) => item.value), 1)
+  return trendSource.value.map((item) => ({
+    ...item,
+    height: Math.max(12, Math.round((item.value / maxValue) * 120))
+  }))
+})
+
+const responseTable = computed(() => {
+  const groups = new Map<string, ExceptionAlert[]>()
+  scopedExceptions.value.forEach((item) => {
+    const type = item.type || '其他'
+    if (!groups.has(type)) groups.set(type, [])
+    groups.get(type)?.push(item)
+  })
+
+  return Array.from(groups.entries()).map(([type, items]) => {
+    const pending = items.filter((item) => String(item.state || '0') !== '1')
+    const avgMin = pending.length
+      ? Number((pending.reduce((sum, item) => sum + Math.max(0, (Date.now() - parseTimestamp(item.createTime)) / 60000), 0) / pending.length).toFixed(1))
+      : 0
+    const resolveRate = items.length
+      ? Math.round((items.filter((item) => String(item.state || '0') === '1').length / items.length) * 100)
+      : 0
+    return {
+      type,
+      count: items.length,
+      avgMin,
+      resolveRate,
+      width: Math.min(100, avgMin * 4),
+      color: avgMin <= 5 ? '#10b981' : avgMin <= 15 ? '#f59e0b' : '#ef4444'
+    }
+  })
+})
+
+const fetchData = async () => {
+  const hours = activePeriod.value === 'day' ? 24 : 24 * 7
+  const [subjectRes, deviceRes, extensionRes, exceptionRes, realtimeRes, trendRes] = await Promise.all([
+    listSubjects({ pageNum: 1, pageSize: 200 }),
+    listDevices({ pageNum: 1, pageSize: 200 }),
+    listDeviceExtensions({ pageNum: 1, pageSize: 200 }),
+    listExceptions({ pageNum: 1, pageSize: 200 }),
+    getRealTimeData(),
+    getAbnormalTrend(undefined, hours)
+  ])
+
+  subjects.value = (subjectRes.rows || []) as HealthSubject[]
+  devices.value = (deviceRes.rows || []) as DeviceInfo[]
+  extensions.value = (extensionRes.rows || []) as DeviceInfoExtend[]
+  exceptions.value = (exceptionRes.rows || []) as ExceptionAlert[]
+  realtime.value = (realtimeRes.data || {}) as Record<string, unknown>
+  trendSource.value = ((trendRes.data || []) as Array<{ label: string; value: number | string }>).map((item) => ({
+    label: item.label,
+    value: parseNumber(item.value)
+  })).slice(-7)
+}
+
+onMounted(() => {
+  fetchData()
+})
 </script>
 
 <style scoped lang="scss">
 .toolbar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .period-tabs { display: flex; gap: 4px; }
-.period-btn {
-  padding: 7px 14px; border-radius: 8px; border: 1px solid #e2e8f0;
-  background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b;
-  transition: all 0.2s;
-  &:hover { background: #f8fafc; }
-  &.active { background: #eff6ff; border-color: #93c5fd; color: #2563eb; font-weight: 700; }
-}
-
-.kpi-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
-}
-.kpi-card {
-  background: #fff; border-radius: 14px; padding: 18px 20px;
-  border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  display: flex; flex-direction: column; gap: 4px;
-}
+.period-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #64748b; }
+.period-btn.active { background: #eff6ff; border-color: #93c5fd; color: #2563eb; font-weight: 700; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: #fff; border-radius: 14px; padding: 18px 20px; border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 4px; }
 .kpi-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .kpi-label { font-size: 13px; color: #64748b; }
-.kpi-trend {
-  display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; border-radius: 6px; padding: 2px 7px;
-  &.up { color: #10b981; background: #f0fdf4; }
-  &.down { color: #3b82f6; background: #eff6ff; }
-}
+.kpi-trend { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 2px 7px; }
+.kpi-trend.up { color: #10b981; background: #f0fdf4; }
+.kpi-trend.down { color: #ef4444; background: #fef2f2; }
 .kpi-value { font-size: 28px; font-weight: 800; color: #0f172a; line-height: 1.2; }
 .kpi-compare { font-size: 12px; color: #94a3b8; }
-.kpi-sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 8px; }
-.spark-bar { flex: 1; border-radius: 2px; opacity: 0.6; min-height: 3px; transition: height 0.4s; }
-
 .chart-section { display: flex; gap: 16px; margin-bottom: 24px; }
-.panel-card {
-  background: #fff; border-radius: 16px;
-  border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 12px rgba(0,0,0,0.04); overflow: hidden;
-  margin-bottom: 20px;
-}
-.panel-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid #f1f5f9;
-}
+.panel-card { background: #fff; border-radius: 16px; border: 1px solid rgba(226,232,240,0.7); box-shadow: 0 2px 12px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 20px; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
 .panel-title { font-size: 14px; font-weight: 700; color: #0f172a; }
 .panel-sub { font-size: 12px; color: #94a3b8; }
-
 .chart-col { flex: 0 0 280px; }
 .chart-col-wide { flex: 1; }
-
-.donut-chart { display: flex; align-items: center; gap: 24px; padding: 20px; }
-.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.donut-chart { display: flex; flex-direction: column; gap: 12px; padding: 20px; }
 .dl-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .dl-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 .dl-label { flex: 1; color: #475569; }
 .dl-val { font-weight: 700; color: #0f172a; }
-
 .legend-row { display: flex; gap: 16px; }
 .ld { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #64748b; }
 .ld-dot { width: 8px; height: 8px; border-radius: 2px; }
-
 .trend-chart { display: flex; align-items: flex-end; gap: 12px; padding: 16px 20px 8px; height: 160px; }
 .trend-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .tc-bars { display: flex; align-items: flex-end; gap: 3px; }
-.tc-bar { width: 14px; border-radius: 3px 3px 0 0; transition: height 0.4s; min-height: 4px; }
-.data-bar { background: linear-gradient(to top, #3b82f6, #93c5fd); }
+.tc-bar { width: 18px; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.4s; }
 .alert-bar { background: linear-gradient(to top, #ef4444, #fca5a5); }
 .tc-day { font-size: 11px; color: #94a3b8; }
-
 .response-bar-row { display: flex; align-items: center; gap: 10px; }
 .rb-bg { flex: 1; height: 6px; background: #f1f5f9; border-radius: 3px; }
 .rb-fill { height: 6px; border-radius: 3px; transition: width 0.5s; }
 .rate-good { color: #10b981; font-weight: 700; }
 .rate-warn { color: #f59e0b; font-weight: 700; }
-
-@media (max-width: 1200px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .chart-section { flex-direction: column; }
-  .chart-col { flex: none; }
-}
+@media (max-width: 1200px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .chart-section { flex-direction: column; } .chart-col { flex: none; } }
 </style>

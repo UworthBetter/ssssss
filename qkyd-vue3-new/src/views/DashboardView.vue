@@ -12,7 +12,6 @@
 
     <!-- ================= 1. 顶部居中：战术胶囊信标 (HUD Pills) ================= -->
     <div class="hud-top-center">
-      <div v-if="useMockExceptionData" class="mock-data-tip">当前为演示异常点（后端暂无异常位置数据）</div>
       <div 
         class="hud-pill" 
         v-for="item in allPieCards" 
@@ -106,13 +105,14 @@
                 :key="i"
                 class="ai-log-item"
                 :class="`risk-${item._riskKey}`"
+                @click="handleAiLogClick(item)"
               >
                 <div class="ali-indicator">
                   <div class="ali-dot" :style="activePill ? { background: activeColor, boxShadow: `0 0 6px ${activeColor}` } : {}"></div>
                 </div>
                 <div class="ali-body">
                   <div class="ali-top">
-                    <span class="ali-name">{{ item.patientName }}</span>
+                    <span class="ali-name" @click.stop="handleAiLogSubjectClick(item)">{{ item.patientName }}</span>
                     <span class="ali-type" :style="activePill ? { color: activeColor } : {}">{{ item.abnormalType }}</span>
                   </div>
                   <div class="ali-bottom">
@@ -155,6 +155,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { Location, Close } from '@element-plus/icons-vue'
 import * as echarts from 'echarts/core'
 import { PieChart, LineChart } from 'echarts/charts'
@@ -221,8 +222,7 @@ const ageSexTable = ref<Array<{ label: string; value: number }>>([])
 const recentAbnormal = ref<RecentAbnormalRow[]>([])
 const exceptionList = ref<ExceptionRow[]>([])
 const fetching = ref(false)
-const useMockExceptionData = ref(false)
-
+const router = useRouter()
 const activePill = ref<string | null>(null)
 const activePillName = ref<string>('')
 const activeColor = ref<string>('#0ea5e9')
@@ -267,7 +267,7 @@ let amapLoaderPromise: Promise<any> | null = null
 
 const MAP_CENTER: [number, number] = [116.397428, 39.90923]
 const POLL_INTERVAL = 30000
-const DETAIL_REFRESH_EVERY_ROUNDS = 2
+const DETAIL_REFRESH_EVERY_ROUNDS = 1
 
 const clearRealtimeRefresh = () => {
   if (realtimeRefreshTimer) {
@@ -295,6 +295,17 @@ const realtimeStream = useHealthRealtimeStream({
   }
 })
 
+const syncRealtimeSubscriptions = (recentRows: RecentAbnormalRow[], exceptionRows: ExceptionRow[]) => {
+  const ids = new Set<string | number>()
+  recentRows.forEach((row) => {
+    if (row.userId != null && row.userId !== '') ids.add(row.userId)
+  })
+  exceptionRows.forEach((row) => {
+    if (row.userId != null && row.userId !== '') ids.add(row.userId)
+  })
+  realtimeStream.subscribePatients(Array.from(ids))
+}
+
 const toNumber = (value: unknown, fallback = 0) => {
   const num = Number(value)
   return Number.isFinite(num) ? num : fallback
@@ -321,7 +332,7 @@ const isHighRiskException = (row: Pick<ExceptionRow, 'type'>) => {
 }
 
 const uniqueAbnormalObjectCount = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   const unique = new Set<string>()
 
   source.forEach((row) => {
@@ -347,12 +358,12 @@ const highRiskAlertCount = computed(() => {
   const recentCount = recentAbnormal.value.filter((row) => isHighRiskLevel(row.riskLevel)).length
   if (recentCount > 0) return recentCount
 
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   return source.filter((row) => String(row.state ?? '0') !== '1' && isHighRiskException(row)).length
 })
 
 const avgResponseMinutes = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   const now = Date.now()
   const durations = source
     .filter((row) => String(row.state ?? '0') !== '1')
@@ -367,7 +378,7 @@ const avgResponseMinutes = computed(() => {
 })
 
 const closedRatioValue = computed(() => {
-  const source = useMockExceptionData.value ? [] : exceptionList.value
+  const source = exceptionList.value
   if (source.length === 0) return 0
   const resolved = source.filter((row) => String(row.state ?? '0') === '1').length
   return Number(((resolved / source.length) * 100).toFixed(1))
@@ -443,6 +454,18 @@ const resolveRecentTime = (row: Pick<RecentAbnormalRow, 'detectedTime' | 'create
   return Number.isFinite(timestamp) ? timestamp : 0
 }
 
+const isPlaceholderPatientName = (value: unknown) => {
+  const text = String(value ?? '').trim()
+  if (!text || text === '-') return true
+  const normalized = text.toLowerCase()
+  return normalized === 'unknown'
+    || normalized === 'demo patient'
+    || /^patient-\d+$/.test(normalized)
+    || /^user[\s-]?\d+$/.test(normalized)
+    || /^对象\s*#?\d+$/.test(text)
+    || /^用户\s*#?\d+$/.test(text)
+}
+
 const resolveExceptionTime = (row: Pick<ExceptionRow, 'readTime' | 'createTime'>) => {
   const raw = row.readTime ?? row.createTime
   const timestamp = raw ? new Date(String(raw)).getTime() : NaN
@@ -496,8 +519,12 @@ const detailRowsForPanel = computed(() => {
     }
 
     const detectedTime = row.detectedTime ?? matched?.readTime ?? matched?.createTime
+    const patientName = isPlaceholderPatientName(row.patientName)
+      ? String(matched?.nickName ?? row.patientName ?? '-')
+      : row.patientName
     return {
       ...row,
+      patientName,
       eventId: row.eventId ?? matched?.id,
       location: row.location ?? matched?.location,
       state: String(matched?.state ?? row.state ?? '0'),
@@ -595,6 +622,55 @@ const aiLogFeedItems = computed(() => {
     }
   })
 })
+
+const resolveSubjectKeyword = (row: Pick<RecentAbnormalRow, 'patientName' | 'userId'>) => {
+  if (!isPlaceholderPatientName(row.patientName)) {
+    return String(row.patientName ?? '').trim()
+  }
+  if (row.userId != null && String(row.userId).trim() !== '') {
+    return String(row.userId)
+  }
+  return String(row.patientName ?? '').trim()
+}
+
+const handleAiLogSubjectClick = (row: Pick<RecentAbnormalRow, 'patientName' | 'userId'>) => {
+  const keyword = resolveSubjectKeyword(row)
+  if (!keyword) return
+  void router.push({ path: '/subject', query: { keyword } })
+}
+
+const normalizeEventTypeQuery = (value: unknown) => {
+  const text = String(value || '').trim()
+  const lower = text.toLowerCase()
+  if (!text) return ''
+  if (lower.includes('heart') || text.includes('心率')) return '心率异常'
+  if (lower.includes('spo2') || lower.includes('oxygen') || text.includes('血氧')) return '血氧异常'
+  if (lower.includes('pressure') || lower.includes('blood') || text.includes('血压')) return '血压异常'
+  if (lower.includes('temp') || lower.includes('temperature') || text.includes('体温')) return '体温异常'
+  if (lower.includes('fence') || text.includes('围栏') || text.includes('越界')) return '围栏越界'
+  if (lower.includes('sos') || text.includes('求救') || text.includes('求助')) return 'SOS求救'
+  if (lower.includes('offline') || text.includes('离线')) return '设备离线'
+  if (lower.includes('activity') || text.includes('活动') || text.includes('步数')) return '活动量异常'
+  if (lower.includes('signal') || text.includes('信号')) return '设备信号异常'
+  return text
+}
+
+const handleAiLogClick = (row: Pick<RecentAbnormalRow, 'userId' | 'abnormalType' | 'patientName'>) => {
+  const query: Record<string, string> = {}
+  if (row.userId != null && String(row.userId).trim() !== '') {
+    query.userId = String(row.userId)
+  }
+  if (row.abnormalType && String(row.abnormalType).trim() !== '') {
+    query.type = normalizeEventTypeQuery(row.abnormalType)
+  }
+
+  if (Object.keys(query).length > 0) {
+    void router.push({ path: '/event', query })
+    return
+  }
+
+  handleAiLogSubjectClick(row)
+}
 
 const pieData = computed(() => {
   if (activePill.value) {
@@ -1107,17 +1183,11 @@ const fetchAll = async (forceFull = false) => {
 
       ageSexTable.value = normalizeAgeSexTable(ageRes.data)
       recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
-      realtimeStream.subscribePatient(recentAbnormal.value[0]?.userId)
 
       const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
       const normalizedExceptions = normalizeExceptionList(rawExceptions)
-      if (normalizedExceptions.length > 0) {
-        useMockExceptionData.value = false
-        exceptionList.value = normalizedExceptions
-      } else {
-        useMockExceptionData.value = true
-        exceptionList.value = buildMockExceptions(recentAbnormal.value)
-      }
+      exceptionList.value = normalizedExceptions
+      syncRealtimeSubscriptions(recentAbnormal.value, exceptionList.value)
 
       if (amapInstance) {
         const digest = exceptionList.value
@@ -1530,7 +1600,7 @@ onBeforeUnmount(() => {
   background: rgba(255,255,255,0.7);
   border: 1px solid rgba(0,0,0,0.06);
   transition: background 0.15s;
-  cursor: default;
+  cursor: pointer;
 
   &:hover {
     background: rgba(255,255,255,0.95);
@@ -1581,6 +1651,11 @@ onBeforeUnmount(() => {
   color: #1e293b;
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: pointer;
+
+  &:hover {
+    color: #0ea5e9;
+  }
 }
 
 .ali-type {

@@ -1,9 +1,9 @@
 package com.qkyd.ai.service.impl;
 
-import com.qkyd.ai.service.IAiService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.qkyd.ai.service.IAiService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,51 +11,72 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Locale;
+
 /**
- * AI鏈嶅姟瀹炵幇
- *
- * @author ueit
+ * AI service implementation.
  */
 @Service
 public class AiServiceImpl implements IAiService {
 
+    private static final String DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
+    private static final String DEFAULT_CHAT_MODEL = "glm-4.7-flash";
+    private static final String DEFAULT_FAST_MODEL = "glm-4.7-flash";
+    private static final String DEFAULT_REPORT_MODEL = "glm-4.7-flash";
+    private static final String PLACEHOLDER_API_KEY = "sk-placeholder-key-for-startup-fix";
+
     private final ChatClient chatClient;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${spring.ai.openai.api-key:}")
     private String apiKey;
 
-    @Value("${spring.ai.openai.base-url:https://api.openai.com}")
+    @Value("${spring.ai.openai.base-url:" + DEFAULT_BASE_URL + "}")
     private String baseUrl;
 
-    @Value("${spring.ai.openai.chat.options.model:GLM-4.7}")
+    @Value("${spring.ai.openai.chat.options.model:" + DEFAULT_CHAT_MODEL + "}")
     private String model;
+
+    @Value("${qkyd.ai.models.chat:" + DEFAULT_CHAT_MODEL + "}")
+    private String chatModel;
+
+    @Value("${qkyd.ai.models.fast:" + DEFAULT_FAST_MODEL + "}")
+    private String fastModel;
+
+    @Value("${qkyd.ai.models.report:" + DEFAULT_REPORT_MODEL + "}")
+    private String reportModel;
 
     @Autowired
     public AiServiceImpl(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(10000);
+        requestFactory.setReadTimeout(60000);
+        this.restTemplate = new RestTemplate(requestFactory);
     }
 
     @Override
     public String chat(String message) {
-        try {
-            return chatClient.prompt()
-                    .user(message)
-                    .call()
-                    .content();
-        } catch (Exception ex) {
-            // Fallback for OpenAI-compatible gateways that do not support Spring AI default /v1 path.
-            return callCompatibleGateway(message);
-        }
+        return chatWithModel(message, normalizeModel(chatModel));
+    }
+
+    @Override
+    public String chatFast(String message) {
+        return chatWithModel(message, normalizeModel(fastModel));
+    }
+
+    @Override
+    public String chatReport(String message) {
+        return chatWithModel(message, normalizeModel(reportModel));
     }
 
     @Override
     public String chat(String[] messages) {
-        // 灏嗘暟缁勮浆鎹负澶氳疆瀵硅瘽
         StringBuilder builder = new StringBuilder();
         for (String msg : messages) {
             builder.append(msg).append("\n");
@@ -71,32 +92,60 @@ public class AiServiceImpl implements IAiService {
                 .chatResponse();
     }
 
-    private String callCompatibleGateway(String message) {
+    @Override
+    public String detectFall(com.qkyd.ai.domain.FallDetectionRequest request) {
         try {
+            RestTemplate pythonRestTemplate = new RestTemplate();
+            String pythonServiceUrl = "http://localhost:8011/api/algorithms/detect_fall";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<com.qkyd.ai.domain.FallDetectionRequest> entity = new HttpEntity<>(request, headers);
+            return pythonRestTemplate.postForObject(pythonServiceUrl, entity, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\": \"跌倒检测调用失败: " + e.getMessage() + "\"}";
+        }
+    }
+
+    private String chatWithModel(String message, String selectedModel) {
+        if (shouldUseCompatibleGateway()) {
+            return callCompatibleGateway(message, selectedModel);
+        }
+        try {
+            return chatClient.prompt()
+                    .user(message)
+                    .call()
+                    .content();
+        } catch (Exception ex) {
+            return callCompatibleGateway(message, selectedModel);
+        }
+    }
+
+    private String callCompatibleGateway(String message, String selectedModel) {
+        try {
+            validateGatewayConfig();
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(apiKey);
 
             ObjectNode payload = objectMapper.createObjectNode();
-            payload.put("model", model);
+            payload.put("model", selectedModel);
+            payload.put("stream", false);
             payload.putArray("messages")
                     .addObject()
                     .put("role", "user")
                     .put("content", message);
 
-            String body = payload.toString();
+            String endpoint = normalizeBaseUrl(baseUrl) + "/chat/completions";
+            String response = restTemplate.postForObject(
+                    endpoint,
+                    new HttpEntity<>(payload.toString(), headers),
+                    String.class
+            );
 
-            String normalizedBaseUrl = baseUrl.endsWith("/")
-                    ? baseUrl.substring(0, baseUrl.length() - 1)
-                    : baseUrl;
-
-            if (!normalizedBaseUrl.endsWith("/v1") && !normalizedBaseUrl.endsWith("/v4")) {
-                normalizedBaseUrl = normalizedBaseUrl + "/v1";
-            }
-
-            String endpoint = normalizedBaseUrl + "/chat/completions";
-
-            String response = restTemplate.postForObject(endpoint, new HttpEntity<>(body, headers), String.class);
             if (response == null) {
                 return "AI service returned empty response";
             }
@@ -108,28 +157,44 @@ public class AiServiceImpl implements IAiService {
             }
             return response;
         } catch (Exception e) {
-            throw new RuntimeException("AI瀵硅瘽澶辫触: " + e.getMessage(), e);
+            throw new RuntimeException("AI对话调用失败: " + e.getMessage(), e);
         }
     }
 
-    @Override
-    public String detectFall(com.qkyd.ai.domain.FallDetectionRequest request) {
-        try {
-            // 璋冪敤 Python 绠楁硶鏈嶅姟
-            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            String pythonServiceUrl = "http://localhost:8011/api/algorithms/detect_fall";
-
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-            org.springframework.http.HttpEntity<com.qkyd.ai.domain.FallDetectionRequest> entity = new org.springframework.http.HttpEntity<>(
-                    request, headers);
-
-            String response = restTemplate.postForObject(pythonServiceUrl, entity, String.class);
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "{\"error\": \"绠楁硶鏈嶅姟璋冪敤澶辫触: " + e.getMessage() + "\"}";
+    private void validateGatewayConfig() {
+        if (apiKey == null || apiKey.isBlank() || PLACEHOLDER_API_KEY.equals(apiKey)) {
+            throw new IllegalStateException("AI_API_KEY 未配置，请在服务环境或配置文件中设置智谱 API Key");
         }
+
+        if (baseUrl == null || baseUrl.isBlank()) {
+            throw new IllegalStateException("AI_BASE_URL 未配置，建议使用 " + DEFAULT_BASE_URL);
+        }
+    }
+
+    private String normalizeBaseUrl(String rawBaseUrl) {
+        String normalizedBaseUrl = rawBaseUrl.endsWith("/")
+                ? rawBaseUrl.substring(0, rawBaseUrl.length() - 1)
+                : rawBaseUrl;
+
+        if (!normalizedBaseUrl.endsWith("/v1") && !normalizedBaseUrl.endsWith("/v4")) {
+            normalizedBaseUrl = normalizedBaseUrl + "/v1";
+        }
+
+        return normalizedBaseUrl;
+    }
+
+    private String normalizeModel(String rawModel) {
+        if (rawModel == null || rawModel.isBlank()) {
+            return normalizeModel(model);
+        }
+        return rawModel.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private boolean shouldUseCompatibleGateway() {
+        if (baseUrl == null || baseUrl.isBlank()) {
+            return false;
+        }
+        String normalized = baseUrl.toLowerCase(Locale.ROOT);
+        return normalized.contains("bigmodel.cn") || normalized.contains("/api/paas/") || normalized.contains("/api/coding/paas/");
     }
 }

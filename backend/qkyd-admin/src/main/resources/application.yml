@@ -18,6 +18,11 @@ qkyd:
       interval-ms: 10000
       initial-delay-ms: 5000
       subject-count: 6
+  ai:
+    models:
+      chat: ${AI_MODEL:deepseek-chat}
+      fast: ${AI_FAST_MODEL:deepseek-chat}
+      report: ${AI_REPORT_MODEL:deepseek-chat}
 
 # 寮€鍙戠幆澧冮厤缃?
 server:
@@ -80,13 +85,13 @@ spring:
   ai:
     openai:
       # API Key (璇锋浛鎹负瀹為檯鐨凙PI Key锛屾敮鎸丱penAI銆丄zure OpenAI鎴栧吋瀹圭殑API)
-      api-key: ${AI_API_KEY:}
+      api-key: ${AI_API_KEY:sk-aa869f9c964d4a96a6d0c8f4e0d387f2}
       # 鍩虹URL锛屽綋鍓嶉粯璁や负鏅鸿氨 AI OpenAI-compatible gateway
-      base-url: ${AI_BASE_URL:https://api.openai.com}
+      base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
       chat:
         options:
           # 妯″瀷鍚嶇О
-          model: ${AI_MODEL:GLM-4.7}
+          model: ${AI_MODEL:deepseek-chat}
           # 娓╁害鍙傛暟 (0-2)
           temperature: ${AI_TEMPERATURE:0.7}
 

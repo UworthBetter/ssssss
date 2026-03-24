@@ -112,7 +112,7 @@ public class SecurityConfig {
                         // 瀵逛簬鐧诲綍login 娉ㄥ唽register 楠岃瘉鐮乧aptchaImage 鍏佽鍖垮悕璁块棶
                         .requestMatchers("/login", "/register", "/captchaImage").permitAll()
                         .requestMatchers("/watch/push").permitAll()
-                        .requestMatchers("/ai/chat").permitAll()
+                        .requestMatchers("/ai/chat", "/ai/chat/**", "/ai/models", "/ai/test").permitAll()
                         .requestMatchers("/watch/require").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         // 鍋ュ悍鏁版嵁妯℃嫙涓婁紶鎺ュ彛锛屽厑璁稿尶鍚嶈闂紙璁惧閴存潈锛?

@@ -72,7 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectUeitExceptionListByUserId" resultType="com.qkyd.health.domain.UeitException">
         SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
-        qkyd_exception.id, qkyd_exception.user_id as userIdWho, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by as updateByWho, qkyd_exception.update_time as updateTimeWho, qkyd_exception.update_content, qkyd_exception.location
+        qkyd_exception.id, qkyd_exception.user_id, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value, qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state, qkyd_exception.create_time as readTime, qkyd_exception.update_by, qkyd_exception.update_time, qkyd_exception.update_content, qkyd_exception.location
         FROM sys_user su
         JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
         <where>

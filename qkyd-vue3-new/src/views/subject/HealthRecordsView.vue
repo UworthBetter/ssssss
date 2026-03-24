@@ -1,18 +1,15 @@
 <template>
   <PlatformPageShellV2
     title="健康档案"
-    subtitle="汇聚服务对象的体征历史数据，支持趋势分析与阶段性健康回顾，辅助医护决策。"
+    subtitle="基于真实生命体征、步数和设备扩展数据，查看对象近 7 天健康走势与每日摘要。"
     eyebrow="HEALTH RECORDS"
-    status-note="演示版 · 当前使用模拟数据"
-    status-tone="warning"
   >
     <template #toolbar>
       <div class="toolbar-row">
-        <el-input v-model="searchName" placeholder="搜索对象姓名 / 账号..." prefix-icon="Search" clearable style="width: 240px" />
+        <el-input v-model="searchName" placeholder="搜索对象姓名 / 账号" prefix-icon="Search" clearable style="width: 240px" />
         <el-select v-model="filterMetric" placeholder="体征指标" clearable style="width: 160px">
           <el-option label="全部指标" value="" />
           <el-option label="心率" value="heartRate" />
-          <el-option label="血压" value="bloodPressure" />
           <el-option label="血氧" value="spo2" />
           <el-option label="体温" value="temperature" />
           <el-option label="步数" value="steps" />
@@ -25,39 +22,37 @@
           end-placeholder="结束日期"
           style="width: 260px"
         />
-        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button type="primary" @click="fetchSelectedRecords">查询</el-button>
         <el-button @click="handleReset">重置</el-button>
       </div>
     </template>
 
     <div class="records-layout">
-      <!-- 左侧：对象列表 -->
       <div class="subject-panel panel-card">
         <div class="panel-header">
           <span class="panel-title">服务对象</span>
-          <el-tag size="small" type="info">{{ mockSubjects.length }} 人</el-tag>
+          <el-tag size="small" type="info">{{ filteredSubjects.length }} 人</el-tag>
         </div>
-        <div class="subject-list">
+        <div v-loading="loadingSubjects" class="subject-list">
           <div
-            v-for="s in mockSubjects"
-            :key="s.id"
+            v-for="subject in filteredSubjects"
+            :key="subject.subjectId"
             class="subject-item"
-            :class="{ active: selectedSubjectId === s.id }"
-            @click="selectedSubjectId = s.id"
+            :class="{ active: selectedSubjectId === subject.subjectId }"
+            @click="selectedSubjectId = subject.subjectId"
           >
-            <el-avatar :size="36" :class="'avatar-' + s.risk">{{ s.name.charAt(0) }}</el-avatar>
+            <el-avatar :size="36" :class="'avatar-' + getSubjectRisk(subject.subjectId)">{{ getDisplayName(subject).charAt(0) }}</el-avatar>
             <div class="subject-item-info">
-              <span class="sname">{{ s.name }}</span>
-              <span class="sage">{{ s.age }}岁 · {{ s.sex }}</span>
+              <span class="sname">{{ getDisplayName(subject) }}</span>
+              <span class="sage">{{ subject.age || '--' }}岁 · {{ subject.sex || '未知' }}</span>
             </div>
-            <div class="risk-dot" :class="'dot-' + s.risk"></div>
+            <div class="risk-dot" :class="'dot-' + getSubjectRisk(subject.subjectId)"></div>
           </div>
+          <el-empty v-if="!loadingSubjects && !filteredSubjects.length" description="暂无对象数据" />
         </div>
       </div>
 
-      <!-- 右侧：档案详情 -->
-      <div class="detail-area" v-if="selectedSubject">
-        <!-- 概览卡片 -->
+      <div v-if="selectedSubject" class="detail-area" v-loading="loadingRecords">
         <div class="overview-cards">
           <div v-for="card in overviewCards" :key="card.label" class="ov-card">
             <div class="ov-icon" :style="{ background: card.bg }">
@@ -68,18 +63,13 @@
               <strong class="ov-value">{{ card.value }}</strong>
               <span class="ov-unit">{{ card.unit }}</span>
             </div>
-            <div class="ov-trend" :class="card.trend">
-              <el-icon v-if="card.trend === 'up'"><ArrowUp /></el-icon>
-              <el-icon v-else-if="card.trend === 'down'"><ArrowDown /></el-icon>
-              <span v-else>—</span>
-            </div>
+            <div class="ov-trend" :class="card.trend">{{ trendLabel[card.trend] }}</div>
           </div>
         </div>
 
-        <!-- 趋势图占位 -->
         <div class="panel-card chart-panel">
           <div class="panel-header">
-            <span class="panel-title">心率趋势（近 7 天）</span>
+            <span class="panel-title">{{ chartTitle }}</span>
             <div class="chart-legend">
               <span class="legend-dot" style="background:#3b82f6"></span>心率
               <span class="legend-dot" style="background:#10b981; margin-left:12px"></span>血氧
@@ -87,10 +77,10 @@
           </div>
           <div class="chart-placeholder">
             <div class="chart-bars">
-              <div v-for="(bar, i) in chartBars" :key="i" class="bar-group">
+              <div v-for="bar in chartBars" :key="bar.dayKey" class="bar-group">
                 <div class="bar-col">
-                  <div class="bar hr-bar" :style="{ height: bar.hr + '%' }"></div>
-                  <div class="bar spo2-bar" :style="{ height: bar.spo2 + '%' }"></div>
+                  <div class="bar hr-bar" :style="{ height: bar.hrHeight + '%' }" :title="bar.hrText"></div>
+                  <div class="bar spo2-bar" :style="{ height: bar.spo2Height + '%' }" :title="bar.spo2Text"></div>
                 </div>
                 <span class="bar-label">{{ bar.day }}</span>
               </div>
@@ -98,25 +88,24 @@
           </div>
         </div>
 
-        <!-- 近期记录表 -->
         <div class="panel-card">
           <div class="panel-header">
-            <span class="panel-title">近期体征记录</span>
+            <span class="panel-title">每日健康摘要</span>
           </div>
           <el-table :data="recentRecords" size="small" style="width: 100%">
-            <el-table-column prop="time" label="采集时间" min-width="150" />
+            <el-table-column prop="time" label="记录时间" min-width="160" />
             <el-table-column label="心率(bpm)" min-width="100">
               <template #default="{ row }">
                 <span :class="row.hrStatus">{{ row.heartRate }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="spo2" label="血氧(%)" min-width="90" />
-            <el-table-column prop="temp" label="体温(℃)" min-width="90" />
-            <el-table-column prop="steps" label="步数" min-width="80" />
+            <el-table-column prop="temp" label="体温(°C)" min-width="100" />
+            <el-table-column prop="steps" label="步数" min-width="90" />
             <el-table-column label="状态" min-width="90">
               <template #default="{ row }">
                 <el-tag :type="row.status === 'normal' ? 'success' : 'warning'" size="small" effect="light">
-                  {{ row.status === 'normal' ? '正常' : '偏高' }}
+                  {{ row.status === 'normal' ? '正常' : '关注' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -124,62 +113,371 @@
         </div>
       </div>
 
-      <!-- 未选中时的空态 -->
-      <div class="empty-area" v-else>
+      <div v-else class="empty-area">
         <el-icon class="empty-icon" :size="64"><UserFilled /></el-icon>
-        <p>从左侧选择一位服务对象，查看其健康档案</p>
+        <p>从左侧选择一位服务对象，查看其真实健康档案。</p>
       </div>
     </div>
   </PlatformPageShellV2>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { ArrowUp, ArrowDown, UserFilled, Odometer, Aim, Sunny, Bicycle } from '@element-plus/icons-vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { UserFilled, Odometer, Aim, Sunny, Bicycle } from '@element-plus/icons-vue'
 import { PlatformPageShellV2 } from '@/components/platform'
+import {
+  listDeviceExtensions,
+  listExceptions,
+  listHeartRates,
+  listSpo2s,
+  listSteps,
+  listSubjects,
+  listTemps,
+  type DeviceInfoExtend,
+  type ExceptionAlert,
+  type HealthSubject,
+  type StepRecord,
+  type VitalRecord
+} from '@/api/health'
+
+type TrendState = 'up' | 'down' | 'stable'
+type RiskState = 'high' | 'medium' | 'low'
+
+interface ChartBar {
+  day: string
+  dayKey: string
+  hrHeight: number
+  spo2Height: number
+  hrText: string
+  spo2Text: string
+}
+
+interface DailyRecordRow {
+  time: string
+  heartRate: string
+  hrStatus: string
+  spo2: string
+  temp: string
+  steps: string
+  status: 'normal' | 'warn'
+}
 
 const searchName = ref('')
 const filterMetric = ref('')
 const dateRange = ref<[Date, Date] | null>(null)
-const selectedSubjectId = ref<number>(1)
+const selectedSubjectId = ref<number>()
 
-const mockSubjects = [
-  { id: 1, name: '李秀英', age: 78, sex: '女', risk: 'high' },
-  { id: 2, name: '王建国', age: 82, sex: '男', risk: 'medium' },
-  { id: 3, name: '张淑芬', age: 69, sex: '女', risk: 'low' },
-  { id: 4, name: '赵志强', age: 75, sex: '男', risk: 'medium' },
-  { id: 5, name: '陈美华', age: 71, sex: '女', risk: 'low' },
-]
+const loadingSubjects = ref(false)
+const loadingRecords = ref(false)
 
-const selectedSubject = computed(() => mockSubjects.find(s => s.id === selectedSubjectId.value))
+const subjects = ref<HealthSubject[]>([])
+const subjectRiskMap = ref(new Map<number, RiskState>())
+const subjectExtensionMap = ref(new Map<number, DeviceInfoExtend>())
 
-const overviewCards = computed(() => [
-  { label: '平均心率', value: '76', unit: 'bpm', icon: 'Odometer', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', trend: 'stable' },
-  { label: '平均血氧', value: '97.2', unit: '%', icon: 'Aim', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', trend: 'up' },
-  { label: '平均体温', value: '36.5', unit: '℃', icon: 'Sunny', bg: 'linear-gradient(135deg,#fff7ed,#fed7aa)', trend: 'stable' },
-  { label: '今日步数', value: '3,240', unit: '步', icon: 'Bicycle', bg: 'linear-gradient(135deg,#fdf4ff,#f3e8ff)', trend: 'down' },
-])
+const heartRates = ref<VitalRecord[]>([])
+const spo2Records = ref<VitalRecord[]>([])
+const tempRecords = ref<VitalRecord[]>([])
+const stepRecords = ref<StepRecord[]>([])
 
-const chartBars = [
-  { day: '周一', hr: 62, spo2: 90 },
-  { day: '周二', hr: 75, spo2: 88 },
-  { day: '周三', hr: 58, spo2: 92 },
-  { day: '周四', hr: 80, spo2: 85 },
-  { day: '周五', hr: 70, spo2: 94 },
-  { day: '周六', hr: 65, spo2: 89 },
-  { day: '周日', hr: 72, spo2: 91 },
-]
+const trendLabel: Record<TrendState, string> = { up: '上升', down: '下降', stable: '平稳' }
 
-const recentRecords = [
-  { time: '2026-03-23 08:12', heartRate: 74, hrStatus: '', spo2: 97, temp: 36.5, steps: 420, status: 'normal' },
-  { time: '2026-03-23 10:35', heartRate: 92, hrStatus: 'val-warn', spo2: 96, temp: 36.6, steps: 1280, status: 'warn' },
-  { time: '2026-03-23 13:00', heartRate: 78, hrStatus: '', spo2: 98, temp: 36.4, steps: 2100, status: 'normal' },
-  { time: '2026-03-23 15:20', heartRate: 81, hrStatus: '', spo2: 97, temp: 36.5, steps: 2890, status: 'normal' },
-  { time: '2026-03-23 17:45', heartRate: 76, hrStatus: '', spo2: 97, temp: 36.5, steps: 3240, status: 'normal' },
-]
+const getDisplayName = (subject: HealthSubject) => subject.nickName || subject.subjectName || `对象 #${subject.subjectId || '-'}`
 
-const handleSearch = () => {}
-const handleReset = () => { searchName.value = ''; filterMetric.value = ''; dateRange.value = null }
+const parseNumber = (value: unknown, fallback = 0) => {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
+
+const parseTimestamp = (value?: string) => {
+  if (!value) return 0
+  const timestamp = new Date(value).getTime()
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+const formatDayKey = (value: Date | string) => {
+  const date = typeof value === 'string' ? new Date(value) : value
+  if (!Number.isFinite(date.getTime())) return ''
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
+const formatDayLabel = (value: Date) => `${value.getMonth() + 1}/${value.getDate()}`
+
+const formatDateTime = (value?: string) => {
+  const timestamp = parseTimestamp(value)
+  if (!timestamp) return '--'
+  const date = new Date(timestamp)
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  const hour = `${date.getHours()}`.padStart(2, '0')
+  const minute = `${date.getMinutes()}`.padStart(2, '0')
+  return `${month}-${day} ${hour}:${minute}`
+}
+
+const getRangeKeys = () => {
+  if (dateRange.value?.length === 2) {
+    const [start, end] = dateRange.value
+    const result: string[] = []
+    const cursor = new Date(start)
+    cursor.setHours(0, 0, 0, 0)
+    const endDate = new Date(end)
+    endDate.setHours(0, 0, 0, 0)
+    while (cursor.getTime() <= endDate.getTime()) {
+      result.push(formatDayKey(cursor))
+      cursor.setDate(cursor.getDate() + 1)
+    }
+    return result.slice(-7)
+  }
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    date.setDate(date.getDate() - (6 - index))
+    return formatDayKey(date)
+  })
+}
+
+const selectedSubject = computed(() => subjects.value.find((item) => item.subjectId === selectedSubjectId.value))
+
+const filteredSubjects = computed(() => {
+  const keyword = searchName.value.trim()
+  return subjects.value.filter((item) => {
+    if (!keyword) return true
+    return [item.nickName, item.subjectName].some((field) => String(field || '').includes(keyword))
+  })
+})
+
+const getSubjectRisk = (subjectId?: number) => subjectRiskMap.value.get(Number(subjectId || 0)) || 'low'
+
+const getRecordsByRange = <T extends { createTime?: string; date?: string }>(records: T[]) => {
+  const rangeKeys = new Set(getRangeKeys())
+  return records.filter((item) => {
+    const key = item.date || formatDayKey(item.createTime || '')
+    return rangeKeys.has(key)
+  })
+}
+
+const createMetricSummary = (values: number[]) => {
+  if (!values.length) {
+    return { current: '--', average: '--', trend: 'stable' as TrendState }
+  }
+
+  const latest = values[values.length - 1]
+  const average = values.reduce((sum, value) => sum + value, 0) / values.length
+  const first = values[0]
+  const delta = latest - first
+
+  return {
+    current: latest.toFixed(1).replace(/\.0$/, ''),
+    average: average.toFixed(1).replace(/\.0$/, ''),
+    trend: delta > 2 ? 'up' : delta < -2 ? 'down' : 'stable'
+  }
+}
+
+const overviewCards = computed(() => {
+  const ext = subjectExtensionMap.value.get(Number(selectedSubjectId.value || 0))
+  const heartSummary = createMetricSummary(getRecordsByRange(heartRates.value).map((item) => parseNumber(item.value)).filter(Boolean))
+  const spo2Summary = createMetricSummary(getRecordsByRange(spo2Records.value).map((item) => parseNumber(item.value)).filter(Boolean))
+  const tempSummary = createMetricSummary(getRecordsByRange(tempRecords.value).map((item) => parseNumber(item.value)).filter(Boolean))
+  const latestStep = [...getRecordsByRange(stepRecords.value)].sort((a, b) => String(a.date || '').localeCompare(String(b.date || ''))).at(-1)
+  const latestStepValue = parseNumber(latestStep?.value || ext?.step, 0)
+  const previousStepValue = parseNumber([...getRecordsByRange(stepRecords.value)].sort((a, b) => String(a.date || '').localeCompare(String(b.date || ''))).at(-2)?.value, latestStepValue)
+  const stepTrend: TrendState = latestStepValue > previousStepValue ? 'up' : latestStepValue < previousStepValue ? 'down' : 'stable'
+
+  return [
+    { label: '最近心率', value: heartSummary.current, unit: 'bpm', icon: Odometer, bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', trend: heartSummary.trend },
+    { label: '最近血氧', value: spo2Summary.current, unit: '%', icon: Aim, bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', trend: spo2Summary.trend },
+    { label: '最近体温', value: tempSummary.current, unit: '°C', icon: Sunny, bg: 'linear-gradient(135deg,#fff7ed,#fed7aa)', trend: tempSummary.trend },
+    { label: '最新步数', value: latestStepValue ? `${latestStepValue}` : '--', unit: '步', icon: Bicycle, bg: 'linear-gradient(135deg,#fdf4ff,#f3e8ff)', trend: stepTrend }
+  ]
+})
+
+const chartBars = computed<ChartBar[]>(() => {
+  const heartByDay = new Map<string, number[]>()
+  const spo2ByDay = new Map<string, number[]>()
+
+  getRecordsByRange(heartRates.value).forEach((item) => {
+    const key = formatDayKey(item.createTime || '')
+    if (!heartByDay.has(key)) heartByDay.set(key, [])
+    heartByDay.get(key)?.push(parseNumber(item.value))
+  })
+
+  getRecordsByRange(spo2Records.value).forEach((item) => {
+    const key = formatDayKey(item.createTime || '')
+    if (!spo2ByDay.has(key)) spo2ByDay.set(key, [])
+    spo2ByDay.get(key)?.push(parseNumber(item.value))
+  })
+
+  return getRangeKeys().map((key) => {
+    const date = new Date(key)
+    const heartValues = (heartByDay.get(key) || []).filter(Boolean)
+    const spo2Values = (spo2ByDay.get(key) || []).filter(Boolean)
+    const hrAverage = heartValues.length ? heartValues.reduce((sum, value) => sum + value, 0) / heartValues.length : 0
+    const spo2Average = spo2Values.length ? spo2Values.reduce((sum, value) => sum + value, 0) / spo2Values.length : 0
+
+    return {
+      day: formatDayLabel(date),
+      dayKey: key,
+      hrHeight: hrAverage ? Math.min(100, Math.max(8, (hrAverage / 140) * 100)) : 8,
+      spo2Height: spo2Average ? Math.min(100, Math.max(8, spo2Average)) : 8,
+      hrText: hrAverage ? `${hrAverage.toFixed(0)} bpm` : '暂无心率',
+      spo2Text: spo2Average ? `${spo2Average.toFixed(0)}%` : '暂无血氧'
+    }
+  })
+})
+
+const chartTitle = computed(() => {
+  switch (filterMetric.value) {
+    case 'heartRate':
+      return '心率趋势（近 7 天）'
+    case 'spo2':
+      return '血氧趋势（近 7 天）'
+    case 'temperature':
+      return '体温趋势（近 7 天）'
+    case 'steps':
+      return '步数趋势（近 7 天）'
+    default:
+      return '心率与血氧趋势（近 7 天）'
+  }
+})
+
+const recentRecords = computed<DailyRecordRow[]>(() => {
+  const rangeKeys = [...getRangeKeys()].reverse()
+
+  return rangeKeys.map((key) => {
+    const heart = getRecordsByRange(heartRates.value)
+      .filter((item) => formatDayKey(item.createTime || '') === key)
+      .sort((a, b) => parseTimestamp(b.createTime) - parseTimestamp(a.createTime))[0]
+    const spo2 = getRecordsByRange(spo2Records.value)
+      .filter((item) => formatDayKey(item.createTime || '') === key)
+      .sort((a, b) => parseTimestamp(b.createTime) - parseTimestamp(a.createTime))[0]
+    const temp = getRecordsByRange(tempRecords.value)
+      .filter((item) => formatDayKey(item.createTime || '') === key)
+      .sort((a, b) => parseTimestamp(b.createTime) - parseTimestamp(a.createTime))[0]
+    const steps = getRecordsByRange(stepRecords.value)
+      .filter((item) => item.date === key)
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))[0]
+
+    const heartValue = parseNumber(heart?.value)
+    const spo2Value = parseNumber(spo2?.value)
+    const tempValue = parseNumber(temp?.value)
+    const stepValue = parseNumber(steps?.value)
+    const abnormal = (heartValue && (heartValue > 100 || heartValue < 55)) || (spo2Value && spo2Value < 95) || (tempValue && tempValue >= 37.3)
+
+    return {
+      time: formatDateTime(heart?.createTime || spo2?.createTime || temp?.createTime) === '--' ? key : formatDateTime(heart?.createTime || spo2?.createTime || temp?.createTime),
+      heartRate: heartValue ? `${heartValue}` : '--',
+      hrStatus: abnormal ? 'val-warn' : '',
+      spo2: spo2Value ? `${spo2Value}` : '--',
+      temp: tempValue ? tempValue.toFixed(1) : '--',
+      steps: stepValue ? `${stepValue}` : '--',
+      status: abnormal ? 'warn' : 'normal'
+    }
+  })
+})
+
+const fetchSubjects = async () => {
+  loadingSubjects.value = true
+  try {
+    const [subjectRes, extensionRes, exceptionRes] = await Promise.all([
+      listSubjects({ pageNum: 1, pageSize: 200 }),
+      listDeviceExtensions({ pageNum: 1, pageSize: 200 }),
+      listExceptions({ pageNum: 1, pageSize: 200 })
+    ])
+
+    subjects.value = (subjectRes.rows || []) as HealthSubject[]
+
+    const extensionMap = new Map<number, DeviceInfoExtend>()
+    ;((extensionRes.rows || []) as DeviceInfoExtend[]).forEach((item) => {
+      const userId = Number(item.userId || 0)
+      if (userId) {
+        extensionMap.set(userId, item)
+      }
+    })
+    subjectExtensionMap.value = extensionMap
+
+    const exceptionGroups = new Map<number, ExceptionAlert[]>()
+    ;((exceptionRes.rows || []) as ExceptionAlert[]).forEach((item) => {
+      const userId = Number(item.userId || 0)
+      if (!userId) return
+      if (!exceptionGroups.has(userId)) exceptionGroups.set(userId, [])
+      exceptionGroups.get(userId)?.push(item)
+    })
+
+    const riskMap = new Map<number, RiskState>()
+    subjects.value.forEach((subject) => {
+      const userId = Number(subject.subjectId || 0)
+      const ext = extensionMap.get(userId)
+      const exceptions = exceptionGroups.get(userId) || []
+      const unresolved = exceptions.filter((item) => String(item.state || '0') !== '1').length
+      const hasAlarm = Boolean(String(ext?.alarmContent || '').trim())
+      if (unresolved >= 2 || hasAlarm) {
+        riskMap.set(userId, 'high')
+      } else if (unresolved >= 1) {
+        riskMap.set(userId, 'medium')
+      } else {
+        riskMap.set(userId, 'low')
+      }
+    })
+    subjectRiskMap.value = riskMap
+
+    const nextSelected = filteredSubjects.value[0]?.subjectId || subjects.value[0]?.subjectId
+    if (!selectedSubjectId.value && nextSelected) {
+      selectedSubjectId.value = nextSelected
+    }
+  } finally {
+    loadingSubjects.value = false
+  }
+}
+
+const fetchSelectedRecords = async () => {
+  if (!selectedSubjectId.value) return
+
+  loadingRecords.value = true
+  try {
+    const params = { pageNum: 1, pageSize: 500, userId: selectedSubjectId.value } as any
+    const [heartRes, spo2Res, tempRes, stepsRes] = await Promise.all([
+      listHeartRates(params),
+      listSpo2s(params),
+      listTemps(params),
+      listSteps(params)
+    ])
+
+    heartRates.value = (heartRes.rows || []) as VitalRecord[]
+    spo2Records.value = (spo2Res.rows || []) as VitalRecord[]
+    tempRecords.value = (tempRes.rows || []) as VitalRecord[]
+    stepRecords.value = (stepsRes.rows || []) as StepRecord[]
+  } finally {
+    loadingRecords.value = false
+  }
+}
+
+const handleReset = () => {
+  searchName.value = ''
+  filterMetric.value = ''
+  dateRange.value = null
+  fetchSelectedRecords()
+}
+
+watch(selectedSubjectId, () => {
+  fetchSelectedRecords()
+})
+
+watch(filteredSubjects, (list) => {
+  if (!list.length) {
+    selectedSubjectId.value = undefined
+    return
+  }
+  if (!list.some((item) => item.subjectId === selectedSubjectId.value)) {
+    selectedSubjectId.value = list[0].subjectId
+  }
+})
+
+onMounted(async () => {
+  await fetchSubjects()
+  await fetchSelectedRecords()
+})
 </script>
 
 <style scoped lang="scss">
@@ -194,7 +492,7 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  min-height: 500px;
+  min-height: 520px;
 }
 
 .panel-card {
@@ -219,10 +517,9 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   color: #0f172a;
 }
 
-/* 左侧对象列表 */
 .subject-panel {
-  flex: 0 0 220px;
-  max-height: 640px;
+  flex: 0 0 240px;
+  max-height: 680px;
   display: flex;
   flex-direction: column;
 }
@@ -241,33 +538,42 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
-
-  &:hover { background: #f8fafc; }
-  &.active { background: #eff6ff; }
-
-  .el-avatar {
-    font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
-    &.avatar-high { background: linear-gradient(135deg, #ef4444, #f87171); }
-    &.avatar-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-    &.avatar-low { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-  }
-
-  .subject-item-info {
-    flex: 1;
-    display: flex; flex-direction: column;
-    .sname { font-size: 14px; font-weight: 600; color: #0f172a; }
-    .sage { font-size: 12px; color: #64748b; }
-  }
-
-  .risk-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    &.dot-high { background: #ef4444; }
-    &.dot-medium { background: #f59e0b; }
-    &.dot-low { background: #10b981; }
-  }
 }
 
-/* 右侧详情 */
+.subject-item:hover { background: #f8fafc; }
+.subject-item.active { background: #eff6ff; }
+
+.subject-item :deep(.el-avatar) {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.subject-item :deep(.avatar-high) { background: linear-gradient(135deg, #ef4444, #f87171); }
+.subject-item :deep(.avatar-medium) { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.subject-item :deep(.avatar-low) { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+
+.subject-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sname { font-size: 14px; font-weight: 600; color: #0f172a; }
+.sage { font-size: 12px; color: #64748b; }
+
+.risk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-high { background: #ef4444; }
+.dot-medium { background: #f59e0b; }
+.dot-low { background: #10b981; }
+
 .detail-area {
   flex: 1;
   display: flex;
@@ -290,44 +596,49 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   align-items: center;
   gap: 14px;
   border: 1px solid rgba(226, 232, 240, 0.7);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .ov-icon {
-  width: 44px; height: 44px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  color: #3b82f6; flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  flex-shrink: 0;
 }
 
 .ov-data {
   flex: 1;
-  display: flex; flex-direction: column;
-  .ov-label { font-size: 12px; color: #64748b; }
-  .ov-value { font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1.2; }
-  .ov-unit { font-size: 11px; color: #94a3b8; }
+  display: flex;
+  flex-direction: column;
 }
+
+.ov-label { font-size: 12px; color: #64748b; }
+.ov-value { font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1.2; }
+.ov-unit { font-size: 11px; color: #94a3b8; }
 
 .ov-trend {
-  font-size: 14px;
-  &.up { color: #10b981; }
-  &.down { color: #ef4444; }
-  &.stable { color: #94a3b8; }
+  font-size: 12px;
+  font-weight: 700;
 }
 
-/* 图表 */
-.chart-panel { .panel-header { padding-bottom: 16px; } }
+.ov-trend.up { color: #10b981; }
+.ov-trend.down { color: #ef4444; }
+.ov-trend.stable { color: #94a3b8; }
+
 .chart-legend { display: flex; align-items: center; font-size: 12px; color: #64748b; }
 .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
 
-.chart-placeholder {
-  padding: 20px 20px 8px;
-}
+.chart-placeholder { padding: 20px 20px 8px; }
 
 .chart-bars {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  height: 140px;
+  height: 160px;
 }
 
 .bar-group {
@@ -352,16 +663,14 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   border-radius: 4px 4px 0 0;
   transition: height 0.4s ease;
   min-height: 4px;
-  &.hr-bar { background: linear-gradient(to top, #3b82f6, #93c5fd); }
-  &.spo2-bar { background: linear-gradient(to top, #10b981, #6ee7b7); }
 }
 
+.hr-bar { background: linear-gradient(to top, #3b82f6, #93c5fd); }
+.spo2-bar { background: linear-gradient(to top, #10b981, #6ee7b7); }
 .bar-label { font-size: 11px; color: #94a3b8; }
 
-/* 值警告色 */
 :deep(.val-warn) { color: #f59e0b; font-weight: 600; }
 
-/* 空态 */
 .empty-area {
   flex: 1;
   display: flex;
@@ -370,15 +679,16 @@ const handleReset = () => { searchName.value = ''; filterMetric.value = ''; date
   justify-content: center;
   gap: 16px;
   color: #94a3b8;
-  .empty-icon { opacity: 0.3; }
-  p { font-size: 14px; }
 }
+
+.empty-icon { opacity: 0.3; }
 
 @media (max-width: 1200px) {
   .overview-cards { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 960px) {
   .records-layout { flex-direction: column; }
-  .subject-panel { flex: none; width: 100%; max-height: 200px; }
+  .subject-panel { flex: none; width: 100%; max-height: 220px; }
 }
 </style>

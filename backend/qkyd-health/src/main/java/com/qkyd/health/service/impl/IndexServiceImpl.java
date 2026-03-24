@@ -142,6 +142,14 @@ public class IndexServiceImpl implements IndexService {
             return new ArrayList<>();
         }
 
+        List<UeitException> timeBoundRows = collectDashboardExceptions(source, true);
+        if (!timeBoundRows.isEmpty()) {
+            return timeBoundRows;
+        }
+        return collectDashboardExceptions(source, false);
+    }
+
+    private List<UeitException> collectDashboardExceptions(List<UeitException> source, boolean applyTimeWindow) {
         long now = System.currentTimeMillis();
         Map<String, UeitException> latestByKey = new LinkedHashMap<>();
         for (UeitException item : source) {
@@ -149,7 +157,7 @@ public class IndexServiceImpl implements IndexService {
                 continue;
             }
             UeitException normalized = normalizeDashboardException(item);
-            if (!shouldDisplayOnDashboard(normalized, now)) {
+            if (applyTimeWindow && !shouldDisplayOnDashboard(normalized, now)) {
                 continue;
             }
             latestByKey.putIfAbsent(buildDashboardIdentity(normalized), normalized);
@@ -382,18 +390,18 @@ public class IndexServiceImpl implements IndexService {
 
     private List<UeitException> mockExceptionList(String type) {
         List<UeitException> list = new ArrayList<>();
-        list.add(buildException(1001L, 9101L, 5001L, "心率异常", "132 bpm", "0",
-                "上海-人民广场", 121.4737, 31.2304, 20));
+        list.add(buildException(1001L, 9101L, 5001L, "心率异常", "132 次/分", "0",
+                "郑州-二七广场", 113.62493, 34.74725, 20));
         list.add(buildException(1002L, 9102L, 5002L, "围栏越界", "超出1.8公里", "0",
-                "上海-南京东路", 121.4812, 31.2279, 16));
-        list.add(buildException(1003L, 9103L, 5003L, "体温异常", "38.6 C", "1",
-                "上海-南京西路", 121.4648, 31.2245, 12));
+                "郑州-郑州东站", 113.79252, 34.75663, 16));
+        list.add(buildException(1003L, 9103L, 5003L, "体温异常", "38.6℃", "1",
+                "郑州-郑东新区如意湖", 113.74888, 34.76511, 12));
         list.add(buildException(1004L, 9104L, 5004L, "血氧异常", "89%", "0",
-                "上海-四川北路", 121.4901, 31.2372, 8));
+                "郑州-金水路省人民医院", 113.68680, 34.75956, 8));
         list.add(buildException(1005L, 9105L, 5005L, "SOS求救", "手动触发", "0",
-                "上海-长寿路", 121.4555, 31.2401, 5));
-        list.add(buildException(1006L, 9106L, 5006L, "步数异常", "15400 steps/day", "1",
-                "上海-五角场", 121.5010, 31.2456, 3));
+                "郑州-郑州大学一附院", 113.64098, 34.75645, 5));
+        list.add(buildException(1006L, 9106L, 5006L, "步数异常", "15400 步/日", "1",
+                "郑州-中原福塔", 113.72155, 34.73901, 3));
 
         if (type == null || type.isBlank() || "all".equalsIgnoreCase(type)) {
             return list;
@@ -424,15 +432,23 @@ public class IndexServiceImpl implements IndexService {
         exception.setLatitude(BigDecimal.valueOf(latitude));
         exception.setReadTime(new Date(System.currentTimeMillis() - minutesAgo * 60L * 1000L));
         exception.setCreateTime(new Date(System.currentTimeMillis() - minutesAgo * 60L * 1000L));
-        exception.setNickName("演示对象" + userId);
+        exception.setNickName(switch (userId.intValue()) {
+            case 9101 -> "王秀兰";
+            case 9102 -> "李建国";
+            case 9103 -> "陈桂英";
+            case 9104 -> "周德明";
+            case 9105 -> "吴美琴";
+            case 9106 -> "赵文华";
+            default -> "居民" + userId;
+        });
         return exception;
     }
 
     private List<RealTimeData> mockRealtimeList() {
         List<RealTimeData> list = new ArrayList<>();
-        list.add(buildRealtime(9101, "演示对象A", 0, 72, 85, "97", "36.4"));
-        list.add(buildRealtime(9102, "演示对象B", 1, 68, 92, "96", "36.8"));
-        list.add(buildRealtime(9103, "演示对象C", 0, 75, 78, "98", "36.6"));
+        list.add(buildRealtime(9101, "王秀兰", 0, 72, 85, "97", "36.4"));
+        list.add(buildRealtime(9102, "李建国", 1, 68, 92, "96", "36.8"));
+        list.add(buildRealtime(9103, "陈桂英", 0, 75, 78, "98", "36.6"));
         return list;
     }
 
@@ -449,3 +465,4 @@ public class IndexServiceImpl implements IndexService {
         return data;
     }
 }
+
