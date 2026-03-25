@@ -52,11 +52,19 @@
 
       <transition name="panel-fade" mode="out-in">
         <div v-if="!activePill" class="hud-content-block flex-fill" key="default">
-          <div class="holo-title">DEMOGRAPHICS <span>// 人群画像</span></div>
+          <div class="holo-title">EVENT STREAM <span>// 实时异常流</span></div>
           <div class="table-wrapper">
-            <el-table :data="ageSexTable" height="100%" class="holo-table">
-              <el-table-column prop="label" label="分组" min-width="90" />
-              <el-table-column prop="value" label="人数" min-width="70" />
+            <el-table :data="filteredExceptionList" height="100%" class="holo-table clickable-table" @row-click="handleRowClick">
+              <el-table-column prop="nickName" label="姓名" min-width="60" />
+              <el-table-column prop="type" label="类型" min-width="90" />
+              <el-table-column prop="state" label="状态" min-width="80">
+                <template #default="{ row }">
+                  <span :class="['status-dot', row.state === '1' ? 'dot-ok' : 'dot-warn']"></span>
+                  <span :class="['status-text', row.state === '1' ? 'text-ok' : 'text-warn']">
+                    {{ row.state === '1' ? 'DONE' : 'PEND' }}
+                  </span>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </div>
@@ -128,24 +136,55 @@
       </transition>
     </div>
 
-    <!-- ================= 4. 底部：事件雷达流 ================= -->
+    <!-- ================= 4. 底部：系统状态横条 ================= -->
     <div class="hud-bottom-center fade-bottom">
-      <div class="hud-content-block h-full">
-        <div class="holo-title">EVENT STREAM <span>// 实时异常流 [点击坐标定位]</span></div>
-        <div class="table-wrapper">
-          <el-table :data="filteredExceptionList" height="100%" class="holo-table clickable-table" @row-click="handleRowClick">
-            <el-table-column prop="nickName" label="姓名" min-width="80" />
-            <el-table-column prop="type" label="类型" min-width="110" />
-            <el-table-column prop="state" label="状态" min-width="90">
-              <template #default="{ row }">
-                <span :class="['status-dot', row.state === '1' ? 'dot-ok' : 'dot-warn']"></span>
-                <span :class="['status-text', row.state === '1' ? 'text-ok' : 'text-warn']">
-                  {{ row.state === '1' ? 'RESOLVED' : 'PENDING' }}
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="location" label="位置" min-width="200" show-overflow-tooltip />
-          </el-table>
+      <div class="status-bar">
+        <!-- 左侧：统计指标组 -->
+        <div class="sb-stats">
+          <div class="sb-stat">
+            <span class="sb-label">总事件</span>
+            <span class="sb-value digital-font">{{ filteredExceptionList.length }}</span>
+          </div>
+          <div class="sb-divider"></div>
+          <div class="sb-stat">
+            <span class="sb-label">已处置</span>
+            <span class="sb-value digital-font text-success">{{ filteredExceptionList.filter(r => r.state === '1').length }}</span>
+          </div>
+          <div class="sb-divider"></div>
+          <div class="sb-stat">
+            <span class="sb-label">待处置</span>
+            <span class="sb-value digital-font text-warning">{{ filteredExceptionList.filter(r => r.state !== '1').length }}</span>
+          </div>
+          <div class="sb-divider"></div>
+          <div class="sb-stat">
+            <span class="sb-label">处置率</span>
+            <span class="sb-value digital-font text-success">{{ filteredExceptionList.length ? ((filteredExceptionList.filter(r => r.state === '1').length / filteredExceptionList.length) * 100).toFixed(0) : 0 }}%</span>
+          </div>
+        </div>
+        <!-- 中间：分隔线 + LIVE 标识 -->
+        <div class="sb-live">
+          <span class="live-dot"></span>
+          <span class="live-label">实时动态</span>
+        </div>
+        <!-- 右侧：最新事件跑马灯 -->
+        <div class="sb-ticker-wrap">
+          <div class="sb-ticker" v-if="filteredExceptionList.length">
+            <span
+              v-for="(row, i) in filteredExceptionList.slice(0, 6)"
+              :key="i"
+              class="ticker-item"
+              :class="row.state !== '1' ? 'ticker-warn' : 'ticker-ok'"
+              @click="handleRowClick(row)"
+            >
+              <span class="ticker-name">{{ row.nickName }}</span>
+              <span class="ticker-type">{{ row.type }}</span>
+              <span class="ticker-status">{{ row.state === '1' ? '已处置' : '待处置' }}</span>
+              <span class="ticker-sep">·</span>
+            </span>
+          </div>
+          <div class="sb-ticker-empty" v-else>
+            <span class="digital-font">-- 暂无异常事件 --</span>
+          </div>
         </div>
       </div>
     </div>
@@ -165,7 +204,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import { ElMessage } from 'element-plus'
 import { getAbnormalTrend, getRecentAbnormal } from '@/api/ai'
-import { getAgeSexGroupCount, getIndexException, getRealTimeData } from '@/api/index'
+import { getIndexException, getRealTimeData } from '@/api/index'
 import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
 
 echarts.use([PieChart, LineChart, TooltipComponent, GridComponent, LabelLayout, CanvasRenderer])
@@ -1169,7 +1208,7 @@ const fetchAll = async (forceFull = false) => {
     const shouldRefreshDetails = forceFull || (pollRound % DETAIL_REFRESH_EVERY_ROUNDS === 0)
     const requests: Promise<unknown>[] = [getRealTimeData()]
     if (shouldRefreshDetails) {
-      requests.push(getAgeSexGroupCount(), getRecentAbnormal(8), getIndexException('all', 1))
+      requests.push(getRecentAbnormal(8), getIndexException('all', 1))
     }
 
     const results = await Promise.all(requests)
@@ -1177,11 +1216,9 @@ const fetchAll = async (forceFull = false) => {
     realTimeData.value = (rtRes.data ?? {}) as Record<string, unknown>
 
     if (shouldRefreshDetails) {
-      const ageRes = results[1] as Record<string, any>
-      const recentRes = results[2] as Record<string, any>
-      const exceptionRes = results[3] as Record<string, any>
+      const recentRes = results[1] as Record<string, any>
+      const exceptionRes = results[2] as Record<string, any>
 
-      ageSexTable.value = normalizeAgeSexTable(ageRes.data)
       recentAbnormal.value = normalizeRecentAbnormal(recentRes.data)
 
       const rawExceptions = exceptionRes.rows ?? exceptionRes.data ?? exceptionRes.list
@@ -1327,7 +1364,8 @@ onBeforeUnmount(() => {
 .hud-left { left: 0; padding-right: 20px; } 
 .hud-right { right: 0; padding-left: 20px; }
 .hud-bottom-center {
-  bottom: 0; left: 320px; right: 320px; height: 160px; padding: 20px 40px 10px;
+  bottom: 0; left: 320px; right: 320px; height: 72px; padding: 0 40px;
+  display: flex; align-items: center;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
@@ -1702,5 +1740,158 @@ onBeforeUnmount(() => {
   font-size: 9px;
   color: #94a3b8;
   margin-left: auto;
+}
+
+/* ================== 底部状态横条 ================== */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  border-radius: 14px;
+  padding: 0 20px;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.04), 0 2px 12px rgba(0, 0, 0, 0.04);
+  pointer-events: auto;
+}
+
+.sb-stats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sb-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px;
+  gap: 2px;
+}
+
+.sb-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.sb-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #0ea5e9;
+  line-height: 1;
+}
+
+.sb-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(14, 165, 233, 0.15);
+  flex-shrink: 0;
+}
+
+.sb-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  border-left: 1px solid rgba(14, 165, 233, 0.15);
+  border-right: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.live-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #10b981;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.sb-ticker-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.sb-ticker {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  animation: ticker-scroll 18s linear infinite;
+  white-space: nowrap;
+}
+
+.sb-ticker:hover {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(14, 165, 233, 0.08);
+  }
+}
+
+.ticker-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.ticker-type {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.ticker-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  font-weight: bold;
+
+  .ticker-warn & { color: #f59e0b; }
+  .ticker-ok & { color: #10b981; }
+}
+
+.ticker-sep {
+  color: #cbd5e1;
+  margin: 0 8px;
+  font-size: 14px;
+}
+
+.sb-ticker-empty {
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+}
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 </style>

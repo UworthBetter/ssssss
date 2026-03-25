@@ -8,3 +8,8 @@ target/
 .pytest_cache/
 *.log
 *.tar
+
+# 环境变量文件（含敏感信息，禁止提交）
+.env
+.env.local
+.env.*.local

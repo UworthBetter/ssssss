@@ -1,24 +1,29 @@
 <template>
   <el-container class="layout-container">
     <el-aside :width="sidebarWidth" class="sidebar panel">
-      <div class="brand">
+      <div class="brand" :class="{ 'brand--collapsed': !appStore.sidebar.opened }">
         <img class="brand-logo" src="/logo-qkyd-wide.png" alt="耆康云盾" />
-        <div v-show="appStore.sidebar.opened" class="brand-text">
+        <div v-if="appStore.sidebar.opened" class="brand-text">
           <p class="brand-title">耆康云盾健康监测平台</p>
           <p class="brand-sub">平台运营工作台</p>
         </div>
       </div>
-      <el-menu :default-active="activeMenu" :collapse="!appStore.sidebar.opened" router>
-        <template v-for="group in navGroups" :key="group.key">
-          <div v-show="appStore.sidebar.opened" class="nav-group-title">
+      <el-menu
+        :default-active="activeMenu"
+        :collapse="!appStore.sidebar.opened"
+        :default-openeds="defaultOpeneds"
+        router
+      >
+        <el-sub-menu v-for="group in navGroups" :key="group.key" :index="group.key">
+          <template #title>
             <el-icon><component :is="resolveIcon(group.icon)" /></el-icon>
             <span>{{ group.title }}</span>
-          </div>
+          </template>
           <el-menu-item v-for="item in group.items" :key="item.path" :index="item.path">
             <el-icon><component :is="resolveIcon(item.icon)" /></el-icon>
             <span>{{ item.title }}</span>
           </el-menu-item>
-        </template>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
 
@@ -143,6 +148,9 @@ const navGroups = computed<NavGroup[]>(() => {
 
 const activeRouteMeta = computed(() => route.meta as Partial<AppRouteMeta>)
 const activeMenu = computed(() => activeRouteMeta.value.navKey || route.path)
+const defaultOpeneds = computed(() =>
+  activeRouteMeta.value.group ? [activeRouteMeta.value.group] : []
+)
 const breadcrumbs = computed(() => {
   const items: Array<{ path: string; title: string }> = []
 
@@ -223,6 +231,7 @@ onBeforeUnmount(() => {
   .brand {
     flex: 0 0 auto;
     padding: 12px 10px 8px;
+    overflow: hidden;
   }
 
   :deep(.el-menu) {
@@ -248,9 +257,27 @@ onBeforeUnmount(() => {
     line-height: 42px;
   }
 
+  :deep(.el-sub-menu__title) {
+    border-radius: 12px;
+    height: 42px;
+    line-height: 42px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-sub);
+  }
+
+  :deep(.el-sub-menu .el-menu-item) {
+    padding-left: 44px !important;
+  }
+
   /* 修复折叠态下 el-menu--collapse 宽度 */
   :deep(.el-menu--collapse) {
     width: 100%;
+    .el-sub-menu__title {
+      padding: 0 !important;
+      justify-content: center;
+    }
     .el-menu-item {
       padding: 0 !important;
       justify-content: center;
@@ -274,6 +301,12 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
   padding: 8px 8px 16px;
+  overflow: hidden;
+
+  &.brand--collapsed {
+    justify-content: center;
+    padding: 8px 0 16px;
+  }
 }
 
 .brand-logo {

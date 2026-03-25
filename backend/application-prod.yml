@@ -45,7 +45,7 @@ spring:
       matching-strategy: ant_path_matcher
   ai:
     openai:
-      api-key: ${AI_API_KEY:sk-aa869f9c964d4a96a6d0c8f4e0d387f2}
+      api-key: ${AI_API_KEY}
       base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
       chat:
         options:

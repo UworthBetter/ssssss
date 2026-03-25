@@ -103,7 +103,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
 import { PlatformPageShellV2 } from '@/components/platform'
-import { listDeviceExtensions, listExceptions, listSubjects, type DeviceInfoExtend, type ExceptionAlert, type HealthSubject } from '@/api/health'
+import { listDevices, listDeviceExtensions, listExceptions, listSubjects, type DeviceInfo, type DeviceInfoExtend, type ExceptionAlert, type HealthSubject } from '@/api/health'
 
 type RiskLevel = 'high' | 'medium' | 'low'
 
@@ -151,20 +151,33 @@ const summaryCards = computed(() => {
 })
 
 const fetchData = async () => {
-  const [subjectRes, extensionRes, exceptionRes] = await Promise.all([
+  const [subjectRes, deviceRes, extensionRes, exceptionRes] = await Promise.all([
     listSubjects({ pageNum: 1, pageSize: 200 }),
+    listDevices({ pageNum: 1, pageSize: 200 }),
     listDeviceExtensions({ pageNum: 1, pageSize: 200 }),
     listExceptions({ pageNum: 1, pageSize: 200 })
   ])
 
   const subjects = (subjectRes.rows || []) as HealthSubject[]
+  const devices = (deviceRes.rows || []) as DeviceInfo[]
   const extensions = (extensionRes.rows || []) as DeviceInfoExtend[]
   const exceptions = (exceptionRes.rows || []) as ExceptionAlert[]
 
-  const extensionMap = new Map<number, DeviceInfoExtend>()
+  // 建立 deviceId → extension 映射
+  const extByDeviceId = new Map<number, DeviceInfoExtend>()
   extensions.forEach((item) => {
-    const userId = Number(item.userId || 0)
-    if (userId) extensionMap.set(userId, item)
+    const deviceId = Number(item.deviceId || 0)
+    if (deviceId) extByDeviceId.set(deviceId, item)
+  })
+
+  // 通过设备表建立 userId → extension 映射
+  const extensionMap = new Map<number, DeviceInfoExtend>()
+  devices.forEach((device) => {
+    const userId = Number(device.userId || 0)
+    const deviceId = Number(device.id || 0)
+    if (!userId || !deviceId) return
+    const ext = extByDeviceId.get(deviceId)
+    if (ext) extensionMap.set(userId, ext)
   })
 
   const exceptionMap = new Map<number, ExceptionAlert[]>()

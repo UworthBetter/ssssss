@@ -230,6 +230,16 @@ public class HealthSubject extends BaseEntity
         return loginDate;
     }
 
+    public void setRemark(String remark)
+    {
+        this.remark = remark;
+    }
+
+    public String getRemark()
+    {
+        return remark;
+    }
+
     public com.qkyd.common.core.domain.entity.SysDept getDept()
     {
         return dept;

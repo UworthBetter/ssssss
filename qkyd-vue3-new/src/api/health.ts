@@ -216,7 +216,7 @@ export function updateException(data: ExceptionAlert) {
 
 export function listHeartRates(params: ListQuery) {
   return request({
-    url: '/health/heartRate/list',
+    url: '/health/rate/list',
     method: 'get',
     params
   })
