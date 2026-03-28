@@ -6,10 +6,24 @@ target/
 .idea_root_backup/
 .vscode/
 .pytest_cache/
+__pycache__/
 *.log
 *.tar
+*.tar.gz
+*.tgz
 
 # 环境变量文件（含敏感信息，禁止提交）
 .env
 .env.local
 .env.*.local
+
+# 临时文件
+tmp-*
+nul
+*.b64
+media/
+manim_animations/
+
+# AI 助手配置
+CLAUDE.md
+agent.md
