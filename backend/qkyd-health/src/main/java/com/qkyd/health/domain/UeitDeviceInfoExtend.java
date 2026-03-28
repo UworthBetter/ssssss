@@ -23,6 +23,11 @@ public class UeitDeviceInfoExtend extends BaseEntity {
     private Long deviceId;
 
     /**
+     * 用户ID（关联 qkyd_device_info.user_id）
+     */
+    private Long userId;
+
+    /**
      * 最后通讯时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -145,6 +150,14 @@ public class UeitDeviceInfoExtend extends BaseEntity {
      * 昵称
      */
     private String nickName;
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
     public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }

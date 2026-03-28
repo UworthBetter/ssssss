@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -585,15 +586,28 @@ public class HealthDataService {
             record.setDeviceId(deviceId);
             record.setUserId(userId);
             record.setRiskLevel(response.getRiskLevel());
-            record.setRiskScore(BigDecimal.valueOf(response.getRiskScore() != null ? response.getRiskScore() : 0D));
+            record.setRiskScore(normalizeRiskScoreForStorage(response.getRiskScore()));
             record.setAnomalyCount(response.getAnomalyCount() != null ? response.getAnomalyCount() : 0);
             record.setRiskFactors(JSON.toJSONString(response.getRiskFactors()));
             record.setRawData(JSON.toJSONString(dataList));
             record.setDataPoints(response.getDataPointsAnalyzed() != null ? response.getDataPointsAnalyzed() : 0);
             aiHealthRecordMapper.insertAiHealthRecord(record);
         } catch (Exception e) {
-            log.warn("[HealthDataService] failed to save AI health record: {}", e.getMessage());
+            log.warn("[HealthDataService] failed to save AI health record: rawRiskScore={}, message={}",
+                    response != null ? response.getRiskScore() : null, e.getMessage(), e);
         }
+    }
+
+    private BigDecimal normalizeRiskScoreForStorage(Double rawRiskScore) {
+        if (rawRiskScore == null || !Double.isFinite(rawRiskScore)) {
+            return BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP);
+        }
+        double normalized = rawRiskScore;
+        if (normalized > 1D) {
+            normalized = normalized / 100D;
+        }
+        normalized = Math.max(0D, Math.min(1D, normalized));
+        return BigDecimal.valueOf(normalized).setScale(4, RoundingMode.HALF_UP);
     }
 
     private Date resolveReadTime(VitalSignData data) {

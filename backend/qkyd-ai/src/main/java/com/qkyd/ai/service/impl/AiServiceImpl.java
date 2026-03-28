@@ -2,6 +2,7 @@ package com.qkyd.ai.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.qkyd.ai.service.IAiService;
 import org.springframework.ai.chat.client.ChatClient;
@@ -22,6 +23,15 @@ import java.util.Locale;
  */
 @Service
 public class AiServiceImpl implements IAiService {
+
+    /**
+     * AI 系统 Prompt，定义 AI 助手的角色和职责
+     */
+    private static final String SYSTEM_PROMPT =
+        "你是专业的智慧养老健康数据分析助手。你的职责是基于提供的健康监护数据，" +
+        "输出有针对性、有数据支撑的分析结论。要求：1. 必须引用具体数据而非泛泛而谈；" +
+        "2. 根据不同报告类型调整分析侧重点；3. 给出可执行的处置建议；" +
+        "4. 使用简洁专业的中文表述。";
 
     private static final String DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
     private static final String DEFAULT_CHAT_MODEL = "glm-4.7-flash";
@@ -87,6 +97,7 @@ public class AiServiceImpl implements IAiService {
     @Override
     public ChatResponse chatWithResponse(String message) {
         return chatClient.prompt()
+                .system(SYSTEM_PROMPT)
                 .user(message)
                 .call()
                 .chatResponse();
@@ -115,6 +126,7 @@ public class AiServiceImpl implements IAiService {
         }
         try {
             return chatClient.prompt()
+                    .system(SYSTEM_PROMPT)
                     .user(message)
                     .call()
                     .content();
@@ -134,8 +146,15 @@ public class AiServiceImpl implements IAiService {
             ObjectNode payload = objectMapper.createObjectNode();
             payload.put("model", selectedModel);
             payload.put("stream", false);
-            payload.putArray("messages")
-                    .addObject()
+
+            // 构造 messages 数组，先添加 system 消息，再添加 user 消息
+            ArrayNode messages = payload.putArray("messages");
+            // system message
+            messages.addObject()
+                    .put("role", "system")
+                    .put("content", SYSTEM_PROMPT);
+            // user message
+            messages.addObject()
                     .put("role", "user")
                     .put("content", message);
 

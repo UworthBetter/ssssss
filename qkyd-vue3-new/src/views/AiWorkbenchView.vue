@@ -1,1060 +1,780 @@
 <template>
-  <div :class="['ai-command-center', `theme-${settingsForm.theme}`]">
-    <PlatformPageShell
-      title="AI 决策辅助舱"
-      subtitle="沉浸式无干扰环境，专注处理医疗健康复杂推断。"
-      eyebrow="FOCUS MODE"
-    >
-      <template #headerExtra>
-        <div class="header-actions">
-          <PlatformSearchEntry
-            :label="searchPresentation.label"
-            :placeholder="searchPresentation.placeholder"
-            :hint="searchPresentation.hint"
-            @click="handleSearchClick"
+  <div :class="['ai-report-center', `theme-${settingsForm.theme}`]">
+    <!-- 顶栏 -->
+    <header class="report-topbar">
+      <div class="topbar-left">
+        <span class="topbar-eyebrow">AI REPORT</span>
+        <h2 class="topbar-title">AI 分析报告生成器</h2>
+        <p class="topbar-sub">基于真实监控数据，一键生成结构化分析报告</p>
+      </div>
+      <div class="topbar-right">
+        <div class="theme-switcher">
+          <button
+            v-for="t in themes"
+            :key="t.value"
+            :class="['theme-dot', t.value, { active: settingsForm.theme === t.value }]"
+            :title="t.label"
+            @click="settingsForm.theme = t.value"
           />
-          <PlatformNotificationEntry
-            title="通知"
-            :unread-count="notificationItems.length"
-            :items="notificationItems"
-            @click-item="handleNotificationItem"
-            @click-all="handleNotificationClick"
-            style="margin-left: 12px; margin-right: 12px;"
-          />
-          <el-button circle plain size="small" @click="showSettingsDrawer = true">
-            <el-icon><Setting /></el-icon>
-          </el-button>
         </div>
-      </template>
+        <el-button type="primary" @click="showChatDrawer = true">
+          <el-icon><ChatDotRound /></el-icon>
+          问 AI
+        </el-button>
+        <el-button circle plain @click="showSettingsDrawer = true">
+          <el-icon><Setting /></el-icon>
+        </el-button>
+      </div>
+    </header>
 
-      <template #toolbar>
-        <div class="ai-focus-layout toolbar-focus-pad">
-          <div class="metrics-pill-row">
-            <div class="metric-pill">
-              <el-icon><ChatDotRound /></el-icon>
-              <span>分析 <strong>{{ aiMessageCount }}</strong></span>
-            </div>
-            <div class="metric-pill">
-              <el-icon><Grid /></el-icon>
-              <span>结构化 <strong>{{ structuredInsightCount }}</strong></span>
-            </div>
-            <div class="metric-pill danger">
-              <el-icon><Warning /></el-icon>
-              <span>高风险 <strong>{{ highRiskCount }}</strong></span>
-            </div>
-            <div class="metric-pill success">
-              <el-icon><VideoPlay /></el-icon>
-              <span>动作 <strong>{{ pendingActionCount }}</strong></span>
-            </div>
-          </div>
-          <div class="mode-row">
+    <!-- 主体左右布局 -->
+    <div class="report-body">
+      <!-- 左侧控制面板 -->
+      <aside class="control-panel">
+        <div class="panel-section">
+          <div class="panel-label">报告类型</div>
+          <div class="report-type-list">
             <button
-              v-for="task in quickTasks"
-              :key="task.label"
-              type="button"
-              class="mode-chip"
-              :class="{ active: activeTaskLabel === task.label }"
-              @click="runQuickTask(task)"
+              v-for="rt in reportTypes"
+              :key="rt.value"
+              :class="['type-btn', { active: selectedReportType === rt.value }]"
+              @click="selectedReportType = rt.value"
             >
-              <span class="mode-chip-title">{{ task.label }}</span>
-              <span class="mode-chip-desc">{{ task.description }}</span>
+              <span class="type-btn-title">{{ rt.label }}</span>
+              <span class="type-btn-desc">{{ rt.desc }}</span>
             </button>
           </div>
         </div>
-      </template>
 
-      <div class="ai-focus-layout">
-        <main class="workbench-center-pane">
-          <section class="conversation-panel">
-            <header class="conversation-header">
-              <div>
-                <p class="section-eyebrow">分析线程</p>
-                <h3>{{ settingsForm.botName }} 智能决策中枢</h3>
-                <span class="conversation-subtitle">基于医疗大模型引擎，确保结构化动作的可靠性。</span>
+        <div class="panel-section">
+          <div class="panel-label">统计周期</div>
+          <div class="period-tabs">
+            <button
+              v-for="p in periods"
+              :key="p.value"
+              :class="['period-tab', { active: selectedPeriod === p.value }]"
+              @click="selectedPeriod = p.value"
+            >
+              {{ p.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-label">对象范围</div>
+          <div class="scope-tabs">
+            <button
+              v-for="s in scopeOptions"
+              :key="s.value"
+              :class="['scope-tab', { active: selectedScope === s.value }]"
+              @click="selectedScope = s.value"
+            >
+              {{ s.label }}
+            </button>
+          </div>
+        </div>
+
+        <el-button
+          type="primary"
+          size="large"
+          class="generate-btn"
+          :loading="generating"
+          @click="generateReport"
+        >
+          <el-icon v-if="!generating"><Document /></el-icon>
+          {{ generating ? '生成中...' : '生成报告' }}
+        </el-button>
+
+        <div v-if="reportData" class="panel-section export-section">
+          <div class="panel-label">导出</div>
+          <div class="export-btns">
+            <el-button plain size="small" style="flex:1" @click="exportToWord">
+              <el-icon><Download /></el-icon> Word
+            </el-button>
+            <el-button plain size="small" style="flex:1" @click="exportToCsv">
+              <el-icon><Download /></el-icon> CSV
+            </el-button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 右侧报告预览区 -->
+      <main class="report-preview">
+        <!-- 空状态 -->
+        <div v-if="!reportData && !generating" class="empty-state">
+          <el-icon class="empty-icon" size="64"><DataAnalysis /></el-icon>
+          <h3>选择报告类型并点击「生成报告」</h3>
+          <p>系统将自动拉取真实监护数据，生成结构化分析报告，并由 AI 提供解读与建议。</p>
+          <div class="empty-tips">
+            <div v-for="rt in reportTypes" :key="rt.value" class="empty-tip-item">
+              <strong>{{ rt.label }}</strong>
+              <span>{{ rt.desc }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 加载中 -->
+        <div v-if="generating" class="generating-state">
+          <div class="gen-ring" />
+          <p>正在拉取数据并生成报告...</p>
+        </div>
+
+        <!-- 报告内容 -->
+        <div v-if="reportData" class="report-content">
+          <div class="report-header-row">
+            <div>
+              <div class="report-eyebrow">{{ reportData.period }} · {{ reportData.generatedAt }} 生成</div>
+              <h2 class="report-title">{{ reportTypes.find(t => t.value === reportData!.reportType)?.label }}</h2>
+              <p v-if="reportData.reportSubtitle" class="report-subtitle">{{ reportData.reportSubtitle }}</p>
+            </div>
+            <el-tag type="info" effect="plain">{{ scopeOptions.find(s => s.value === selectedScope)?.label }}</el-tag>
+          </div>
+
+          <div v-if="reportData.showSections.kpi" class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-value">{{ reportData.totalSubjects }}</div>
+              <div class="kpi-label">监护对象</div>
+            </div>
+            <div class="kpi-card danger">
+              <div class="kpi-value">{{ reportData.highRiskCount }}</div>
+              <div class="kpi-label">高风险对象</div>
+            </div>
+            <div class="kpi-card warning">
+              <div class="kpi-value">{{ reportData.totalEvents }}</div>
+              <div class="kpi-label">异常事件</div>
+            </div>
+            <div class="kpi-card success">
+              <div class="kpi-value">{{ reportData.resolvedEvents }}</div>
+              <div class="kpi-label">已处置</div>
+            </div>
+          </div>
+
+          <div v-if="reportData.showSections.abnormalDistribution && reportData.abnormalTypeDistribution.length" class="report-section">
+            <div class="section-title">异常类型分布</div>
+            <div class="abnormal-distribution">
+              <div v-for="item in reportData.abnormalTypeDistribution" :key="item.type" class="dist-item">
+                <div class="dist-label">{{ item.type }}</div>
+                <div class="dist-bar-wrapper">
+                  <div class="dist-bar" :style="{ width: `${Math.min(100, (item.count / Math.max(...reportData.abnormalTypeDistribution.map(d => d.count))) * 100)}%` }" />
+                </div>
+                <div class="dist-count">{{ item.count }}次</div>
               </div>
+            </div>
+          </div>
 
-              <el-dropdown trigger="click" @command="handleHeaderCommand">
-                <el-button circle plain size="small">
-                  <el-icon><MoreFilled /></el-icon>
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item command="clear">
-                      <el-icon><Delete /></el-icon> 重置舱室
-                    </el-dropdown-item>
-                    <el-dropdown-item command="settings">
-                      <el-icon><Setting /></el-icon> 助理偏好
-                    </el-dropdown-item>
-                    <el-dropdown-item command="exportChat" divided>
-                      <el-icon><Document /></el-icon> 下载推断记录
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
+          <div v-if="reportData.showSections.trend" class="report-section">
+            <div class="section-title">异常事件趋势</div>
+            <div id="reportTrendChart" class="trend-chart" />
+          </div>
+
+          <div v-if="reportData.showSections.vitalSignStats && reportData.vitalSignStats" class="report-section">
+            <div class="section-title">体征统计</div>
+            <div class="vital-signs-grid">
+              <div class="vs-card">
+                <div class="vs-icon">&#10084;&#65039;</div>
+                <div class="vs-content">
+                  <div class="vs-value">{{ reportData.vitalSignStats.heartRateAvg }}</div>
+                  <div class="vs-label">心率均值(次/分)</div>
+                </div>
+              </div>
+              <div class="vs-card">
+                <div class="vs-icon">&#128147;</div>
+                <div class="vs-content">
+                  <div class="vs-value">{{ reportData.vitalSignStats.spo2Avg }}</div>
+                  <div class="vs-label">血氧均值(%)</div>
+                </div>
+              </div>
+              <div class="vs-card">
+                <div class="vs-icon">&#127777;&#65039;</div>
+                <div class="vs-content">
+                  <div class="vs-value">{{ reportData.vitalSignStats.tempAvg }}</div>
+                  <div class="vs-label">体温均值(℃)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="reportData.showSections.highRiskTable" class="report-section">
+            <div class="section-title">高风险对象明细</div>
+            <el-table :data="reportData.highRiskSubjects" size="small" stripe style="width:100%">
+              <el-table-column prop="name" label="姓名" width="90" />
+              <el-table-column prop="age" label="年龄" width="70" />
+              <el-table-column prop="riskLevel" label="风险等级" width="100">
+                <template #default="{ row }">
+                  <el-tag :type="row.riskLevel === 'high' ? 'danger' : 'warning'" size="small" effect="light">
+                    {{ row.riskLevel }}
+                  </el-tag>
                 </template>
-              </el-dropdown>
-            </header>
+              </el-table-column>
+              <el-table-column prop="eventCount" label="异常次数" width="80" />
+              <el-table-column prop="lastAlarm" label="最近告警" />
+            </el-table>
+            <div v-if="!reportData.highRiskSubjects.length" class="no-data">暂无高风险对象数据</div>
+          </div>
 
-            <div ref="chatScroll" class="chat-viewport">
-              <transition-group name="chat-flow" tag="div" class="chat-list">
-                <div v-for="msg in messages" :key="msg.id" :class="['message-box', msg.role]">
-                  <div class="msg-avatar" :class="msg.role">
-                    <el-icon v-if="msg.role === 'ai'" size="20"><Monitor /></el-icon>
-                    <el-icon v-else size="20"><Avatar /></el-icon>
-                  </div>
+          <div class="report-section ai-interpretation">
+            <div class="section-title"><el-icon><Monitor /></el-icon> AI 解读</div>
+            <p class="interpretation-text">{{ reportData.aiInterpretation }}</p>
+          </div>
+        </div>
+      </main>
+    </div>
 
-                  <div class="msg-content-wrapper">
-                    <div class="msg-bubble" :class="{ 'rich-media': msg.type !== 'text' || Boolean(msg.insight) }">
-                      <div v-if="msg.insight" class="insight-card">
-                        <div class="insight-head">
-                          <div>
-                            <p class="section-eyebrow">推理结论</p>
-                            <h4>{{ msg.insight.title }}</h4>
-                          </div>
-                          <el-tag :type="riskTagType(msg.insight.riskLevel)" effect="light">
-                            {{ riskLabelMap[msg.insight.riskLevel] }}
-                          </el-tag>
-                        </div>
-
-                        <p class="insight-summary">{{ msg.insight.summary }}</p>
-
-                        <div class="insight-grid">
-                          <div class="insight-block">
-                            <span class="block-label">证据要素</span>
-                            <ul>
-                              <li v-for="evidence in msg.insight.evidence" :key="`${evidence.label}-${evidence.detail}`">
-                                <strong>{{ evidence.label }}</strong>
-                                <span>{{ evidence.detail }}</span>
-                              </li>
-                            </ul>
-                          </div>
-
-                          <div class="insight-block">
-                            <span class="block-label">溯源实体</span>
-                            <ul>
-                              <li v-for="entity in msg.insight.entities" :key="`${entity.kind}-${entity.value}`">
-                                <strong>{{ entity.name }}</strong>
-                                <span>{{ entity.kindLabel }} · {{ entity.value }}</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div v-if="msg.type === 'text'" v-html="msg.content" class="md-text"></div>
-
-                      <div v-if="msg.type === 'table'" class="widget-box">
-                        <div class="widget-header">
-                          <el-icon><List /></el-icon>
-                          <span>重点拦截名单</span>
-                        </div>
-                        <el-table :data="msg.data" size="small" class="glass-table" :row-class-name="tableRowClassName">
-                          <el-table-column prop="name" label="姓名" width="90" />
-                          <el-table-column prop="room" label="房间号" width="100" />
-                          <el-table-column prop="issue" label="异常类型" />
-                          <el-table-column prop="time" label="发生时间" width="140" />
-                        </el-table>
-                      </div>
-
-                      <div v-if="msg.type === 'chart'" class="widget-box">
-                        <div class="widget-header">
-                          <el-icon><TrendCharts /></el-icon>
-                          <span>动态监测图谱</span>
-                        </div>
-                        <div :id="'chart-' + msg.id" class="echarts-container"></div>
-                      </div>
-                    </div>
-
-                    <transition name="fade">
-                      <div v-if="msg.role === 'ai' && msg.actions && msg.actions.length" class="action-chips">
-                        <button
-                          v-for="(action, idx) in msg.actions"
-                          :key="idx"
-                          type="button"
-                          class="chip-btn"
-                          @click="handleAction(action, msg)"
-                        >
-                          {{ action }}
-                        </button>
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-                <div v-if="isTyping" key="typing" class="message-box ai">
-                  <div class="msg-avatar ai">
-                    <el-icon size="20"><Monitor /></el-icon>
-                  </div>
-                  <div class="msg-content-wrapper">
-                    <div class="msg-bubble typing">
-                      <span class="typing-text">计算集群正在分析...</span>
-                      <div class="dot-flashing"></div>
-                    </div>
-                  </div>
-                </div>
-              </transition-group>
-            </div>
-
-            <div class="floating-input-zone">
-              <div class="pill-input-box" :class="{ focused: isInputFocused }">
-                <div v-if="isTyping" class="input-header-status">
-                  <el-icon class="is-loading"><Loading /></el-icon>
-                  <span>正在快速检索与分析...</span>
-                </div>
-                <el-input
-                  v-model="inputText"
-                  type="textarea"
-                  :autosize="{ minRows: 1, maxRows: 6 }"
-                  resize="none"
-                  :placeholder="`向 ${settingsForm.botName} 发起深度调度，获取结论与处置建议...`"
-                  @focus="isInputFocused = true"
-                  @blur="isInputFocused = false"
-                  @keyup.enter.exact.prevent="sendMessage"
-                />
-                <div class="input-footer">
-                  <div class="sec-footer">
-                    <el-icon><Lock /></el-icon>
-                    医疗核心数据链路受控 · {{ settingsForm.botName }}
-                  </div>
-                  <button
-                    type="button"
-                    class="send-action-btn"
-                    :class="{ ready: inputText.trim().length > 0 }"
-                    :disabled="isTyping"
-                    @click="sendMessage"
-                  >
-                    <el-icon v-if="!isTyping"><Position /></el-icon>
-                    <el-icon v-else class="spin"><Loading /></el-icon>
-                  </button>
-                </div>
+    <!-- 对话抽屉 -->
+    <el-drawer v-model="showChatDrawer" title="AI 助手" direction="rtl" size="400px" class="chat-drawer">
+      <div class="chat-drawer-body">
+        <div ref="chatScroll" class="chat-viewport">
+          <transition-group name="chat-flow" tag="div" class="chat-list">
+            <div v-for="msg in messages" :key="msg.id" :class="['message-box', msg.role]">
+              <div :class="['msg-avatar', msg.role]">
+                <el-icon v-if="msg.role === 'ai'" size="16"><Monitor /></el-icon>
+                <el-icon v-else size="16"><Avatar /></el-icon>
               </div>
+              <div class="msg-bubble" v-html="msg.content" />
             </div>
-          </section>
-        </main>
+          </transition-group>
+          <div v-if="isTyping" class="typing-indicator">
+            <span /><span /><span />
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div v-if="reportData" class="context-badge">
+            <el-icon><InfoFilled /></el-icon> 已注入报告上下文
+          </div>
+          <div class="input-row">
+            <el-input
+              v-model="inputText"
+              type="textarea"
+              :rows="3"
+              placeholder="输入问题，AI 将基于当前报告数据回复.."
+              resize="none"
+              @keydown.enter.exact.prevent="sendMessage"
+            />
+            <el-button type="primary" :loading="isTyping" class="send-btn" @click="sendMessage">
+              <el-icon><Position /></el-icon>
+            </el-button>
+          </div>
+        </div>
       </div>
-    </PlatformPageShell>
+    </el-drawer>
 
-    <el-drawer
-      v-model="showSettingsDrawer"
-      title="助理配置矩阵"
-      direction="rtl"
-      size="380px"
-      class="glass-drawer"
-      :show-close="true"
-    >
+    <!-- 设置抽屉 -->
+    <el-drawer v-model="showSettingsDrawer" title="助理配置" direction="rtl" size="360px">
       <div class="drawer-settings-content">
-        <el-form label-position="top" :model="settingsForm">
-          <el-form-item label="核心名称" class="setting-item">
-            <el-input v-model="settingsForm.botName" placeholder="命名您的引擎" clearable>
-              <template #prefix><el-icon><Service /></el-icon></template>
-            </el-input>
-            <div class="form-tip">同步于工作台所有核心汇报视窗。</div>
+        <el-form label-position="top">
+          <el-form-item label="核心名称">
+            <el-input v-model="settingsForm.botName" placeholder="命名您的引擎" clearable />
           </el-form-item>
-
-          <el-form-item label="输出策略" class="setting-item">
-            <el-radio-group v-model="settingsForm.tone" class="custom-radio-group">
-              <el-radio-button label="professional">严密逻辑</el-radio-button>
-              <el-radio-button label="lively">亲切平易</el-radio-button>
-              <el-radio-button label="concise">极简图文</el-radio-button>
+          <el-form-item label="输出策略">
+            <el-radio-group v-model="settingsForm.tone">
+              <el-radio-button label="professional">专业严谨</el-radio-button>
+              <el-radio-button label="lively">亲切易懂</el-radio-button>
+              <el-radio-button label="concise">简洁图文</el-radio-button>
             </el-radio-group>
           </el-form-item>
-
-          <el-form-item label="光污染保护主题" class="setting-item">
-            <el-select v-model="settingsForm.theme">
-              <el-option label="静幽紫" value="purple" />
-              <el-option label="医疗蓝" value="blue" />
-              <el-option label="生态绿" value="green" />
-              <el-option label="警示红" value="pink" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="语音播报链路" class="setting-item inline-setting">
+          <el-form-item label="自动朗读">
             <el-switch v-model="settingsForm.autoSpeak" />
-            <span class="setting-inline-tip">启用结构化警报音频直读</span>
           </el-form-item>
         </el-form>
-
-        <div class="drawer-actions">
-          <el-button @click="showSettingsDrawer = false">撤销</el-button>
-          <el-button type="primary" @click="saveSettings">应用架构</el-button>
-        </div>
       </div>
     </el-drawer>
   </div>
 </template>
+
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import {
-  Avatar,
-  ChatDotRound,
-  Delete,
-  Document,
-  Grid,
-  List,
-  Loading,
-  Lock,
-  Microphone,
-  Monitor,
-  MoreFilled,
-  Position,
-  Service,
-  Setting,
-  TrendCharts,
-  VideoPlay,
-  Warning
-} from '@element-plus/icons-vue'
+import { nextTick, onMounted, ref } from 'vue'
+import { Avatar, ChatDotRound, DataAnalysis, Document, Download, InfoFilled, Loading, Monitor, Position, Setting } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import { chatAi, getAbnormalTrend, getRecentAbnormal, type AbnormalTrendPoint } from '@/api/ai'
-import { useHealthRealtimeStream } from '@/composables/useHealthRealtimeStream'
-import {
-  dispatchPlatformAction,
-  getPlatformSearchPresentation,
-  loadPlatformNotifications,
-  navigatePlatformEntity,
-  openAllPlatformNotifications,
-  openPlatformNotification,
-  openPlatformSearch,
-  PlatformNotificationEntry,
-  PlatformPageShell,
-  PlatformSearchEntry,
-  type PlatformNotificationRecord
-} from '@/components/platform'
-
-interface InsightEvidence {
-  label: string
-  detail: string
-}
-
-type EntityKind = 'subject' | 'device' | 'event'
-type RiskLevel = 'high' | 'medium' | 'low'
-
-interface RelatedEntity {
-  kind: EntityKind
-  kindLabel: string
-  name: string
-  value: string
-  query?: Record<string, string>
-}
-
-interface StructuredInsight {
-  title: string
-  summary: string
-  riskLevel: RiskLevel
-  evidence: InsightEvidence[]
-  entities: RelatedEntity[]
-  recommendedActions: string[]
-}
+import { chatAi, type AbnormalTrendPoint } from '@/api/ai'
+import { listSubjects, listExceptions, listDeviceExtensions, type ExceptionAlert, type DeviceInfoExtend } from '@/api/health'
 
 interface ChatMessage {
   id: number
   role: 'user' | 'ai'
-  type: 'text' | 'table' | 'chart'
   content: string
-  data?: Record<string, string>[]
-  actions?: string[]
-  insight?: StructuredInsight
 }
 
-interface QuickTask {
-  label: string
-  description: string
-  prompt: string
-  tag: string
+interface HighRiskSubject {
+  name: string
+  age: string
+  riskLevel: string
+  eventCount: number
+  lastAlarm: string
 }
 
-interface RecentAbnormalItem {
-  id?: number | string
-  userId?: number | string
-  patientName?: string
-  abnormalType?: string
-  riskLevel?: string
-  abnormalValue?: string
-  confidence?: number | string
-  deviceName?: string
-  source?: string
-  detectedTime?: string
-  createTime?: string
+interface ReportData {
+  reportType: string
+  period: string
+  generatedAt: string
+  totalSubjects: number
+  highRiskCount: number
+  totalEvents: number
+  resolvedEvents: number
+  highRiskSubjects: HighRiskSubject[]
+  trendPoints: AbnormalTrendPoint[]
+  aiInterpretation: string
+  abnormalTypeDistribution: { type: string; count: number }[]
+  vitalSignStats: { heartRateAvg: number; spo2Avg: number; tempAvg: number } | null
+  showSections: {
+    kpi: boolean
+    trend: boolean
+    highRiskTable: boolean
+    abnormalDistribution: boolean
+    vitalSignStats: boolean
+  }
+  reportSubtitle?: string
 }
 
-const router = useRouter()
-
-const riskLabelMap: Record<RiskLevel, string> = {
-  high: '高风险',
-  medium: '中风险',
-  low: '低风险'
-}
-
-const toneLabelMap: Record<string, string> = {
-  professional: '专业严谨',
-  lively: '活泼亲切',
-  concise: '简明扼要'
-}
-
-const quickTasks: QuickTask[] = [
-  { label: '风险研判', description: '快速输出高风险对象、证据与后续动作建议。', prompt: '请研判今日高风险健康事件，并输出结论、证据与动作建议。', tag: '重点' },
-  { label: '睡眠趋势分析', description: '分析重点对象近七天睡眠趋势，并识别需要关注的人。', prompt: '分析重点对象近七天睡眠趋势，并识别需要关注的人。', tag: '趋势' },
-  { label: '异常解释', description: '把异常名单升级为原因解释与处置建议。', prompt: '解释最近的心率异常名单，并给出后续动作建议。', tag: '解释' },
-  { label: '报告生成', description: '沉淀成面向业务的周期分析报告。', prompt: '生成本周健康巡检分析报告，并附上动作建议。', tag: '报告' }
+const themes = [
+  { value: 'blue', label: '蓝色' },
+  { value: 'purple', label: '紫色' },
+  { value: 'green', label: '绿色' },
+  { value: 'pink', label: '粉色' }
 ]
 
+const reportTypes = [
+  { value: 'operation', label: '运营概览报告', desc: '设备、对象、异常综合数据' },
+  { value: 'health', label: '健康巡检报告', desc: '体征趋势与风险等级分布' },
+  { value: 'highrisk', label: '高风险对象报告', desc: '高风险对象明细与建议' },
+  { value: 'personal', label: '个人健康报告', desc: '单一对象完整健康档案' }
+]
+
+const periods = [
+  { value: 'today', label: '今日', hours: 24 },
+  { value: 'week', label: '近7日', hours: 168 },
+  { value: 'month', label: '近30日', hours: 720 }
+]
+
+const scopeOptions = [
+  { value: 'all', label: '全部对象' },
+  { value: 'highrisk', label: '高风险' },
+  { value: 'medium', label: '中风险' }
+]
+
+const settingsForm = ref({ botName: '辅助决策', tone: 'professional', autoSpeak: false, theme: 'blue' })
+const selectedReportType = ref('operation')
+const selectedPeriod = ref('week')
+const selectedScope = ref('all')
+const generating = ref(false)
+const reportData = ref<ReportData | null>(null)
+const showChatDrawer = ref(false)
+const showSettingsDrawer = ref(false)
+const messages = ref<ChatMessage[]>([{ id: 1, role: 'ai', content: '您好，我是 AI 助手。生成报告后，我可以为您解读数据并回答问题。' }])
 const inputText = ref('')
 const isTyping = ref(false)
-const isInputFocused = ref(false)
 const chatScroll = ref<HTMLElement | null>(null)
-const activeTaskLabel = ref('风险研判')
-const showSettingsDrawer = ref(false)
+let trendChartInstance: echarts.ECharts | null = null
 
-const settingsForm = ref({
-  botName: '辅助决策',
-  tone: 'professional',
-  autoSpeak: false,
-  theme: 'blue'
-})
-const searchPresentation = getPlatformSearchPresentation('ai')
+const getThemeColor = () => {
+  const map: Record<string, string> = { blue: '#2563eb', purple: '#4f46e5', green: '#059669', pink: '#e11d48' }
+  return map[settingsForm.value.theme] || '#2563eb'
+}
 
-const buildEntity = (kind: EntityKind, name: string, value: string, query: Record<string, string> = {}): RelatedEntity => ({
-  kind,
-  kindLabel: kind === 'subject' ? '对象' : kind === 'device' ? '设备' : '事件',
-  name,
-  value,
-  query
-})
+const parseNumber = (v: unknown, fallback = 0) => { const n = Number(v); return Number.isFinite(n) ? n : fallback }
 
-const getInitialMessage = (): ChatMessage => ({
-  id: 1,
-  role: 'ai',
-  type: 'text',
-  content: '您好，我是您的 AI 决策助理。我会把分析结果整理成结论、证据、关联实体和建议动作。',
-  insight: {
-    title: '工作台已就绪',
-    summary: '当前 AI 工作台已经具备结构化结果展示与跨中心联动能力，可以直接跳转到对象、事件、设备中心继续处置。',
-    riskLevel: 'low',
-    evidence: [
-      { label: '阶段', detail: 'P6-001 聚焦真实跳转与共享联动' },
-      { label: '当前能力', detail: '已具备对象、设备、事件路由联动和结构化输出能力。' }
-    ],
-    entities: [
-      buildEntity('event', '事件中心', '接收 AI 研判结果', { type: 'AI研判' }),
-      buildEntity('subject', '对象中心', '接收重点关注对象', { keyword: '张建国' }),
-      buildEntity('device', '设备中心', '接收设备运营动作', { name: '夜间监测设备组' })
-    ],
-    recommendedActions: ['开始风险研判', '生成报告并下载']
-  },
-  actions: ['开始风险研判', '生成报告并下载']
-})
+const extractListRows = <T = Record<string, unknown>>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) return payload as T[]
+  if (payload && typeof payload === 'object') {
+    const maybeRows = (payload as { rows?: unknown; data?: unknown }).rows
+    if (Array.isArray(maybeRows)) return maybeRows as T[]
+    const maybeData = (payload as { data?: unknown }).data
+    if (Array.isArray(maybeData)) return maybeData as T[]
+    if (maybeData && typeof maybeData === 'object' && Array.isArray((maybeData as { rows?: unknown }).rows)) {
+      return (maybeData as { rows: T[] }).rows
+    }
+  }
+  return []
+}
 
-const messages = ref<ChatMessage[]>([getInitialMessage()])
-const recentAbnormalRows = ref<RecentAbnormalItem[]>([])
-const abnormalTrend = ref<AbnormalTrendPoint[]>([])
-const dashboardRefreshTimer = ref<number | null>(null)
-const riskChartInstance = ref<echarts.ECharts | null>(null)
-const trendChartInstance = ref<echarts.ECharts | null>(null)
-const realtimeRefreshTimer = ref<number | null>(null)
-
-const normalizedRiskLevel = (riskLevel: unknown): RiskLevel => {
-  const value = String(riskLevel ?? '').trim().toLowerCase()
-  if (['critical', 'high', 'danger'].includes(value)) return 'high'
-  if (['medium', 'warning'].includes(value)) return 'medium'
+const determineRiskLevel = (ext?: DeviceInfoExtend, events: ExceptionAlert[] = []) => {
+  const unresolved = events.filter(e => String(e.state || '0') !== '1').length
+  const battery = parseNumber(ext?.batteryLevel, 100)
+  const hasAlarm = Boolean(String(ext?.alarmContent || '').trim())
+  if (unresolved >= 2 || hasAlarm || battery <= 15) return 'high'
+  if (unresolved >= 1 || battery <= 30) return 'medium'
   return 'low'
 }
 
-const recentRiskSummary = computed(() => recentAbnormalRows.value.reduce((summary, row) => {
-  const level = normalizedRiskLevel(row.riskLevel)
-  summary[level] += 1
-  return summary
-}, { high: 0, medium: 0, low: 0 } as Record<RiskLevel, number>))
+const periodHours = () => periods.find(p => p.value === selectedPeriod.value)?.hours || 168
 
-const aiMessageCount = computed(() => {
-  const trendTotal = abnormalTrend.value.reduce((sum, point) => sum + Number(point.value || 0), 0)
-  return trendTotal || messages.value.filter((msg) => msg.role === 'ai').length
-})
-const structuredInsightCount = computed(() => recentAbnormalRows.value.length || messages.value.filter((msg) => Boolean(msg.insight)).length)
-const highRiskCount = computed(() => recentRiskSummary.value.high || messages.value.filter((msg) => msg.insight?.riskLevel === 'high').length)
-const latestInsight = computed(() => [...messages.value].reverse().find((msg) => msg.insight)?.insight ?? null)
-const pendingActionCount = computed(() => {
-  const backendPending = recentRiskSummary.value.high + recentRiskSummary.value.medium
-  return backendPending || latestInsight.value?.recommendedActions.length || 0
-})
-const notificationItems = ref<PlatformNotificationRecord[]>([])
+const getSubjectId = (subject: Record<string, unknown>) => Number(subject.subjectId || subject.userId || 0)
 
-const refreshNotifications = async () => {
-  const subjectEntity = latestInsight.value?.entities.find((item) => item.kind === 'subject')
-  const deviceEntity = latestInsight.value?.entities.find((item) => item.kind === 'device')
-  const eventEntity = latestInsight.value?.entities.find((item) => item.kind === 'event')
-
-  notificationItems.value = await loadPlatformNotifications('ai', {
-    subjectName: subjectEntity?.name,
-    deviceName: deviceEntity?.name,
-    eventType: eventEntity?.query?.type || eventEntity?.name
-  })
-  /*
-  myChart.setOption({
-    legend: { data: ['异常事件'], top: 0, right: 0 },
-    xAxis: { data: trendPoints.map(point => point.label) },
-    series: [
-      {
-        name: '异常事件',
-        type: 'line',
-        data: trendPoints.map(point => Number(point.value || 0)),
-        smooth: true,
-        lineStyle: { color: chartColor, width: 3 },
-        itemStyle: { color: chartColor },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: `${chartColor}33` },
-            { offset: 1, color: `${chartColor}00` }
-          ])
-        }
-      }
-    ]
-  }) */
+const matchesSelectedScope = (riskLevel: string) => {
+  if (selectedScope.value === 'highrisk') return riskLevel === 'high'
+  if (selectedScope.value === 'medium') return riskLevel === 'medium'
+  return true
 }
 
-const getThemeChartColor = () => (
-  settingsForm.value.theme === 'purple'
-    ? '#4f46e5'
-    : settingsForm.value.theme === 'pink'
-      ? '#e11d48'
-      : settingsForm.value.theme === 'green'
-        ? '#059669'
-        : '#2563eb'
-)
+const isResolvedEvent = (event: ExceptionAlert) => String(event.state) === '1'
 
-const normalizeRecentAbnormalRows = (rows: unknown): RecentAbnormalItem[] => {
-  if (!Array.isArray(rows)) return []
-  return rows.map((item) => {
-    const row = (item || {}) as Record<string, unknown>
-    return {
-      id: row.id as number | string | undefined,
-      userId: row.userId as number | string | undefined,
-      patientName: typeof row.patientName === 'string' ? row.patientName : '',
-      abnormalType: typeof row.abnormalType === 'string' ? row.abnormalType : '',
-      riskLevel: typeof row.riskLevel === 'string' ? row.riskLevel : '',
-      abnormalValue: typeof row.abnormalValue === 'string' ? row.abnormalValue : '',
-      confidence: row.confidence as number | string | undefined,
-      deviceName: typeof row.deviceName === 'string' ? row.deviceName : '',
-      source: typeof row.source === 'string' ? row.source : '',
-      detectedTime: typeof row.detectedTime === 'string' ? row.detectedTime : '',
-      createTime: typeof row.createTime === 'string' ? row.createTime : ''
+const parseEventTime = (event: ExceptionAlert) => {
+  const raw = String(event.createTime || event.updateTime || '').trim()
+  if (!raw) return null
+  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
+  const time = new Date(normalized)
+  return Number.isNaN(time.getTime()) ? null : time
+}
+
+const formatMonthDay = (date: Date) => `${date.getMonth() + 1}-${date.getDate()}`
+const formatHour = (date: Date) => `${String(date.getHours()).padStart(2, '0')}:00`
+
+const buildScopedTrendPoints = (events: ExceptionAlert[]): AbnormalTrendPoint[] => {
+  const now = new Date()
+  const buckets: { label: string; start: number; end: number; value: number }[] = []
+
+  if (selectedPeriod.value === 'today') {
+    for (let offset = 23; offset >= 0; offset--) {
+      const start = new Date(now)
+      start.setMinutes(0, 0, 0)
+      start.setHours(now.getHours() - offset)
+      const end = new Date(start)
+      end.setHours(start.getHours() + 1)
+      buckets.push({ label: formatHour(start), start: start.getTime(), end: end.getTime(), value: 0 })
     }
-  })
-}
-
-const normalizeTrendRows = (rows: unknown): AbnormalTrendPoint[] => {
-  if (!Array.isArray(rows)) return []
-  return rows.map((item) => {
-    const point = (item || {}) as Record<string, unknown>
-    return {
-      label: String(point.label ?? ''),
-      value: Number(point.value ?? 0)
-    }
-  }).filter(point => point.label)
-}
-
-const fetchWorkbenchDashboardData = async () => {
-  try {
-    const [recentRes, trendRes] = await Promise.all([
-      getRecentAbnormal(60),
-      getAbnormalTrend(undefined, 12)
-    ])
-    recentAbnormalRows.value = normalizeRecentAbnormalRows(recentRes?.data)
-    abnormalTrend.value = normalizeTrendRows(trendRes?.data)
-  } catch {
-    recentAbnormalRows.value = []
-    abnormalTrend.value = []
-  }
-}
-
-const buildRecentTableRows = () => {
-  if (!recentAbnormalRows.value.length) {
-    return [
-      { name: '暂无数据', room: '-', issue: '等待后端异常流', time: '-' }
-    ]
-  }
-
-  return recentAbnormalRows.value.slice(0, 6).map((row, index) => ({
-    name: row.patientName || `对象-${row.userId || index + 1}`,
-    room: row.deviceName || '-',
-    issue: [row.abnormalType, row.abnormalValue].filter(Boolean).join(' / ') || '-',
-    time: row.detectedTime || row.createTime || '-'
-  }))
-}
-
-const clearRealtimeRefreshTimer = () => {
-  if (realtimeRefreshTimer.value !== null) {
-    window.clearTimeout(realtimeRefreshTimer.value)
-    realtimeRefreshTimer.value = null
-  }
-}
-
-const scheduleWorkbenchRefresh = () => {
-  clearRealtimeRefreshTimer()
-  realtimeRefreshTimer.value = window.setTimeout(async () => {
-    await fetchWorkbenchDashboardData()
-    nextTick(() => {
-      renderDashboardCharts()
-    })
-    realtimeRefreshTimer.value = null
-  }, 400)
-}
-
-const pushRealtimeAlertMessage = (payload: Record<string, unknown>) => {
-  const patientName = typeof payload.patientName === 'string' && payload.patientName ? payload.patientName : '监测对象'
-  const abnormalType = typeof payload.abnormalType === 'string' && payload.abnormalType ? payload.abnormalType : '异常事件'
-  const abnormalValue = typeof payload.abnormalValue === 'string' && payload.abnormalValue ? payload.abnormalValue : ''
-  const summary = [patientName, abnormalType, abnormalValue].filter(Boolean).join(' / ')
-
-  messages.value.push({
-    id: Date.now(),
-    role: 'ai',
-    type: 'text',
-    content: `实时更新：${summary}`
-  })
-  scrollToBottom()
-}
-
-const realtimeStream = useHealthRealtimeStream({
-  onAbnormalAlert(payload) {
-    pushRealtimeAlertMessage(payload)
-    scheduleWorkbenchRefresh()
-  },
-  onHealthData() {
-    scheduleWorkbenchRefresh()
-  },
-  onRiskScore() {
-    scheduleWorkbenchRefresh()
-  }
-})
-
-const speakText = (text: string) => {
-  if (!settingsForm.value.autoSpeak || !('speechSynthesis' in window)) return
-  window.speechSynthesis.cancel()
-  const plainText = text.replace(/<[^>]+>/g, '').replace(/&[^;]+;/g, '')
-  const utterance = new SpeechSynthesisUtterance(plainText)
-  utterance.lang = 'zh-CN'
-  utterance.rate = settingsForm.value.tone === 'lively' ? 1.08 : 1.0
-  utterance.pitch = settingsForm.value.tone === 'lively' ? 1.15 : 1.0
-  window.speechSynthesis.speak(utterance)
-}
-
-const saveSettings = () => {
-  showSettingsDrawer.value = false
-  ElMessage.success(`设置已更新，当前助理：${settingsForm.value.botName}`)
-  const autoSpeak = settingsForm.value.autoSpeak
-  settingsForm.value.autoSpeak = true
-  speakText(`设置已保存，我是您的助理 ${settingsForm.value.botName}`)
-  settingsForm.value.autoSpeak = autoSpeak
-}
-
-const pokeMascot = () => {
-  if (isTyping.value) return
-  const phrases = [
-    `别担心，${settingsForm.value.botName} 正在持续跟踪风险变化。`,
-    `${settingsForm.value.botName} 已准备好整理证据和动作建议。`,
-    '今天也继续把监测结果沉淀成可执行的工作流。',
-    '如果需要，我现在就可以开始风险研判。'
-  ]
-  const phrase = phrases[Math.floor(Math.random() * phrases.length)]
-  messages.value.push({ id: Date.now(), role: 'ai', type: 'text', content: phrase })
-  speakText(phrase)
-  scrollToBottom()
-}
-
-const handleHeaderCommand = (command: string) => {
-  if (command === 'clear') {
-    messages.value = [getInitialMessage()]
-    ElMessage.success('对话已清空')
-    return
-  }
-  if (command === 'settings') {
-    showSettingsDrawer.value = true
-    return
-  }
-  if (command === 'exportChat') {
-    ElMessage.info('导出对话能力将在后续阶段接入')
-  }
-}
-
-const buildPromptModifier = () => {
-  if (settingsForm.value.tone === 'professional') return '\n(系统：请使用专业、客观的语气回答，并优先输出结构化结论。)'
-  if (settingsForm.value.tone === 'lively') return '\n(系统：请使用亲切、清晰的语气回答，并保持结论、证据和动作的结构化输出。)'
-  return '\n(系统：请尽量简洁，优先输出结论、证据和后续动作。)'
-}
-
-const buildStructuredInsight = (text: string, replyText: string, type: ChatMessage['type'], actions: string[]): StructuredInsight => {
-  const riskLevel: RiskLevel = text.includes('高风险') || text.includes('异常') || text.includes('心率') ? 'high' : text.includes('趋势') || text.includes('睡眠') || text.includes('预测') ? 'medium' : 'low'
-  let entities: RelatedEntity[]
-
-  if (type === 'table') {
-    entities = [
-      buildEntity('subject', '张建国', 'A-302 / 心率异常', { keyword: '张建国' }),
-      buildEntity('subject', '李桂英', 'B-105 / 心率异常', { keyword: '李桂英' }),
-      buildEntity('event', '异常事件池', '建议创建巡检工单', { type: '心率异常' })
-    ]
-  } else if (type === 'chart') {
-    entities = [
-      buildEntity('subject', '重点对象组', '近 7 天睡眠波动明显升高', { keyword: '重点对象组' }),
-      buildEntity('device', '夜间监测设备组', '建议提高夜间采样频率', { name: '夜间监测设备组' }),
-      buildEntity('event', '趋势分析事件', '建议触发复核流程', { type: '睡眠趋势' })
-    ]
   } else {
-    entities = [
-      buildEntity('event', 'AI 分析结果', '待转业务动作', { type: 'AI研判' }),
-      buildEntity('subject', '重点关注对象', '可纳入后续跟踪', { keyword: '重点关注对象' })
-    ]
+    const days = selectedPeriod.value === 'month' ? 30 : 7
+    for (let offset = days - 1; offset >= 0; offset--) {
+      const start = new Date(now)
+      start.setHours(0, 0, 0, 0)
+      start.setDate(now.getDate() - offset)
+      const end = new Date(start)
+      end.setDate(start.getDate() + 1)
+      buckets.push({ label: formatMonthDay(start), start: start.getTime(), end: end.getTime(), value: 0 })
+    }
   }
+
+  events.forEach((event) => {
+    const time = parseEventTime(event)
+    if (!time) return
+    const bucket = buckets.find(item => time.getTime() >= item.start && time.getTime() < item.end)
+    if (bucket) bucket.value += 1
+  })
+
+  return buckets.map(({ label, value }) => ({ label, value }))
+}
+
+const buildVitalSignStats = (scopedExtensions: DeviceInfoExtend[]) => {
+  const heartRates: number[] = []
+  const spo2Values: number[] = []
+  const temps: number[] = []
+
+  scopedExtensions.forEach((ext) => {
+    if (ext.heartRate != null) heartRates.push(parseNumber(ext.heartRate))
+    if (ext.spo2 != null) spo2Values.push(parseNumber(ext.spo2))
+    const temperature = (ext as DeviceInfoExtend & { temperature?: unknown }).temperature ?? ext.temp
+    if (temperature != null) {
+      temps.push(parseNumber(temperature))
+    }
+  })
 
   return {
-    title: type === 'table' ? '异常名单研判结果' : type === 'chart' ? '趋势分析结果' : '综合分析结果',
-    summary: replyText.replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '').slice(0, 120),
-    riskLevel,
-    evidence: [
-      { label: '触发指令', detail: text },
-      { label: '输出类型', detail: type === 'table' ? '名单整理与处置建议' : type === 'chart' ? '趋势图表与波动分析' : '文本结论与建议' },
-      { label: '当前上下文', detail: 'AI 中心 / 风险研判与报告生成' }
-    ],
-    entities,
-    recommendedActions: actions.length ? actions : ['创建事件', '加入重点关注']
+    heartRateAvg: heartRates.length ? Math.round(heartRates.reduce((a, b) => a + b, 0) / heartRates.length) : 0,
+    spo2Avg: spo2Values.length ? Math.round(spo2Values.reduce((a, b) => a + b, 0) / spo2Values.length) : 0,
+    tempAvg: temps.length ? Math.round((temps.reduce((a, b) => a + b, 0) / temps.length) * 10) / 10 : 0
   }
 }
-const pushAiResponse = (text: string, replyText: string, type: ChatMessage['type'], data: Record<string, string>[] | undefined, actions: string[]) => {
-  const msgId = Date.now()
-  const insight = buildStructuredInsight(text, replyText, type, actions)
-  messages.value.push({ id: msgId, role: 'ai', type, content: replyText, data, actions: insight.recommendedActions, insight })
-  speakText(insight.summary)
-  if (type === 'chart') nextTick(() => renderChart(`chart-${msgId}`))
+
+const generateReport = async () => {
+  generating.value = true
+  reportData.value = null
+  try {
+    const [subjectRes, exceptionRes, extRes] = await Promise.all([
+      listSubjects({ pageNum: 1, pageSize: 200 }),
+      listExceptions({ pageNum: 1, pageSize: 200 }),
+      listDeviceExtensions({ pageNum: 1, pageSize: 200 })
+    ])
+
+    const subjects = extractListRows<Record<string, unknown>>(subjectRes)
+    const exceptions = extractListRows<ExceptionAlert>(exceptionRes)
+    const extensions = extractListRows<DeviceInfoExtend>(extRes)
+
+    const extMap = new Map<number, DeviceInfoExtend>()
+    extensions.forEach(e => { if (e.userId) extMap.set(Number(e.userId), e) })
+
+    // 先计算所有对象的风险等级
+    const subjectRiskMap = new Map<number, string>()
+    subjects.forEach((s) => {
+      const uid = Number(s.subjectId || s.userId)
+      const ext = extMap.get(uid)
+      const userEvents = exceptions.filter(e => Number(e.userId) === uid)
+      subjectRiskMap.set(uid, determineRiskLevel(ext, userEvents))
+    })
+
+    // 根据 selectedReportType 差异化数据处理
+    let filteredSubjects = subjects.filter(subject => matchesSelectedScope(subjectRiskMap.get(getSubjectId(subject)) || 'low'))
+    let targetSubject: Record<string, unknown> | null = null
+
+    if (selectedReportType.value === 'personal') {
+      targetSubject = filteredSubjects[0] || subjects[0] || null
+      filteredSubjects = targetSubject ? [targetSubject] : []
+    }
+
+    const filteredSubjectIds = new Set(filteredSubjects.map(subject => getSubjectId(subject)).filter(Boolean))
+    const filteredExceptions = exceptions.filter(e => filteredSubjectIds.has(Number(e.userId)))
+    const filteredExtensions = extensions.filter(ext => filteredSubjectIds.has(Number(ext.userId)))
+    const scopedTrendPoints = buildScopedTrendPoints(filteredExceptions)
+
+
+    const highRiskSubjects: HighRiskSubject[] = []
+    let highRiskCount = 0
+
+    filteredSubjects.forEach((s) => {
+      const uid = getSubjectId(s)
+      const ext = extMap.get(uid)
+      const userEvents = filteredExceptions.filter(e => Number(e.userId) === uid)
+      const level = subjectRiskMap.get(uid) || determineRiskLevel(ext, userEvents)
+      if (level === 'high') highRiskCount++
+      if (level === 'high' || level === 'medium' || selectedReportType.value === 'personal') {
+        highRiskSubjects.push({
+          name: String(s.subjectName || s.nickName || '未知'),
+          age: String(s.age || '-'),
+          riskLevel: level,
+          eventCount: userEvents.length,
+          lastAlarm: String(ext?.alarmTime || userEvents[0]?.createTime || '-')
+        })
+      }
+    })
+
+    const totalEvents = filteredExceptions.length
+    const resolvedEvents = filteredExceptions.filter(isResolvedEvent).length
+    const reportTypeName = reportTypes.find(r => r.value === selectedReportType.value)?.label || '报告'
+    const periodName = periods.find(p => p.value === selectedPeriod.value)?.label || ''
+
+    // 构建高风险对象明细
+    const highRiskDetails = highRiskSubjects.slice(0, 10).map(s =>
+      `(${s.name}, ${s.age}岁, ${s.riskLevel === 'high' ? '高风险' : '中风险'}, 异常${s.eventCount}次, 最近告警${s.lastAlarm})`
+    ).join('; ')
+
+    // 异常事件类型分布统计
+    const exceptionTypeMap = new Map<string, number>()
+    filteredExceptions.forEach(e => {
+      const type = e.type || '未知类型'
+      exceptionTypeMap.set(type, (exceptionTypeMap.get(type) || 0) + 1)
+    })
+    const abnormalTypeDistribution = Array.from(exceptionTypeMap.entries())
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count)
+    const exceptionTypes = abnormalTypeDistribution
+      .map(({ type, count }) => `${type}${count}次`)
+      .join(', ')
+
+    // 趋势数据关键点
+    const trendValues = scopedTrendPoints.map(p => Number(p.value || 0))
+    const trendMax = trendValues.length ? Math.max(...trendValues) : 0
+    const trendMin = trendValues.length ? Math.min(...trendValues) : 0
+    const trendAvg = trendValues.length ? Math.round(trendValues.reduce((a, b) => a + b, 0) / trendValues.length) : 0
+
+    // 体征统计计算
+    let vitalSignStats: { heartRateAvg: number; spo2Avg: number; tempAvg: number } | null = null
+    if (selectedReportType.value === 'health' || selectedReportType.value === 'personal') {
+      vitalSignStats = buildVitalSignStats(filteredExtensions)
+    }
+
+    // 根据 selectedReportType 差异化 prompt 侧重点和前标题
+    let promptFocus = ''
+    let fallbackText = ''
+    let reportSubtitle = ''
+    let showSections = {
+      kpi: true,
+      trend: true,
+      highRiskTable: true,
+      abnormalDistribution: false,
+      vitalSignStats: false
+    }
+
+    switch (selectedReportType.value) {
+      case 'operation':
+        promptFocus = '请从运营角度综合分析设备、对象、异常数据'
+        fallbackText = `本周期内共监护 ${filteredSubjects.length} 名对象，发现高风险对象 ${highRiskCount} 人，产生异常事件 ${totalEvents} 次，已处置 ${resolvedEvents} 次。`
+        reportSubtitle = '综合设备、对象、异常数据的运营分析'
+        showSections = { kpi: true, trend: true, highRiskTable: true, abnormalDistribution: true, vitalSignStats: false }
+        break
+      case 'health':
+        promptFocus = '请重点分析体征趋势与风险等级分布情况'
+        fallbackText = `本周期内共监护 ${filteredSubjects.length} 名对象，高风险对象 ${highRiskCount} 人，产生异常事件 ${totalEvents} 次，已处置 ${resolvedEvents} 次。体征趋势方面，最高 ${trendMax} 次，最低 ${trendMin} 次，平均 ${trendAvg} 次。`
+        reportSubtitle = '重点关注体征趋势与风险等级分布'
+        showSections = { kpi: true, trend: true, highRiskTable: true, abnormalDistribution: true, vitalSignStats: true }
+        break
+      case 'highrisk':
+        promptFocus = '请重点分析高风险对象的异常详情与处置建议'
+        fallbackText = `本周期内共监护 ${filteredSubjects.length} 名对象，高风险对象 ${highRiskCount} 人，产生异常事件 ${totalEvents} 次，已处置 ${resolvedEvents} 次。高风险对象明细：${highRiskDetails || '暂无'}。`
+        reportSubtitle = '聚焦高风险对象的异常详情与处置建议'
+        showSections = { kpi: true, trend: false, highRiskTable: true, abnormalDistribution: true, vitalSignStats: false }
+        break
+      case 'personal':
+        promptFocus = '请生成该对象的个人健康档案分析'
+        const personalName = targetSubject ? String(targetSubject.subjectName || targetSubject.nickName || '未知') : '未选择对象'
+        fallbackText = `本周期内共监护 ${filteredSubjects.length} 名对象（${personalName}），产生异常事件 ${totalEvents} 次，已处置 ${resolvedEvents} 次。`
+        reportSubtitle = `个人健康档案：${personalName}`
+        showSections = { kpi: true, trend: true, highRiskTable: false, abnormalDistribution: true, vitalSignStats: true }
+        break
+      default:
+        promptFocus = '请综合分析报告数据'
+        fallbackText = `本周期内共监护 ${filteredSubjects.length} 名对象，发现高风险对象 ${highRiskCount} 人，产生异常事件 ${totalEvents} 次，已处置 ${resolvedEvents} 次。`
+        showSections = { kpi: true, trend: true, highRiskTable: true, abnormalDistribution: true, vitalSignStats: false }
+    }
+
+    let aiText = ''
+    try {
+      const prompt = `请根据以下数据生成简短的健康报告解读（不超过300字）：
+【基础数据】总对象${filteredSubjects.length}人，高风险${highRiskCount}人，异常事件${totalEvents}次，已处置${resolvedEvents}次。
+【高风险对象明细】${highRiskDetails || '暂无'}
+【异常事件类型分布】${exceptionTypes || '暂无'}
+【趋势数据】最高${trendMax}次，最低${trendMin}次，平均${trendAvg}次
+【报告类型】${reportTypeName}，【周期】${periodName}
+${vitalSignStats ? `【体征统计】心率均值${vitalSignStats.heartRateAvg}次/分，血氧均值${vitalSignStats.spo2Avg}%，体温均值${vitalSignStats.tempAvg}℃` : ''}
+${promptFocus}`
+      const aiRes = await chatAi(prompt)
+      aiText = typeof aiRes?.data === 'string' ? aiRes.data : '数据分析完成，请关注高风险对象并及时跟进异常事件。'
+    } catch {
+      aiText = fallbackText
+    }
+
+    reportData.value = {
+      reportType: reportTypeName,
+      period: periodName,
+      generatedAt: new Date().toLocaleString(),
+      totalSubjects: filteredSubjects.length,
+      highRiskCount,
+      totalEvents,
+      resolvedEvents,
+      highRiskSubjects: highRiskSubjects.slice(0, 20),
+      trendPoints: scopedTrendPoints,
+      aiInterpretation: aiText,
+      abnormalTypeDistribution,
+      vitalSignStats,
+      showSections,
+      reportSubtitle
+    }
+
+    await nextTick()
+    renderTrendChart()
+  } catch (e) {
+    ElMessage.error('生成报告失败，请检查网络或后端服务')
+    console.error(e)
+  } finally {
+    generating.value = false
+  }
 }
+
+const renderTrendChart = () => {
+  const dom = document.getElementById('reportTrendChart')
+  if (!dom) return
+  trendChartInstance?.dispose()
+  trendChartInstance = echarts.init(dom)
+  const color = getThemeColor()
+  const points = reportData.value?.trendPoints?.length
+    ? reportData.value.trendPoints
+    : Array.from({ length: 7 }, (_, i) => ({ label: `第${i + 1}天`, value: 0 }))
+  trendChartInstance.setOption({
+    grid: { left: '2%', right: '2%', bottom: '5%', top: '10%', containLabel: true },
+    tooltip: { trigger: 'axis' },
+    xAxis: { type: 'category', data: points.map(p => p.label), axisLine: { show: false }, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } } },
+    series: [{
+      name: '异常事件',
+      type: 'line',
+      data: points.map(p => Number(p.value || 0)),
+      smooth: true,
+      lineStyle: { color, width: 3 },
+      itemStyle: { color },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: `${color}33` }, { offset: 1, color: `${color}00` }]) }
+    }]
+  })
+}
+
+const riskTagType = (level: string) => level === 'high' ? 'danger' : level === 'medium' ? 'warning' : 'success'
+const riskLabel = (level: string) => level === 'high' ? '高风险' : level === 'medium' ? '中风险' : '低风险'
+
+const escapeHtml = (value: string) => value
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;')
+
+const normalizeAiReply = (value: unknown, fallback = 'AI 暂时没有返回有效内容，请稍后重试。') => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed ? trimmed : fallback
+  }
+  if (value == null) {
+    return fallback
+  }
+  if (typeof value === 'object') {
+    try {
+      const serialized = JSON.stringify(value, null, 2)
+      return serialized && serialized.trim() ? serialized : fallback
+    } catch {
+      return fallback
+    }
+  }
+  const text = String(value).trim()
+  return text || fallback
+}
+
+const toRichText = (value: unknown, fallback?: string) => escapeHtml(normalizeAiReply(value, fallback)).replace(/\n/g, '<br/>')
+
+const buildReportContext = () => {
+  if (!reportData.value) return ''
+  const r = reportData.value
+  return `[报告摘要] 类型:${r.reportType} 周期:${r.period} 总对象:${r.totalSubjects}人 高风险:${r.highRiskCount}人 异常事件:${r.totalEvents}次 已处置:${r.resolvedEvents}次`
+}
+
+const scrollToBottom = () => nextTick(() => { if (chatScroll.value) chatScroll.value.scrollTop = chatScroll.value.scrollHeight })
 
 const sendMessage = async () => {
   const text = inputText.value.trim()
   if (!text || isTyping.value) return
-  messages.value.push({ id: Date.now(), role: 'user', type: 'text', content: text })
+  messages.value.push({ id: Date.now(), role: 'user', content: text })
   inputText.value = ''
   isTyping.value = true
   scrollToBottom()
-
   try {
-    const res = await chatAi(text + buildPromptModifier())
-    let replyText = typeof res.data === 'string' ? res.data : JSON.stringify(res.data, null, 2)
-    replyText = replyText.replace(/\n/g, '<br/>')
-
-    let type: ChatMessage['type'] = 'text'
-    let data: Record<string, string>[] | undefined
-    let actions: string[] = []
-
-    if (text.includes('心率') || text.includes('名单') || text.includes('导出')) {
-      type = 'table'
-      data = [
-        { name: '张建国', room: 'A-302', issue: '心动过缓（45bpm）', time: '02:15 - 02:40' },
-        { name: '李桂英', room: 'B-105', issue: '心率飙升（110bpm）', time: '04:22 - 04:30' }
-      ]
-      actions = ['导出 Excel 名单', '下发巡检工单']
-    } else if (text.includes('分析') || text.includes('趋势') || text.includes('睡眠') || text.includes('预测')) {
-      type = 'chart'
-      actions = ['调整设备监测频率', '生成报告并下载']
-    } else if (text.includes('报告')) {
-      actions = ['生成报告并下载', '创建事件']
-    } else {
-      actions = ['创建事件', '加入重点关注']
-    }
-
-    if (type === 'table') {
-      data = buildRecentTableRows()
-    }
-
-    pushAiResponse(text, replyText, type, data, actions)
-  } catch (error: any) {
-    messages.value.push({ id: Date.now(), role: 'ai', type: 'text', content: `服务暂时不可用，请稍后重试。<br/><span style="color:#d14d72;font-size:13px;">(${error.message || '网络错误'})</span>` })
+    const ctx = buildReportContext()
+    const prompt = ctx ? `${ctx}\n\n用户问题：${text}` : text
+    const res = await chatAi(prompt)
+    const reply = typeof res?.data === 'string' ? res.data : '已收到您的问题，正在分析中...'
+    messages.value.push({ id: Date.now(), role: 'ai', content: toRichText(reply) })
+    scrollToBottom()
+  } catch {
+    messages.value.push({ id: Date.now(), role: 'ai', content: '请求失败，请检查网络连接。' })
   } finally {
     isTyping.value = false
-    scrollToBottom()
   }
-}
-
-const runQuickTask = (task: QuickTask) => {
-  activeTaskLabel.value = task.label
-  inputText.value = task.prompt
-  sendMessage()
-}
-
-const askCopilot = (text: string) => {
-  inputText.value = text
-  sendMessage()
-}
-
-const exportToCsv = (tableData?: Record<string, string>[]) => {
-  if (!tableData || tableData.length === 0) {
-    ElMessage.warning('数据为空')
-    return
-  }
-  const headers = ['姓名', '房间号', '异常类型', '发生时间']
-  const keys = ['name', 'room', 'issue', 'time']
-  const csvRows = [headers.join(',')]
-  tableData.forEach((row) => csvRows.push(keys.map((key) => `"${row[key] || ''}"`).join(',')))
-  const url = URL.createObjectURL(new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `数据导出_${Date.now()}.csv`
-  link.click()
-  URL.revokeObjectURL(url)
 }
 
 const exportToWord = () => {
-  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>报告</title></head><body><h1 style="text-align:center;color:${settingsForm.value.theme === 'purple' ? '#3f3cbb' : '#1d4ed8'};">健康分析报告</h1><p><strong>生成时间：</strong>${new Date().toLocaleString()}</p></body></html>`
+  if (!reportData.value) { ElMessage.warning('请先生成报告'); return }
+  const r = reportData.value
+  const color = getThemeColor()
+  const rows = r.highRiskSubjects.map(s => `<tr><td>${s.name}</td><td>${s.age}</td><td>${riskLabel(s.riskLevel)}</td><td>${s.eventCount}</td><td>${s.lastAlarm}</td></tr>`).join('')
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${r.reportType}</title></head><body><h1 style="text-align:center;color:${color}">${r.reportType}</h1><p><strong>生成时间：</strong>${r.generatedAt} &nbsp; <strong>周期：</strong>${r.period}</p><table border="1" style="width:100%;border-collapse:collapse"><tr style="background:${color};color:#fff"><th>姓名</th><th>年龄</th><th>风险等级</th><th>异常次数</th><th>最近告警</th></tr>${rows}</table><h3>AI 解读</h3><p>${r.aiInterpretation}</p></body></html>`
   const url = URL.createObjectURL(new Blob([html], { type: 'application/msword;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${settingsForm.value.botName}_分析报告_${Date.now()}.doc`
-  link.click()
-  URL.revokeObjectURL(url)
+  const a = document.createElement('a'); a.href = url; a.download = `${r.reportType}_${Date.now()}.doc`; a.click(); URL.revokeObjectURL(url)
+  ElMessage.success('Word 报告已下载')
 }
 
-const findEntityByKind = (insight: StructuredInsight | undefined, kind: EntityKind) => insight?.entities.find((item) => item.kind === kind)
-
-const buildActionEntities = (insight?: StructuredInsight) => ({
-  subject: findEntityByKind(insight, 'subject'),
-  event: findEntityByKind(insight, 'event'),
-  device: findEntityByKind(insight, 'device')
-})
-
-const handleAction = async (action: string, msg?: ChatMessage) => {
-  if (action === '开始风险研判') {
-    askCopilot('请研判今日高风险健康事件，并输出结论、证据与动作建议。')
-    return
-  }
-  if (action === '导出 Excel 名单') {
-    exportToCsv(msg?.data)
-    messages.value.push({ id: Date.now(), role: 'ai', type: 'text', content: `${settingsForm.value.botName} 建议将这些高风险对象转入事件中心继续处置。` })
-    speakText('名单已导出，请继续关注高风险对象。')
-    scrollToBottom()
-    return
-  }
-  if (action === '生成报告并下载') {
-    exportToWord()
-    messages.value.push({ id: Date.now(), role: 'ai', type: 'text', content: `${settingsForm.value.botName} 已整理好报告并发送了 Word 文档下载。` })
-    speakText('报告已生成并发送。')
-    scrollToBottom()
-    return
-  }
-
-  const sourceInsight = msg?.insight || latestInsight.value || undefined
-
-  const handled = await dispatchPlatformAction(router, action, {
-    entities: buildActionEntities(sourceInsight),
-    onUnhandled: (unhandledAction) => {
-      ElMessage.success(`动作已记录：${unhandledAction}`)
-    }
-  })
-
-  if (!handled) {
-    ElMessage.success(`动作已记录：${action}`)
-  }
+const exportToCsv = () => {
+  if (!reportData.value) { ElMessage.warning('请先生成报告'); return }
+  const headers = ['姓名', '年龄', '风险等级', '异常次数', '最近告警时间']
+  const rows = reportData.value.highRiskSubjects.map(s => [s.name, s.age, riskLabel(s.riskLevel), String(s.eventCount), s.lastAlarm].map(v => `"${v}"`).join(','))
+  const csv = [headers.join(','), ...rows].join('\n')
+  const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }))
+  const a = document.createElement('a'); a.href = url; a.download = `风险对象名单_${Date.now()}.csv`; a.click(); URL.revokeObjectURL(url)
+  ElMessage.success('CSV 名单已下载')
 }
 
-const openEntity = async (entity: RelatedEntity) => {
-  await navigatePlatformEntity(router, entity)
-}
+const openChat = () => { showChatDrawer.value = true }
 
-const renderChart = (domId: string) => {
-  const dom = document.getElementById(domId)
-  if (!dom) return
-  const myChart = echarts.init(dom)
-  const chartColor = getThemeChartColor()
-  const trendPoints = abnormalTrend.value.length
-    ? abnormalTrend.value
-    : Array.from({ length: 6 }, (_, index) => ({ label: `${index + 1}`, value: 0 }))
-
-  myChart.setOption({
-    grid: { left: '2%', right: '2%', bottom: '5%', top: '15%', containLabel: true },
-    tooltip: { trigger: 'axis' },
-    legend: { data: ['收缩压', '舒张压'], top: 0, right: 0 },
-    xAxis: { type: 'category', data: ['一', '二', '三', '四', '五', '六', '日'], axisLine: { show: false }, axisTick: { show: false } },
-    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.08)' } } },
-    series: [
-      { name: '收缩压', type: 'line', data: [120, 122, 145, 125, 118, 121, 120], smooth: true, lineStyle: { color: '#d14d72', width: 3 }, itemStyle: { color: '#d14d72' } },
-      { name: '舒张压', type: 'line', data: [80, 82, 95, 85, 78, 80, 81], smooth: true, lineStyle: { color: chartColor, width: 3 }, itemStyle: { color: chartColor }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [ { offset: 0, color: `${chartColor}33` }, { offset: 1, color: `${chartColor}00` } ]) } }
-    ]
-  })
-  myChart.setOption({
-    legend: { data: ['异常事件'], top: 0, right: 0 },
-    xAxis: { data: trendPoints.map(point => point.label) },
-    series: [
-      {
-        name: '异常事件',
-        type: 'line',
-        data: trendPoints.map(point => Number(point.value || 0)),
-        smooth: true,
-        lineStyle: { color: chartColor, width: 3 },
-        itemStyle: { color: chartColor },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: `${chartColor}33` },
-            { offset: 1, color: `${chartColor}00` }
-          ])
-        }
-      }
-    ]
-  })
-}
-const riskTagType = (riskLevel: RiskLevel) => {
-  if (riskLevel === 'high') return 'danger'
-  if (riskLevel === 'medium') return 'warning'
-  return 'success'
-}
-
-const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => (rowIndex % 2 === 1 ? 'glass-row-striped' : '')
-
-const scrollToBottom = () => nextTick(() => {
-  if (chatScroll.value) chatScroll.value.scrollTop = chatScroll.value.scrollHeight
-})
-
-const handleSearchClick = async () => {
-  await openPlatformSearch(router, 'ai')
-}
-
-const handleNotificationItem = async (item: PlatformNotificationRecord) => {
-  await openPlatformNotification(router, item)
-}
-
-const handleNotificationClick = async () => {
-  await openAllPlatformNotifications(router, 'ai')
-}
-
-const renderDashboardCharts = () => {
-  const riskDom = document.getElementById('riskChart')
-  const trendDom = document.getElementById('trendChart')
-  const chartColor = getThemeChartColor()
-  const riskSummary = recentRiskSummary.value
-  const trendPoints = abnormalTrend.value.length
-    ? abnormalTrend.value
-    : Array.from({ length: 6 }, (_, index) => ({ label: `${index + 1}`, value: 0 }))
-  
-  if (riskDom) {
-    riskChartInstance.value?.dispose()
-    const riskChart = echarts.init(riskDom)
-    riskChartInstance.value = riskChart
-    riskChart.setOption({
-      tooltip: { trigger: 'item' },
-      legend: { bottom: '0%', left: 'center', itemStyle: { borderWidth: 0 } },
-      series: [
-        {
-          name: '风险分布',
-          type: 'pie',
-          radius: ['45%', '75%'],
-          center: ['50%', '45%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 6,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          label: { show: false, position: 'center' },
-          labelLine: { show: false },
-          data: [
-            { value: highRiskCount.value || 3, name: '高风险', itemStyle: { color: '#d14d72' } },
-            { value: 12, name: '中风险', itemStyle: { color: '#fbbf24' } },
-            { value: structuredInsightCount.value || 45, name: '低风险', itemStyle: { color: '#10b981' } }
-          ]
-        }
-      ]
-    })
-    riskChart.setOption({
-      series: [
-        {
-          data: [
-            { value: riskSummary.high, name: '高风险', itemStyle: { color: '#d14d72' } },
-            { value: riskSummary.medium, name: '中风险', itemStyle: { color: '#fbbf24' } },
-            { value: riskSummary.low, name: '低风险', itemStyle: { color: '#10b981' } }
-          ]
-        }
-      ]
-    })
-  }
-
-  if (trendDom) {
-    trendChartInstance.value?.dispose()
-    const trendChart = echarts.init(trendDom)
-    trendChartInstance.value = trendChart
-
-    trendChart.setOption({
-      grid: { left: '2%', right: '5%', bottom: '5%', top: '15%', containLabel: true },
-      tooltip: { trigger: 'axis' },
-      xAxis: { type: 'category', data: ['8:00', '10:00', '12:00', '14:00', '16:00', '18:00'], axisLine: { show: false }, axisTick: { show: false } },
-      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } } },
-      series: [
-        { 
-          name: '解析量', 
-          type: 'bar', 
-          barWidth: '20px',
-          itemStyle: { color: chartColor, borderRadius: [4, 4, 0, 0] },
-          data: [12, 34, 45, 23, 56, 18] 
-        }
-      ]
-    })
-    trendChart.setOption({
-      xAxis: { data: trendPoints.map(point => point.label) },
-      series: [
-        {
-          name: '分析量',
-          type: 'bar',
-          data: trendPoints.map(point => Number(point.value || 0)),
-          itemStyle: { color: chartColor, borderRadius: [4, 4, 0, 0] }
-        }
-      ]
-    })
-  }
-}
-
-watch(() => latestInsight.value, () => {
-  refreshNotifications()
-}, { immediate: true })
-
-watch(
-  () => [settingsForm.value.theme, abnormalTrend.value, recentAbnormalRows.value],
-  () => {
-    nextTick(() => {
-      renderDashboardCharts()
-    })
-  },
-  { deep: true }
-)
-
-watch(
-  () => recentAbnormalRows.value[0]?.userId,
-  (patientId) => {
-    realtimeStream.subscribePatient(patientId ?? null)
-  }
-)
-
-onMounted(async () => {
-  refreshNotifications()
-  await fetchWorkbenchDashboardData()
-  nextTick(() => {
-    renderDashboardCharts()
-  })
-  dashboardRefreshTimer.value = window.setInterval(async () => {
-    await fetchWorkbenchDashboardData()
-    nextTick(() => {
-      renderDashboardCharts()
-    })
-  }, 30000)
-})
-
-onUnmounted(() => {
-  if (dashboardRefreshTimer.value !== null) {
-    window.clearInterval(dashboardRefreshTimer.value)
-    dashboardRefreshTimer.value = null
-  }
-  clearRealtimeRefreshTimer()
-  riskChartInstance.value?.dispose()
-  trendChartInstance.value?.dispose()
-  riskChartInstance.value = null
-  trendChartInstance.value = null
-})
+onMounted(() => {})
 </script>
+
 <style scoped lang="scss">
-.ai-command-center {
-  --ai-primary: #0f172a;
-  --ai-primary-soft: #f1f5f9;
+.ai-report-center {
+  --ai-primary: #2563eb;
+  --ai-primary-soft: #eff6ff;
   --ai-danger-soft: #fff1f2;
   --ai-success-soft: #ecfdf5;
   --ai-border: #e2e8f0;
@@ -1062,718 +782,193 @@ onUnmounted(() => {
   --ai-card: #ffffff;
   min-height: 100%;
   background: var(--ai-bg);
+  display: flex;
+  flex-direction: column;
+}
+.ai-report-center.theme-blue { --ai-primary: #2563eb; --ai-primary-soft: #eff6ff; }
+.ai-report-center.theme-purple { --ai-primary: #4f46e5; --ai-primary-soft: #eef2ff; }
+.ai-report-center.theme-green { --ai-primary: #059669; --ai-primary-soft: #ecfdf5; }
+.ai-report-center.theme-pink { --ai-primary: #e11d48; --ai-primary-soft: #fff1f2; }
+
+.report-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--ai-card);
+  border-bottom: 1px solid var(--ai-border);
+  gap: 16px;
+}
+.topbar-left { display: flex; flex-direction: column; gap: 2px; }
+.topbar-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--ai-primary); text-transform: uppercase; }
+.topbar-title { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+.topbar-sub { margin: 0; font-size: 13px; color: #64748b; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.theme-switcher { display: flex; gap: 6px; }
+.theme-dot {
+  width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.2s;
+}
+.theme-dot.active { border-color: #0f172a; transform: scale(1.15); }
+
+.report-body {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 0;
+  flex: 1;
+  min-height: 0;
 }
 
-.ai-command-center :deep(.platform-page-card) {
-  background: transparent;
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-right: 1px solid var(--ai-border);
+  background: var(--ai-card);
+  overflow-y: auto;
 }
-
-.ai-command-center :deep(.platform-page-toolbar) {
-  background: transparent;
+.panel-section {
+  padding: 16px 20px;
   border-bottom: 1px solid var(--ai-border);
 }
-
-.ai-command-center :deep(.platform-page-aside) {
-  background: transparent;
-}
-
-.ai-command-center.theme-blue {
-  --ai-primary: #2563eb;
-  --ai-primary-soft: #eff6ff;
-}
-
-.ai-command-center.theme-purple {
-  --ai-primary: #4f46e5;
-  --ai-primary-soft: #eef2ff;
-}
-
-.ai-command-center.theme-green {
-  --ai-primary: #059669;
-  --ai-primary-soft: #ecfdf5;
-}
-
-.ai-command-center.theme-pink {
-  --ai-primary: #e11d48;
-  --ai-primary-soft: #fff1f2;
-}
-
-.header-actions,
-.toolbar-stack,
-.aside-stack,
-.entity-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.workbench-split-layout {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-
-.workbench-left-pane {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.workbench-center-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.metrics-panel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.metric-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--ai-card);
-  border: 1px solid var(--ai-border);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-}
-
-.metric-item.danger-soft {
-  background: var(--ai-danger-soft);
-  border-color: #fecdd3;
-}
-
-.metric-item.danger-soft .metric-icon {
-  background: #ffe4e6;
-  color: #e11d48;
-}
-
-.metric-item.success-soft {
-  background: var(--ai-success-soft);
-  border-color: #a7f3d0;
-}
-
-.metric-item.success-soft .metric-icon {
-  background: #d1fae5;
-  color: #059669;
-}
-
-.metric-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metric-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #667085;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.metric-value {
-  font-size: 18px;
-  line-height: 1.1;
-  color: #14213d;
-}
-
-.metric-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ai-primary-soft);
-  color: var(--ai-primary);
-  font-size: 16px;
-}
-
-.chart-panel {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  min-height: 240px;
-}.workbench-split-layout {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-
-.workbench-left-pane {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.workbench-center-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.panel,
-.inner-panel {
-  border: 1px solid var(--ai-border);
-  background: var(--ai-card);
-  border-radius: 12px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-}
-
-.task-rail,
-.conversation-panel,
-.aside-card {
-  padding: 18px;
-}
-
-.section-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.section-head.compact {
-  margin-bottom: 10px;
-}
-
-.section-head h3,
-.section-head h4,
-.conversation-header h3,
-.insight-head h4 {
-  margin: 4px 0 0;
-  color: #14213d;
-}
-
-.mode-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.mode-chip,
-.task-card,
-.entity-chip,
-.action-tile,
-.chip-btn {
-  border: 1px solid rgba(0,0,0,0.1);
-  background: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mode-chip:hover,
-.task-card:hover,
-.entity-chip:hover,
-.action-tile:hover,
-.chip-btn:hover {
-  transform: translateY(-1px);
-  border-color: var(--ai-primary);
-  background: #fdfdfd;
-  box-shadow: 0 4px 12px rgba(63, 60, 187, 0.04);
-}
-
-.mode-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  text-align: left;
-}
-
-.mode-chip.active {
-  background: var(--ai-primary-soft);
-  border-color: rgba(63, 60, 187, 0.3);
-}
-
-.mode-chip-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #14213d;
-}
-
-.mode-chip-desc {
-  font-size: 12px;
-  color: #667085;
-  line-height: 1.5;
-}
-
-.task-card {
-  width: 100%;
-  padding: 16px;
-  border-radius: 18px;
-  text-align: left;
-}
-
-.task-card-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.task-card-top strong {
-  color: #14213d;
-}
-
-.task-card-top span {
-  font-size: 12px;
-  color: var(--ai-primary);
-  font-weight: 700;
-}
-
-.task-card p,
-.note-list,
-.preference-list {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #667085;
-}
-
-.note-card {
-  padding: 16px;
-}
-
-.note-list,
-.preference-list {
-  padding-left: 18px;
-}
-
-.conversation-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 760px;
-}
-
-.conversation-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.chat-viewport {
-  flex: 1;
-  max-height: 720px;
-  overflow: auto;
-  padding-right: 6px;
-}
-
-.chat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.message-box {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.message-box.user {
-  flex-direction: row-reverse;
-}
-
-.msg-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ai-primary-soft);
-  color: var(--ai-primary);
-  flex: 0 0 auto;
-}
-
-.msg-avatar.user {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.msg-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: min(100%, 840px);
-}
-
-.message-box.user .msg-content-wrapper {
-  align-items: flex-end;
-}
-
-.msg-bubble {
-  padding: 16px;
-  border-radius: 12px;
-  border-top-left-radius: 4px;
-  background: var(--ai-card);
-  border: 1px solid var(--ai-border);
-  min-width: 220px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-}
-
-.message-box.user .msg-bubble {
-  background: var(--ai-primary-soft);
-  border-color: transparent;
-  color: #0f172a;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 4px;
-}
-
-.message-box.user .md-text {
-  color: #0f172a;
-}
-
-.insight-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(209, 215, 224, 0.82);
-}
-
-.insight-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.insight-summary,
-.md-text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.75;
-  color: #344054;
-}
-
-.insight-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.insight-block {
-  padding: 14px;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
-.insight-block ul {
-  margin: 10px 0 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.insight-block li,
-.preference-list li {
-  color: #475467;
-  line-height: 1.6;
-}.insight-block strong,
-.preference-list strong,
-.entity-chip strong {
-  display: block;
-  color: #14213d;
-}
-
-.widget-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.widget-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #14213d;
-  font-weight: 700;
-}
-
-.echarts-container {
-  width: 100%;
-  height: 260px;
-}
-
-.action-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.chip-btn,
-.action-tile,
-.entity-chip {
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  color: #14213d;
-}
-
-.entity-chip {
-  text-align: left;
-}
-
-.entity-chip span {
-  display: block;
-  margin-top: 3px;
-  color: #667085;
-}
-
-.floating-input-zone {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-top: 16px;
-  background: var(--ai-card);
-}
-
-.pill-input-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 16px;
-  border: 1px solid var(--ai-border);
-  background: var(--ai-bg);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s;
-}
-
-.pill-input-box.focused {
-  border-color: var(--ai-primary);
-  background: #fff;
-}
-
-.input-header-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--ai-primary);
-  font-weight: 600;
-}
-
-.input-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-}
-
-.send-action-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: none;
-  background: #e2e8f0;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.2s;
-}
-
-.send-action-btn.ready {
-  background: var(--ai-primary);
-  color: #fff;
-}
-
-.sec-footer {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.aside-block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.preference-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.drawer-settings-content,
-.drawer-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.inline-setting {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.typing {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dot-flashing {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--ai-primary);
-  box-shadow: 14px 0 0 rgba(63, 60, 187, 0.5), 28px 0 0 rgba(63, 60, 187, 0.25);
-}
-
-.spin {
+.panel-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #94a3b8; margin-bottom: 10px;
+}
+.report-type-list { display: flex; flex-direction: column; gap: 8px; }
+.type-btn {
+  width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--ai-border);
+  background: transparent; cursor: pointer; text-align: left; transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.type-btn:hover { border-color: var(--ai-primary); background: var(--ai-primary-soft); }
+.type-btn.active { border-color: var(--ai-primary); background: var(--ai-primary-soft); }
+.type-btn-title { font-size: 13px; font-weight: 600; color: #0f172a; }
+.type-btn-desc { font-size: 12px; color: #64748b; }
+
+.period-tabs, .scope-tabs { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.period-tab, .scope-tab {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--ai-border);
+  background: transparent; cursor: pointer; font-size: 13px; color: #475569; transition: all 0.2s;
+}
+.period-tab:hover, .scope-tab:hover { border-color: var(--ai-primary); color: var(--ai-primary); }
+.period-tab.active, .scope-tab.active {
+  background: var(--ai-primary); border-color: var(--ai-primary); color: #fff;
+}
+
+.generate-btn { width: 100%; font-size: 15px; font-weight: 700; }
+
+.report-preview {
+  flex: 1; display: flex; flex-direction: column; overflow-y: auto;
+  background: var(--ai-bg); padding: 24px;
+}
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.empty-icon { font-size: 48px; color: var(--ai-primary); opacity: 0.3; }
+.empty-tips { display: flex; flex-direction: column; gap: 8px; text-align: center; }
+.empty-tip-item { font-size: 13px; color: #94a3b8; }
+.no-data { text-align: center; color: #94a3b8; font-size: 13px; padding: 16px 0; }
+
+.generating-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; color: #64748b; font-size: 14px; }
+.gen-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 3px solid var(--ai-primary-soft); border-top-color: var(--ai-primary);
   animation: spin 0.8s linear infinite;
+}
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.report-content { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.report-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
+.report-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--ai-primary); text-transform: uppercase; margin-bottom: 4px; }
+.report-title { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
+.report-subtitle { font-size: 13px; color: #64748b; margin: 0 0 6px; }
+.section-title { font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi-card {
+  background: var(--ai-card); border-radius: 12px;
+  border: 1px solid var(--ai-border); padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.kpi-card.danger { background: var(--ai-danger-soft); border-color: #fecdd3; }
+.kpi-card.success { background: var(--ai-success-soft); border-color: #a7f3d0; }
+.kpi-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1.1; }
+.kpi-card.danger .kpi-value { color: #e11d48; }
+.kpi-card.success .kpi-value { color: #059669; }
+
+.abnormal-distribution { display: flex; flex-direction: column; gap: 10px; }
+.dist-item { display: flex; align-items: center; gap: 10px; }
+.dist-label { font-size: 13px; color: #475569; min-width: 80px; }
+.dist-bar-wrapper { flex: 1; height: 8px; background: var(--ai-bg); border-radius: 4px; overflow: hidden; }
+.dist-bar { height: 100%; background: var(--ai-primary); border-radius: 4px; transition: width 0.3s ease; }
+.dist-count { font-size: 13px; font-weight: 600; color: var(--ai-primary); min-width: 50px; text-align: right; }
+
+.trend-chart { width: 100%; height: 220px; }
+
+.vital-signs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.vs-card { display: flex; align-items: center; gap: 12px; background: var(--ai-card); border: 1px solid var(--ai-border); border-radius: 10px; padding: 16px; }
+.vs-icon { font-size: 24px; }
+.vs-content { display: flex; flex-direction: column; gap: 2px; }
+.vs-value { font-size: 20px; font-weight: 700; color: #0f172a; }
+.vs-label { font-size: 12px; color: #64748b; }
+
+.ai-interpretation { background: var(--ai-primary-soft); border-radius: 12px; padding: 16px; }
+.interpretation-text { font-size: 14px; line-height: 1.8; color: #1e3a5f; margin: 0; white-space: pre-wrap; }
+
+.export-section { border-bottom: none !important; }
+.export-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+.chat-drawer-body { display: flex; flex-direction: column; height: 100%; padding: 16px; gap: 12px; }
+.chat-viewport { flex: 1; overflow-y: auto; padding: 16px; }
+.chat-list { display: flex; flex-direction: column; gap: 12px; }
+.message-box { display: flex; gap: 10px; align-items: flex-start; }
+.message-box.user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 32px; height: 32px; border-radius: 8px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ai-primary-soft); color: var(--ai-primary);
+}
+.msg-avatar.user { background: #f1f5f9; color: #475569; }
+.msg-bubble {
+  max-width: 80%; padding: 10px 14px; border-radius: 12px;
+  background: var(--ai-card); border: 1px solid var(--ai-border);
+  font-size: 14px; line-height: 1.7; color: #334155;
+}
+.message-box.user .msg-bubble { background: var(--ai-primary-soft); border-color: transparent; }
+.typing-indicator { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 13px; }
+.chat-input-area { padding: 16px; border-top: 1px solid var(--ai-border); display: flex; flex-direction: column; gap: 8px; }
+.context-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ai-primary); background: var(--ai-primary-soft);
+  padding: 4px 10px; border-radius: 999px;
+}
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+.send-btn { height: 76px; }
+.drawer-settings-content { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+
+@media (max-width: 1100px) {
+  .report-body { grid-template-columns: minmax(0, 1fr); }
+  .control-panel { border-right: none; border-bottom: 1px solid var(--ai-border); }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .vital-signs-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .vital-signs-grid { grid-template-columns: 1fr; }
+  .report-topbar { flex-direction: column; align-items: flex-start; }
 }
 
 .chat-flow-enter-active,
 .chat-flow-leave-active,
 .fade-enter-active,
-.fade-leave-active,
-.fade-bounce-enter-active,
-.fade-bounce-leave-active {
+.fade-leave-active {
   transition: all 0.25s ease;
 }
-
 .chat-flow-enter-from,
 .chat-flow-leave-to,
 .fade-enter-from,
-.fade-leave-to,
-.fade-bounce-enter-from,
-.fade-bounce-leave-to {
+.fade-leave-to {
   opacity: 0;
   transform: translateY(8px);
 }
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 1280px) {
-  .workbench-split-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .metrics-panel {
-    grid-template-rows: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .mode-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .metrics-panel,
-  .mode-row,
-  .insight-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .conversation-panel {
-    min-height: auto;
-  }
-
-  .conversation-header,
-  .dynamic-mascot-zone,
-  .preference-list li {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .pill-input-box {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.ai-focus-layout {
-  max-width: 1040px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.toolbar-focus-pad {
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.header-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.metrics-pill-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.metric-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: var(--ai-card);
-  border: 1px solid var(--ai-border);
-  border-radius: 999px;
-  font-size: 13px;
-  color: #475569;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.02);
-}
-
-.metric-pill.danger {
-  background: var(--ai-danger-soft);
-  color: #e11d48;
-  border-color: #fecdd3;
-}
-
-.metric-pill.success {
-  background: var(--ai-success-soft);
-  color: #059669;
-  border-color: #a7f3d0;
-}
-
-.conversation-panel {
-  padding: 24px;
-}
-
 </style>
-

@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="UeitDeviceInfoExtend" id="UeitDeviceInfoExtendResult">
         <result property="deviceId"    column="device_id"    />
+        <result property="userId"    column="user_id"    />
         <result property="lastCommunicationTime"    column="last_communication_time"    />
         <result property="batteryLevel"    column="battery_level"    />
         <result property="step"    column="step"    />
@@ -28,7 +29,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectUeitDeviceInfoExtendVo">
-        select device_id, last_communication_time, battery_level, step, alarm_content, alarm_time, temp, temp_time, heart_rate, heart_rate_time, blood_diastolic, blood_systolic, blood_time, spo2, spo2_time, longitude, latitude, location, type, positioning_time from qkyd_device_info_extend
+        select e.device_id, b.subject_id as user_id, e.last_communication_time, e.battery_level, e.step, e.alarm_content, e.alarm_time, e.temp, e.temp_time, e.heart_rate, e.heart_rate_time, e.blood_diastolic, e.blood_systolic, e.blood_time, e.spo2, e.spo2_time, e.longitude, e.latitude, e.location, e.type, e.positioning_time
+        from qkyd_device_info_extend e
+        left join health_device_binding b on e.device_id = b.device_id and b.status = '1'
     </sql>
 
     <select id="selectUeitDeviceInfoExtendList" parameterType="UeitDeviceInfoExtend" resultMap="UeitDeviceInfoExtendResult">
@@ -54,13 +57,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="positioningTime != null"> and positioning_time = #{positioningTime}</if>
         </where>
         order by
-            qkyd_device_info_extend.last_communication_time desc,
-            qkyd_device_info_extend.device_id desc
+            e.last_communication_time desc,
+            e.device_id desc
     </select>
 
     <select id="selectUeitDeviceInfoExtendByDeviceId" parameterType="Long" resultMap="UeitDeviceInfoExtendResult">
         <include refid="selectUeitDeviceInfoExtendVo"/>
-        where device_id = #{deviceId}
+        where e.device_id = #{deviceId}
     </select>
     <select id="realTimeData" resultType="com.qkyd.health.domain.dto.RealTimeData">
         SELECT u.user_id as userId,u.nick_name as nickName,u.sex,u.age,d.temp as temperatureValue,d.heart_rate as heartRateValue,d.spo2 as spo2Value,d.last_communication_time as readTime

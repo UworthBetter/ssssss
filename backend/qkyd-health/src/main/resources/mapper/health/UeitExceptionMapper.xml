@@ -25,12 +25,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <select id="selectUeitExceptionList" parameterType="UeitException" resultMap="UeitExceptionResult">
-        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone, qkyd_exception.*
-        FROM sys_user su
-        JOIN qkyd_exception ON su.user_id = qkyd_exception.user_id
+        SELECT su.age, su.nick_name as nickName, su.sex, su.phonenumber as phone,
+               b.subject_id as user_id,
+               qkyd_exception.id, qkyd_exception.device_id, qkyd_exception.type, qkyd_exception.value,
+               qkyd_exception.longitude, qkyd_exception.latitude, qkyd_exception.state,
+               qkyd_exception.create_time, qkyd_exception.update_by, qkyd_exception.update_time,
+               qkyd_exception.update_content, qkyd_exception.location
+        FROM qkyd_exception
+        JOIN sys_user su ON su.user_id = qkyd_exception.user_id
+        LEFT JOIN health_device_binding b ON b.device_id = qkyd_exception.device_id AND b.status = '1'
         <where>
-            <if test="userId != null "> and su.user_id = #{userId}</if>
-            <if test="phone != null  and phone != ''">AND su.phonenumber  like concat('%', #{phone}, '%')</if>
+            <if test="userId != null "> and b.subject_id = #{userId}</if>
+            <if test="phone != null  and phone != ''">AND su.phonenumber like concat('%', #{phone}, '%')</if>
             <if test="type != null  and type != ''">AND qkyd_exception.type = #{type}</if>
             <if test="state != null  and state != ''">AND qkyd_exception.state = #{state}</if>
             <if test="startCreateTime != null  and endCreateTime != null">AND qkyd_exception.create_time BETWEEN #{startCreateTime} AND #{endCreateTime}</if>

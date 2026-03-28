@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+﻿import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/store/user'
 
 export interface AppRouteMeta {
@@ -146,21 +146,20 @@ export const appChildrenRoutes: RouteRecordRaw[] = [
       navKey: '/device/maintenance'
     } satisfies AppRouteMeta
   },
+  // ── AI 中心 ──
   {
-    path: 'device/simulator',
-    name: 'DeviceSimulator',
-    component: () => import('@/views/device/DeviceSimulatorView.vue'),
+    path: 'ai/pipeline',
+    name: 'AiPipeline',
+    component: () => import('@/views/ai/AiPipelineView.vue'),
     meta: {
-      title: '仿真设备控制台',
-      icon: 'Tools',
-      group: 'device',
-      groupTitle: '设备中心',
-      groupIcon: 'Watch',
-      navKey: '/device/simulator',
-      adminOnly: true
+      title: 'AI 决策流水线',
+      icon: 'Operation',
+      group: 'ai',
+      groupTitle: 'AI 中心',
+      groupIcon: 'MagicStick',
+      navKey: '/ai/pipeline'
     } satisfies AppRouteMeta
   },
-  // ── AI 中心 ──
   {
     path: 'ai/workbench',
     name: 'AiCenter',
