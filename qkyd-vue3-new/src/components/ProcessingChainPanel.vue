@@ -168,7 +168,7 @@ import { Check, Loading, Clock } from '@element-plus/icons-vue'
 
 interface Stage {
   name: string
-  status: 'completed' | 'processing' | 'pending'
+  status: 'completed' | 'processing' | 'pending' | 'failed' | 'skipped'
   timestamp: string
   details: Record<string, any>
 }

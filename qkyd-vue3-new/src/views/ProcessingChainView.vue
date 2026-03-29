@@ -242,7 +242,7 @@ import { getEventInsight } from '@/api/ai'
 
 interface ChainStage {
   name: string
-  status: 'completed' | 'processing' | 'pending'
+  status: 'completed' | 'processing' | 'pending' | 'failed' | 'skipped'
   timestamp?: string
   details?: Record<string, any> | string
 }
@@ -284,6 +284,8 @@ const normalizeChainStatus = (status: unknown): ChainStage['status'] => {
   const normalized = String(status ?? '').trim().toLowerCase()
   if (['success', 'completed', 'done', 'resolved', 'finished'].includes(normalized)) return 'completed'
   if (['running', 'processing', 'in_progress', 'active'].includes(normalized)) return 'processing'
+  if (['failed', 'error'].includes(normalized)) return 'failed'
+  if (['skipped'].includes(normalized)) return 'skipped'
   return 'pending'
 }
 

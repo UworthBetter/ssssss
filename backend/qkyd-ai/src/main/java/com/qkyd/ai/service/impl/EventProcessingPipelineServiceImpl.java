@@ -2,25 +2,27 @@ package com.qkyd.ai.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qkyd.ai.agent.EventPipelineAgent;
+import com.qkyd.ai.agent.EventPipelineAgentContext;
+import com.qkyd.ai.agent.EventPipelineAgentResult;
+import com.qkyd.ai.agent.EventPipelineAgentTraceService;
 import com.qkyd.ai.mapper.EventInsightSnapshotMapper;
 import com.qkyd.ai.model.dto.EventInsightResultDTO;
 import com.qkyd.ai.model.entity.EventInsightSnapshotRecord;
-import com.qkyd.ai.service.IDispositionRuleEngine;
-import com.qkyd.ai.service.IEventInsightService;
 import com.qkyd.ai.service.IEventProcessingPipelineService;
 import com.qkyd.ai.service.IOperationAuditService;
-import com.qkyd.ai.service.IRiskScoreService;
-import com.qkyd.common.core.domain.AjaxResult;
 import com.qkyd.health.domain.UeitException;
 import com.qkyd.health.service.IUeitExceptionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,15 +32,6 @@ import java.util.Map;
 public class EventProcessingPipelineServiceImpl implements IEventProcessingPipelineService {
 
     private static final Logger log = LoggerFactory.getLogger(EventProcessingPipelineServiceImpl.class);
-
-    @Autowired
-    private IEventInsightService eventInsightService;
-
-    @Autowired
-    private IRiskScoreService riskScoreService;
-
-    @Autowired
-    private IDispositionRuleEngine dispositionRuleEngine;
 
     @Autowired
     private IOperationAuditService auditService;
@@ -55,6 +48,12 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
     @Autowired
     private IUeitExceptionService ueitExceptionService;
 
+    @Autowired(required = false)
+    private List<EventPipelineAgent> pipelineAgents = List.of();
+
+    @Autowired
+    private EventPipelineAgentTraceService agentTraceService;
+
     @Override
     @Transactional
     public void startPipeline(Long eventId, Map<String, Object> abnormalData) {
@@ -67,43 +66,21 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
         String abnormalType = stringValue(workingData.getOrDefault("abnormalType", "未知异常"));
         int priority = calculatePriority(workingData);
         Long pipelineId = ensurePipelineRecord(eventId, abnormalType, workingData, priority);
+        EventPipelineAgentContext agentContext =
+                new EventPipelineAgentContext(eventId, pipelineId, workingData, abnormalType, priority);
 
         try {
+            agentTraceService.resetPipelineTrace(pipelineId);
             updatePipelineStage(pipelineId, "DETECTED", priority, null, null, "IN_PROGRESS", null);
             auditService.logOperation(eventId, "DETECT", "异常事件进入处理流水线", abnormalType, priority, null);
 
-            if (priority < 30) {
-                updatePipelineStage(pipelineId, "COMPLETED", priority, "normal", null, "SUCCESS", "低优先级事件保留留痕，不触发处置");
-                auditService.logOperation(eventId, "SKIP", "低优先级事件，结束流水线", abnormalType, priority, null);
-                return;
-            }
-
-            EventInsightResultDTO insight = eventInsightService.buildInsight(eventId, false);
-            persistInsight(pipelineId, insight);
-            auditService.logOperation(eventId, "INSIGHT_BUILD", "AI 解析与上下文补全完成", abnormalType, priority, null);
-
-            Map<String, Object> riskData = new HashMap<>(workingData);
-            riskData.put("insight", insight);
-            AjaxResult riskResult = riskScoreService.assessRisk(riskData);
-            Map<String, Object> riskPayload = extractRiskPayload(riskResult, insight, priority);
-            int riskScore = intValue(riskPayload.get("riskScore"), intValue(riskPayload.get("risk_score"), priority));
-            String riskLevel = stringValue(
-                    riskPayload.containsKey("riskLevel") ? riskPayload.get("riskLevel") : riskPayload.get("risk_level"));
-
-            persistRisk(pipelineId, riskPayload);
-            auditService.logOperation(eventId, "RISK_ASSESS", "风险评估完成，等级=" + riskLevel, abnormalType, riskScore, null);
-
-            String disposition = dispositionRuleEngine.generateDisposition(abnormalType, riskScore);
-            String notificationLevel = dispositionRuleEngine.getNotificationLevel(abnormalType, riskScore);
-            boolean autoExecute = dispositionRuleEngine.shouldAutoExecute(abnormalType, riskScore);
-            persistDisposition(pipelineId, disposition, notificationLevel, autoExecute);
-            auditService.logOperation(eventId, "DISPOSITION", disposition, abnormalType, riskScore, disposition);
-
-            if (autoExecute) {
-                executeDisposition(pipelineId, disposition, notificationLevel);
-                auditService.logOperation(eventId, "EXECUTE", "自动执行处置动作", abnormalType, riskScore, disposition);
-            } else {
-                updatePipelineStage(pipelineId, "COMPLETED", riskScore, riskLevel, disposition, "PENDING", "待人工确认处置");
+            int sequence = 1;
+            for (EventPipelineAgent agent : sortedPipelineAgents()) {
+                EventPipelineAgentResult result = executeAgent(agentContext, agent, sequence++);
+                applyAgentResult(agentContext, agent, result);
+                if (agentContext.isStopped()) {
+                    break;
+                }
             }
         } catch (Exception e) {
             markFailed(pipelineId, e.getMessage());
@@ -135,11 +112,16 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
                     eventId
             );
             result.put("recentInsightSnapshots", snapshots);
-            result.put("agentTrace", List.of());
+
+            EventInsightResultDTO latestInsight = resolveLatestInsight(eventId);
+            List<Map<String, Object>> agentTrace = agentTraceService.listByEventId(eventId);
+            result.put("agentTrace", agentTrace.isEmpty() ? extractAgentTrace(latestInsight) : agentTrace);
             if (!snapshots.isEmpty()) {
                 result.put("insightSummary", stringValue(snapshots.get(0).get("summary")));
             }
-            result.put("stages", buildStages(result, auditTrail, snapshots, null));
+            result.put("stages", agentTrace.isEmpty()
+                    ? buildStages(result, auditTrail, snapshots, latestInsight)
+                    : buildStagesFromTrace(agentTrace));
             result.put("totalDuration", calculateDurationMinutes(result));
 
             return result;
@@ -259,7 +241,7 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
     private void persistInsight(Long pipelineId, EventInsightResultDTO insight) {
         Long snapshotId = null;
         if (insight != null && insight.getEventId() != null) {
-            var snapshot = eventInsightSnapshotMapper.selectLatestByEventId(insight.getEventId());
+            EventInsightSnapshotRecord snapshot = eventInsightSnapshotMapper.selectLatestByEventId(insight.getEventId());
             if (snapshot != null) {
                 snapshotId = snapshot.getId();
             }
@@ -269,25 +251,6 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
                         + "insight_snapshot_id = ?, updated_at = NOW() WHERE id = ?",
                 snapshotId,
                 pipelineId);
-    }
-
-    private Map<String, Object> extractRiskPayload(AjaxResult result, EventInsightResultDTO insight, int fallbackPriority) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        if (result != null && result.isSuccess() && result.get("data") instanceof Map<?, ?> data) {
-            data.forEach((key, value) -> payload.put(String.valueOf(key), value));
-        }
-
-        if (!payload.containsKey("riskScore") && !payload.containsKey("risk_score")) {
-            payload.put("riskScore", insight != null && insight.getRisk() != null && insight.getRisk().getRiskScore() != null
-                    ? insight.getRisk().getRiskScore()
-                    : fallbackPriority);
-        }
-        if (!payload.containsKey("riskLevel") && !payload.containsKey("risk_level")) {
-            payload.put("riskLevel", insight != null && insight.getRisk() != null
-                    ? insight.getRisk().getRiskLevel()
-                    : "warning");
-        }
-        return payload;
     }
 
     private void persistRisk(Long pipelineId, Map<String, Object> riskPayload) {
@@ -375,7 +338,7 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
                 )));
 
         stages.add(stageItem(
-                "AI解析与上下文补全",
+                "AI 解析与上下文补全",
                 resolveStageStatus(currentStage, "INSIGHT_BUILT"),
                 latestSnapshotTime(snapshots, pipeline.get("updated_at")),
                 snapshots.isEmpty()
@@ -451,6 +414,35 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
         return stages;
     }
 
+    private List<Map<String, Object>> buildStagesFromTrace(List<Map<String, Object>> agentTrace) {
+        if (agentTrace == null || agentTrace.isEmpty()) {
+            return List.of();
+        }
+
+        List<Map<String, Object>> stages = new ArrayList<>();
+        for (Map<String, Object> traceItem : agentTrace) {
+            Map<String, Object> details = new LinkedHashMap<>();
+            details.put("summary", stringValue(traceItem.get("summary")));
+            details.put("detail", stringValue(traceItem.get("detail")));
+            details.put("handoffTo", stringValue(traceItem.get("handoffTo")));
+            details.put("durationMs", traceItem.get("durationMs"));
+
+            Object payload = traceItem.get("details");
+            if (payload instanceof Map<?, ?> payloadMap) {
+                payloadMap.forEach((key, value) -> details.put(String.valueOf(key), value));
+            }
+
+            Object timestamp = traceItem.get("finishedAt") != null ? traceItem.get("finishedAt") : traceItem.get("startedAt");
+            stages.add(stageItem(
+                    stringValue(traceItem.get("agentName")),
+                    normalizeAgentStageStatus(stringValue(traceItem.get("status"))),
+                    timestamp,
+                    details
+            ));
+        }
+        return stages;
+    }
+
     private List<Map<String, Object>> extractAgentTrace(EventInsightResultDTO latestInsight) {
         if (latestInsight == null
                 || latestInsight.getTrace() == null
@@ -495,6 +487,12 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
         if (List.of("running", "processing", "in_progress", "active").contains(normalized)) {
             return "processing";
         }
+        if (List.of("failed", "error").contains(normalized)) {
+            return "failed";
+        }
+        if ("skipped".equals(normalized)) {
+            return "skipped";
+        }
         return "pending";
     }
 
@@ -514,8 +512,9 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
             Map<String, Object> result = new LinkedHashMap<>(rows.get(0));
             result.put("auditTrail", List.of());
             result.put("recentInsightSnapshots", List.of());
-            result.put("agentTrace", List.of());
-            result.put("stages", List.of());
+            List<Map<String, Object>> agentTrace = agentTraceService.listByEventId(eventId);
+            result.put("agentTrace", agentTrace);
+            result.put("stages", buildStagesFromTrace(agentTrace));
             result.put("totalDuration", calculateDurationMinutes(result));
             return result;
         } catch (Exception inner) {
@@ -558,7 +557,7 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
             return "completed";
         }
         if ("FAILED".equalsIgnoreCase(executionStatus) || "FAILED".equalsIgnoreCase(currentStage)) {
-            return "processing";
+            return "failed";
         }
         if ("PENDING".equalsIgnoreCase(executionStatus) && "DISPOSITION_SUGGESTED".equalsIgnoreCase(currentStage)) {
             return "processing";
@@ -631,5 +630,141 @@ public class EventProcessingPipelineServiceImpl implements IEventProcessingPipel
 
     private boolean isBlank(Object value) {
         return value == null || String.valueOf(value).trim().isEmpty();
+    }
+
+    private List<EventPipelineAgent> sortedPipelineAgents() {
+        return pipelineAgents.stream()
+                .sorted(Comparator.comparingInt(EventPipelineAgent::getOrder))
+                .toList();
+    }
+
+    private EventPipelineAgentResult executeAgent(EventPipelineAgentContext context,
+                                                  EventPipelineAgent agent,
+                                                  int sequence) {
+        Instant startedAt = Instant.now();
+        try {
+            EventPipelineAgentResult result = agent.execute(context);
+            agentTraceService.appendExecution(context, agent, result, sequence, startedAt, Instant.now());
+            return result;
+        } catch (Exception ex) {
+            EventPipelineAgentResult failed = EventPipelineAgentResult.failed(
+                    agent.getAgentName() + " 执行失败",
+                    ex.getMessage(),
+                    Map.of("error", ex.getClass().getSimpleName())
+            );
+            agentTraceService.appendExecution(context, agent, failed, sequence, startedAt, Instant.now());
+            throw ex;
+        }
+    }
+
+    private void applyAgentResult(EventPipelineAgentContext context,
+                                  EventPipelineAgent agent,
+                                  EventPipelineAgentResult result) {
+        String abnormalType = stringValue(context.getAbnormalType());
+        String operationType = agent.getAgentKey().toUpperCase();
+        int riskScore = context.getRiskScore() > 0 ? context.getRiskScore() : context.getPriority();
+
+        auditService.logOperation(
+                context.getEventId(),
+                operationType,
+                stringValue(result.getSummary()),
+                abnormalType,
+                riskScore,
+                context.getDisposition()
+        );
+
+        switch (agent.getAgentKey()) {
+            case "warning" -> {
+                if (context.isStopped()) {
+                    updatePipelineStage(
+                            context.getPipelineId(),
+                            "COMPLETED",
+                            context.getPriority(),
+                            "normal",
+                            null,
+                            "SUCCESS",
+                            context.getStopReason()
+                    );
+                    auditService.logOperation(
+                            context.getEventId(),
+                            "SKIP",
+                            context.getStopReason(),
+                            abnormalType,
+                            context.getPriority(),
+                            null
+                    );
+                }
+            }
+            case "assess" -> {
+                persistRisk(context.getPipelineId(), context.getRiskPayload());
+                auditService.logOperation(
+                        context.getEventId(),
+                        "RISK_ASSESS",
+                        stringValue(result.getSummary()),
+                        abnormalType,
+                        context.getRiskScore(),
+                        null
+                );
+            }
+            case "decision" -> {
+                persistInsight(context.getPipelineId(), context.getInsight());
+                auditService.logOperation(
+                        context.getEventId(),
+                        "INSIGHT_BUILD",
+                        stringValue(result.getSummary()),
+                        abnormalType,
+                        riskScore,
+                        null
+                );
+            }
+            case "execute" -> {
+                persistDisposition(
+                        context.getPipelineId(),
+                        context.getDisposition(),
+                        context.getNotificationLevel(),
+                        context.isAutoExecute()
+                );
+                auditService.logOperation(
+                        context.getEventId(),
+                        "DISPOSITION",
+                        context.getDisposition(),
+                        abnormalType,
+                        context.getRiskScore(),
+                        context.getDisposition()
+                );
+                if (context.isAutoExecute()) {
+                    executeDisposition(context.getPipelineId(), context.getDisposition(), context.getNotificationLevel());
+                    auditService.logOperation(
+                            context.getEventId(),
+                            "EXECUTE",
+                            "自动执行处置动作",
+                            abnormalType,
+                            context.getRiskScore(),
+                            context.getDisposition()
+                    );
+                } else {
+                    updatePipelineStage(
+                            context.getPipelineId(),
+                            "COMPLETED",
+                            context.getRiskScore(),
+                            context.getRiskLevel(),
+                            context.getDisposition(),
+                            "PENDING",
+                            "待人工确认处置"
+                    );
+                }
+            }
+            default -> {
+            }
+        }
+    }
+
+    private EventInsightResultDTO resolveLatestInsight(Long eventId) {
+        try {
+            EventInsightSnapshotRecord snapshot = eventInsightSnapshotMapper.selectLatestByEventId(eventId);
+            return parseInsight(snapshot);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }

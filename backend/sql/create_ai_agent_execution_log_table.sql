@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS ai_agent_execution_log (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  event_id BIGINT NOT NULL,
+  pipeline_id BIGINT NOT NULL,
+  sequence_no INT NOT NULL,
+  agent_key VARCHAR(64) NOT NULL,
+  agent_name VARCHAR(128) NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  summary VARCHAR(255) NULL,
+  detail_text TEXT NULL,
+  handoff_to VARCHAR(64) NULL,
+  input_payload LONGTEXT NULL,
+  output_payload LONGTEXT NULL,
+  started_at DATETIME NULL,
+  finished_at DATETIME NULL,
+  duration_ms BIGINT NULL,
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_ai_agent_execution_event (event_id),
+  KEY idx_ai_agent_execution_pipeline (pipeline_id),
+  KEY idx_ai_agent_execution_agent (agent_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='多 Agent 协同执行日志';

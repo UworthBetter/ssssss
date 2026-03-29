@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.qkyd.ai.config.PythonIntegrationConfig;
 import com.qkyd.ai.service.IAiService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -42,6 +43,7 @@ public class AiServiceImpl implements IAiService {
     private final ChatClient chatClient;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PythonIntegrationConfig pythonIntegrationConfig;
 
     @Value("${spring.ai.openai.api-key:}")
     private String apiKey;
@@ -62,8 +64,10 @@ public class AiServiceImpl implements IAiService {
     private String reportModel;
 
     @Autowired
-    public AiServiceImpl(ChatClient.Builder chatClientBuilder) {
+    public AiServiceImpl(ChatClient.Builder chatClientBuilder,
+                         PythonIntegrationConfig pythonIntegrationConfig) {
         this.chatClient = chatClientBuilder.build();
+        this.pythonIntegrationConfig = pythonIntegrationConfig;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(10000);
         requestFactory.setReadTimeout(60000);
@@ -107,7 +111,7 @@ public class AiServiceImpl implements IAiService {
     public String detectFall(com.qkyd.ai.domain.FallDetectionRequest request) {
         try {
             RestTemplate pythonRestTemplate = new RestTemplate();
-            String pythonServiceUrl = "http://localhost:8011/api/algorithms/detect_fall";
+            String pythonServiceUrl = pythonIntegrationConfig.getUrl() + "/api/algorithms/detect_fall";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

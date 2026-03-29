@@ -299,7 +299,7 @@ import ProcessingChainPanel from '@/components/ProcessingChainPanel.vue'
 import ProcessingChainProgress from '@/components/ProcessingChainProgress.vue'
 import { listExceptions } from '@/api/health'
 import { getProcessingChain } from '@/api/processingChain'
-import { generateMockProcessingChain, enrichExceptionWithChain } from '@/utils/mockProcessingChain'
+import { enrichExceptionWithChain } from '@/utils/mockProcessingChain'
 
 const router = useRouter()
 const searchPresentation = getPlatformSearchPresentation('event')
@@ -406,10 +406,10 @@ const handleRowClick = async (row: any) => {
     if (res.data && res.data.stages) {
       processingChain.value = res.data
     } else {
-      processingChain.value = generateMockProcessingChain(row.id)
+      processingChain.value = null
     }
   } catch {
-    processingChain.value = generateMockProcessingChain(row.id)
+    processingChain.value = null
   }
 }
 

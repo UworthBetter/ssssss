@@ -15,7 +15,7 @@ import { computed } from 'vue'
 
 interface Stage {
   name: string
-  status: 'completed' | 'processing' | 'pending'
+  status: 'completed' | 'processing' | 'pending' | 'failed' | 'skipped'
 }
 
 const props = defineProps<{

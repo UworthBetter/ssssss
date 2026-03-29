@@ -146,13 +146,27 @@ export const appChildrenRoutes: RouteRecordRaw[] = [
       navKey: '/device/maintenance'
     } satisfies AppRouteMeta
   },
+  {
+    path: 'device/simulator',
+    name: 'DeviceSimulator',
+    component: () => import('@/views/device/DeviceSimulatorView.vue'),
+    meta: {
+      title: '仿真设备控制台',
+      icon: 'Tools',
+      group: 'device',
+      groupTitle: '设备中心',
+      groupIcon: 'Watch',
+      navKey: '/device/simulator',
+      adminOnly: true
+    } satisfies AppRouteMeta
+  },
   // ── AI 中心 ──
   {
     path: 'ai/pipeline',
     name: 'AiPipeline',
     component: () => import('@/views/ai/AiPipelineView.vue'),
     meta: {
-      title: 'AI 决策流水线',
+      title: '多Agent协同中心',
       icon: 'Operation',
       group: 'ai',
       groupTitle: 'AI 中心',
